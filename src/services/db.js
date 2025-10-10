@@ -14,6 +14,9 @@ import {
   addDoc
 } from 'firebase/firestore'
 import { db } from './config'
+import { User } from '../models/User'
+import { Product } from '../models/Product'
+import { Order } from '../models/Order'
 
 // ==================== GENERIC CRUD OPERATIONS ====================
 
@@ -176,14 +179,19 @@ export const queryDocuments = async (collectionName, conditions = [], orderByFie
  * Create user document
  */
 export const createUserDocument = async (userId, userData) => {
-  return await createDocument('users', userData, userId)
+  const user = new User({ ...userData, id: userId })
+  return await createDocument('users', user.toFirestore(), userId)
 }
 
 /**
  * Get user document
  */
 export const getUserDocument = async (userId) => {
-  return await getDocument('users', userId)
+  const result = await getDocument('users', userId)
+  if (result.success) {
+    result.data = new User(result.data)
+  }
+  return result
 }
 
 /**
@@ -197,7 +205,11 @@ export const updateUserDocument = async (userId, userData) => {
  * Get all users
  */
 export const getAllUsers = async () => {
-  return await getAllDocuments('users')
+  const result = await getAllDocuments('users')
+  if (result.success) {
+    result.data = result.data.map(data => new User(data))
+  }
+  return result
 }
 
 // ==================== PRODUCT OPERATIONS ====================
@@ -206,21 +218,36 @@ export const getAllUsers = async () => {
  * Create product
  */
 export const createProduct = async (productData) => {
-  return await createDocument('products', productData)
+  const product = new Product(productData)
+  const validation = product.validate()
+  
+  if (!validation.isValid) {
+    return { success: false, error: validation.errors.join(', ') }
+  }
+  
+  return await createDocument('products', product.toFirestore())
 }
 
 /**
  * Get product
  */
 export const getProduct = async (productId) => {
-  return await getDocument('products', productId)
+  const result = await getDocument('products', productId)
+  if (result.success) {
+    result.data = new Product(result.data)
+  }
+  return result
 }
 
 /**
  * Get all products
  */
 export const getAllProducts = async () => {
-  return await getAllDocuments('products')
+  const result = await getAllDocuments('products')
+  if (result.success) {
+    result.data = result.data.map(data => new Product(data))
+  }
+  return result
 }
 
 /**
@@ -241,7 +268,11 @@ export const deleteProduct = async (productId) => {
  * Get products by category
  */
 export const getProductsByCategory = async (category) => {
-  return await queryDocuments('products', [['category', '==', category]])
+  const result = await queryDocuments('products', [['category', '==', category]])
+  if (result.success) {
+    result.data = result.data.map(data => new Product(data))
+  }
+  return result
 }
 
 // ==================== ORDER OPERATIONS ====================
@@ -250,28 +281,47 @@ export const getProductsByCategory = async (category) => {
  * Create order
  */
 export const createOrder = async (orderData) => {
-  return await createDocument('orders', orderData)
+  const order = new Order(orderData)
+  const validation = order.validate()
+  
+  if (!validation.isValid) {
+    return { success: false, error: validation.errors.join(', ') }
+  }
+  
+  return await createDocument('orders', order.toFirestore())
 }
 
 /**
  * Get order
  */
 export const getOrder = async (orderId) => {
-  return await getDocument('orders', orderId)
+  const result = await getDocument('orders', orderId)
+  if (result.success) {
+    result.data = new Order(result.data)
+  }
+  return result
 }
 
 /**
  * Get all orders
  */
 export const getAllOrders = async () => {
-  return await getAllDocuments('orders')
+  const result = await getAllDocuments('orders')
+  if (result.success) {
+    result.data = result.data.map(data => new Order(data))
+  }
+  return result
 }
 
 /**
  * Get user orders
  */
 export const getUserOrders = async (userId) => {
-  return await queryDocuments('orders', [['userId', '==', userId]], 'createdAt')
+  const result = await queryDocuments('orders', [['userId', '==', userId]], 'createdAt')
+  if (result.success) {
+    result.data = result.data.map(data => new Order(data))
+  }
+  return result
 }
 
 /**
