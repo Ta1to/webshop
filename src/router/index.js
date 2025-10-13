@@ -19,6 +19,48 @@ const routes = [
         path: '/register',
         name: 'Register',
         component: RegisterView
+    },
+    // Placeholder routes for navigation links
+    // These can be replaced with real views later
+    {
+        path: '/products',
+        name: 'Products',
+        component: () => import('../views/PlaceholderView.vue'),
+    },
+    {
+        path: '/cart',
+        name: 'Cart',
+        component: () => import('../views/PlaceholderView.vue'),
+    },
+    {
+        path: '/profile',
+        name: 'Profile',
+        component: () => import('../views/PlaceholderView.vue'),
+    },
+    {
+        path: '/orders',
+        name: 'Orders',
+        component: () => import('../views/PlaceholderView.vue'),
+    },
+    {
+        path: '/contact',
+        name: 'Contact',
+        component: () => import('../views/PlaceholderView.vue')
+    },
+    {
+        path: '/privacy',
+        name: 'Privacy',
+        component: () => import('../views/PlaceholderView.vue')
+    },
+    {
+        path: '/terms',
+        name: 'Terms',
+        component: () => import('../views/PlaceholderView.vue')
+    },
+    {
+        path: '/imprint',
+        name: 'Imprint',
+        component: () => import('../views/PlaceholderView.vue')
     }
 ]
 
