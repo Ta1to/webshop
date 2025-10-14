@@ -57,7 +57,7 @@
               <td>79,00 EUR</td>
             </tr>
             <tr>
-              <td>Oesterreich</td>
+              <td>Österreich</td>
               <td>7,90 EUR</td>
               <td>19,90 EUR</td>
               <td>129,00 EUR</td>
