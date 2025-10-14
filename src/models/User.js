@@ -8,6 +8,7 @@ export class User {
     this.displayName = data.displayName || ''
     this.photoURL = data.photoURL || ''
     this.role = data.role || 'user'
+    this.newsletter = data.newsletter ?? false
     this.createdAt = data.createdAt || null
     this.updatedAt = data.updatedAt || null
   }
@@ -32,6 +33,7 @@ export class User {
       displayName: this.displayName,
       photoURL: this.photoURL,
       role: this.role,
+      newsletter: this.newsletter,
       updatedAt: this.updatedAt
     }
   }
