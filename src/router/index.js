@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import LoginView from '../views/LoginView.vue'
 import RegisterView from '../views/RegisterView.vue'
+import ProfileView from '../views/ProfileView.vue'
 import { getCurrentUser } from '../services/auth'
 
 const routes = [
@@ -28,6 +29,21 @@ const routes = [
         component: () => import('../views/PlaceholderView.vue'),
     },
     {
+        path: '/categories',
+        name: 'Categories',
+        component: () => import('../views/PlaceholderView.vue'),
+    },
+    {
+        path: '/deals',
+        name: 'Deals',
+        component: () => import('../views/PlaceholderView.vue'),
+    },
+    {
+        path: '/new-arrivals',
+        name: 'NewArrivals',
+        component: () => import('../views/PlaceholderView.vue'),
+    },
+    {
         path: '/cart',
         name: 'Cart',
         component: () => import('../views/PlaceholderView.vue'),
@@ -35,7 +51,8 @@ const routes = [
     {
         path: '/profile',
         name: 'Profile',
-        component: () => import('../views/PlaceholderView.vue'),
+        component: ProfileView,
+        meta: { requiresAuth: true }
     },
     {
         path: '/orders',
@@ -43,8 +60,33 @@ const routes = [
         component: () => import('../views/PlaceholderView.vue'),
     },
     {
+        path: '/wishlist',
+        name: 'Wishlist',
+        component: () => import('../views/PlaceholderView.vue'),
+    },
+    {
         path: '/contact',
         name: 'Contact',
+        component: () => import('../views/PlaceholderView.vue')
+    },
+    {
+        path: '/faq',
+        name: 'FAQ',
+        component: () => import('../views/PlaceholderView.vue')
+    },
+    {
+        path: '/shipping',
+        name: 'Shipping',
+        component: () => import('../views/PlaceholderView.vue')
+    },
+    {
+        path: '/returns',
+        name: 'Returns',
+        component: () => import('../views/PlaceholderView.vue')
+    },
+    {
+        path: '/size-guide',
+        name: 'SizeGuide',
         component: () => import('../views/PlaceholderView.vue')
     },
     {
@@ -60,6 +102,16 @@ const routes = [
     {
         path: '/imprint',
         name: 'Imprint',
+        component: () => import('../views/PlaceholderView.vue')
+    },
+    {
+        path: '/sitemap',
+        name: 'Sitemap',
+        component: () => import('../views/PlaceholderView.vue')
+    },
+    {
+        path: '/cookies',
+        name: 'Cookies',
         component: () => import('../views/PlaceholderView.vue')
     }
 ]
