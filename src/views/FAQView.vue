@@ -11,7 +11,7 @@
 
     <div class="faq-layout">
       <aside class="faq-sidebar">
-        <h2>Uebersicht</h2>
+        <h2>Übersicht</h2>
         <ul>
           <li v-for="category in categories" :key="category.id">
             <button
