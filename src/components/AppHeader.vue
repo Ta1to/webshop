@@ -100,12 +100,24 @@
         </router-link>
         
         <router-link 
-          to="/products" 
+          to="/categories" 
           class="nav-tab"
           @click="closeMobileMenu"
         >
-          <ShoppingBag class="nav-icon" :size="18" />
-          Alle Produkte
+          <LayoutGrid class="nav-icon" :size="18" />
+          Alle Kategorien
+        </router-link>
+
+        <!-- Individual Categories -->
+        <router-link 
+          v-for="category in categories" 
+          :key="category.id"
+          :to="`/category/${category.slug}`" 
+          class="nav-tab"
+          @click="closeMobileMenu"
+        >
+          <component :is="getIcon(category.icon)" class="nav-icon" :size="18" />
+          {{ category.name }}
         </router-link>
       </div>
     </nav>
@@ -115,7 +127,8 @@
 <script>
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { Home, ShoppingBag, ShoppingCart, User, Package, LogOut, Search } from 'lucide-vue-next'
+import { Home, ShoppingBag, ShoppingCart, User, Package, LogOut, Search, LayoutGrid, Laptop, Shirt, BookOpen, Dumbbell } from 'lucide-vue-next'
+import { categories } from '../data/Categories'
 
 export default {
   name: 'AppHeader',
@@ -126,7 +139,12 @@ export default {
     User,
     Package,
     LogOut,
-    Search
+    Search,
+    LayoutGrid,
+    Laptop,
+    Shirt,
+    BookOpen,
+    Dumbbell
   },
   props: {
     currentUser: {
@@ -149,6 +167,17 @@ export default {
       return props.currentUser.displayName || props.currentUser.email?.split('@')[0] || 'Konto'
     })
 
+    const getIcon = (iconName) => {
+      const icons = {
+        'Laptop': Laptop,
+        'Shirt': Shirt,
+        'BookOpen': BookOpen,
+        'Dumbbell': Dumbbell,
+        'Home': Home
+      }
+      return icons[iconName] || Home
+    }
+
     const toggleMobileMenu = () => {
       isMobileMenuOpen.value = !isMobileMenuOpen.value
     }
@@ -167,9 +196,11 @@ export default {
     }
 
     return {
+      categories,
       isMobileMenuOpen,
       searchQuery,
       getUserDisplayName,
+      getIcon,
       toggleMobileMenu,
       closeMobileMenu,
       handleLogout,

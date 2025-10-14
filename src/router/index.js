@@ -3,6 +3,9 @@ import HomeView from '../views/HomeView.vue'
 import LoginView from '../views/LoginView.vue'
 import RegisterView from '../views/RegisterView.vue'
 import ProfileView from '../views/ProfileView.vue'
+import CategoriesView from '../views/CategoriesView.vue'
+import CategoryView from '../views/CategoryView.vue'
+import ProductView from '../views/ProductView.vue'
 import { getCurrentUser } from '../services/auth'
 
 const routes = [
@@ -21,16 +24,26 @@ const routes = [
         name: 'Register',
         component: RegisterView
     },
+    {
+        path: '/categories',
+        name: 'Categories',
+        component: CategoriesView
+    },
+    {
+        path: '/category/:slug',
+        name: 'Category',
+        component: CategoryView
+    },
+    {
+        path: '/product/:id',
+        name: 'Product',
+        component: ProductView
+    },
     // Placeholder routes for navigation links
     // These can be replaced with real views later
     {
         path: '/products',
         name: 'Products',
-        component: () => import('../views/PlaceholderView.vue'),
-    },
-    {
-        path: '/categories',
-        name: 'Categories',
         component: () => import('../views/PlaceholderView.vue'),
     },
     {
