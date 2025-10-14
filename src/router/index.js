@@ -8,6 +8,11 @@ import CategoryView from '../views/CategoryView.vue'
 import ProductView from '../views/ProductView.vue'
 import AdminView from '../views/AdminView.vue'
 import { getCurrentUser } from '../services/auth'
+import ContactView from '../views/ContactView.vue'
+import FAQView from '../views/FAQView.vue'
+import ShippingView from '../views/ShippingView.vue'
+import ReturnsView from '../views/ReturnsView.vue'
+import SizeGuideView from '../views/SizeGuideView.vue'
 import { getUserDocument } from '../services/db'
 
 const routes = [
@@ -88,27 +93,27 @@ const routes = [
     {
         path: '/contact',
         name: 'Contact',
-        component: () => import('../views/PlaceholderView.vue')
+        component: ContactView
     },
     {
         path: '/faq',
         name: 'FAQ',
-        component: () => import('../views/PlaceholderView.vue')
+        component: FAQView
     },
     {
         path: '/shipping',
         name: 'Shipping',
-        component: () => import('../views/PlaceholderView.vue')
+        component: ShippingView
     },
     {
         path: '/returns',
         name: 'Returns',
-        component: () => import('../views/PlaceholderView.vue')
+        component: ReturnsView
     },
     {
         path: '/size-guide',
         name: 'SizeGuide',
-        component: () => import('../views/PlaceholderView.vue')
+        component: SizeGuideView
     },
     {
         path: '/privacy',

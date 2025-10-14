@@ -27,7 +27,8 @@ export const registerUser = async (email, password, displayName) => {
       email: email,
       displayName: displayName || '',
       photoURL: userCredential.user.photoURL || '',
-      role: 'user' // Default role
+      role: 'user', // Default role
+      newsletter: false
     })
     
     return { success: true, user: userCredential.user }

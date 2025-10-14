@@ -31,7 +31,7 @@
         </div>
 
         <!-- Quick Links -->
-        <div class="footer-section">
+        <div class="footer-section footer-links-column">
           <h3 class="section-title">Schnelllinks</h3>
           <ul class="footer-links">
             <li><router-link to="/" class="footer-link">Home</router-link></li>
@@ -43,7 +43,7 @@
         </div>
 
         <!-- Customer Service -->
-        <div class="footer-section">
+  <div class="footer-section footer-links-column">
           <h3 class="section-title">Kundenservice</h3>
           <ul class="footer-links">
             <li><router-link to="/contact" class="footer-link">Kontakt</router-link></li>
@@ -52,6 +52,21 @@
             <li><router-link to="/returns" class="footer-link">Rückgabe & Umtausch</router-link></li>
             <li><router-link to="/size-guide" class="footer-link">Größentabelle</router-link></li>
           </ul>
+        </div>
+
+        <div class="footer-newsletter">
+          <div class="newsletter-cta">
+            <button
+              type="button"
+              class="newsletter-button"
+              :disabled="newsletterLoading"
+              @click="handleNewsletterClick"
+            >
+              <BellRing :size="18" />
+              <span>{{ newsletterLabel }}</span>
+            </button>
+            <p class="newsletter-message">{{ newsletterDescription }}</p>
+          </div>
         </div>
 
         <!-- Legal & Account -->
@@ -122,7 +137,8 @@
 </template>
 
 <script>
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { 
   Facebook, 
   Instagram, 
@@ -131,7 +147,8 @@ import {
   Mail, 
   Phone, 
   MapPin, 
-  ArrowUp 
+  ArrowUp,
+  BellRing
 } from 'lucide-vue-next'
 
 export default {
@@ -144,10 +161,38 @@ export default {
     Mail,
     Phone,
     MapPin,
-    ArrowUp
+    ArrowUp,
+    BellRing
   },
-  setup() {
+  props: {
+    user: {
+      type: Object,
+      default: null
+    },
+    newsletterLoading: {
+      type: Boolean,
+      default: false
+    }
+  },
+  emits: ['newsletter-toggle'],
+  setup(props, { emit }) {
+    const router = useRouter()
     const currentYear = computed(() => new Date().getFullYear())
+
+    const newsletterSubscribed = computed(() => props.user?.newsletter === true)
+
+    const newsletterLabel = computed(() =>
+      newsletterSubscribed.value ? 'Newsletter abbestellen' : 'Newsletter abonnieren'
+    )
+
+    const newsletterDescription = computed(() => {
+      if (!props.user) {
+        return 'Melden Sie sich an, um Neuigkeiten und Rabatte per E-Mail zu erhalten.'
+      }
+      return newsletterSubscribed.value
+        ? 'Vielen Dank, Sie erhalten bereits unseren Newsletter.'
+        : 'Erhalten Sie Produktneuigkeiten und Angebote direkt in Ihr Postfach.'
+    })
 
     const scrollToTop = () => {
       window.scrollTo({
@@ -156,9 +201,35 @@ export default {
       })
     }
 
+    const handleNewsletterClick = () => {
+      if (props.newsletterLoading) {
+        return
+      }
+
+      if (!props.user) {
+        router.push('/register')
+        return
+      }
+
+      const nextValue = !newsletterSubscribed.value
+      const confirmationMessage = nextValue
+        ? 'Möchten Sie unseren Newsletter abonnieren und regelmäßig Neuigkeiten erhalten?'
+        : 'Möchten Sie den Newsletter wirklich abbestellen?'
+
+      if (!window.confirm(confirmationMessage)) {
+        return
+      }
+
+      emit('newsletter-toggle', nextValue)
+    }
+
     return {
       currentYear,
-      scrollToTop
+      scrollToTop,
+      newsletterSubscribed,
+      newsletterLabel,
+      newsletterDescription,
+      handleNewsletterClick
     }
   }
 }
@@ -181,19 +252,27 @@ export default {
 }
 
 /* Main Footer Content */
+
 .footer-content {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr 1.5fr;
-  gap: 3rem;
+  grid-template-columns: 2fr repeat(4, 1fr);
+  column-gap: 3rem;
+  row-gap: 1rem;
   padding: 3rem 2rem 2rem;
   max-width: 1280px;
   margin: 0 auto;
+  align-items: start;
+  grid-auto-rows: auto;
 }
 
 .footer-section {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+}
+
+.footer-links-column {
+  min-height: 100%;
 }
 
 /* Company Info */
@@ -223,6 +302,65 @@ export default {
   color: var(--gray-700);
   line-height: 1.6;
   font-size: 0.95rem;
+}
+
+.newsletter-cta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.newsletter-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 999px;
+  background-color: var(--primary-green);
+  color: var(--white);
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+  box-shadow: 0 8px 15px rgba(16, 185, 129, 0.25);
+}
+
+.newsletter-button:not(:disabled):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 20px rgba(16, 185, 129, 0.3);
+}
+
+.newsletter-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+  box-shadow: none;
+}
+
+.newsletter-message {
+  margin: 0;
+  color: var(--gray-600);
+  font-size: 0.92rem;
+  max-width: 320px;
+}
+
+.footer-newsletter {
+  grid-column: 2 / span 2;
+  grid-row: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  justify-content: flex-start;
+  margin-top: -1rem;
+}
+
+.footer-newsletter .newsletter-cta {
+  margin: 0;
+}
+
+@media (max-width: 1024px) {
+  .footer-newsletter {
+    grid-column: 1 / -1;
+  }
 }
 
 .social-links {
@@ -403,6 +541,11 @@ export default {
   }
 
   .contact-info {
+
+  .footer-newsletter {
+    grid-column: 1 / -1;
+    grid-row: auto;
+  }
     grid-column: 1 / -1;
   }
 
