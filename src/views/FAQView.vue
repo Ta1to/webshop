@@ -2,7 +2,7 @@
   <div class="faq-page">
     <section class="page-header">
       <p class="eyebrow">Kundenservice</p>
-      <h1>Hauefige Fragen</h1>
+      <h1>Häufige Fragen</h1>
       <p class="intro">
         In unseren FAQ finden Sie kompakte Antworten auf die wichtigsten Fragen rund um Bestellung,
         Versand, Zahlung und Rücksendung. Falls etwas offen bleibt, kontaktieren Sie gern den Support.
