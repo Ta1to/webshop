@@ -28,7 +28,8 @@ export default {
     AppFooter
   },
   setup() {
-    const currentUser = ref(null)
+  const currentUser = ref(null)
+  const cartItemCount = ref(0)
     const router = useRouter()
 
     onMounted(() => {
@@ -49,6 +50,7 @@ export default {
 
     return {
       currentUser,
+      cartItemCount,
       handleLogout
     }
   }

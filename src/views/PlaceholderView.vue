@@ -35,13 +35,23 @@ export default {
     const pageTitle = computed(() => {
       const titles = {
         '/products': 'Produkte',
+        '/categories': 'Kategorien',
+        '/deals': 'Angebote',
+        '/new-arrivals': 'Neuheiten',
         '/cart': 'Warenkorb',
         '/profile': 'Mein Profil',
         '/orders': 'Meine Bestellungen',
+        '/wishlist': 'Wunschliste',
         '/contact': 'Kontakt',
+        '/faq': 'Häufige Fragen',
+        '/shipping': 'Versandinformationen',
+        '/returns': 'Rückgabe & Umtausch',
+        '/size-guide': 'Größentabelle',
         '/privacy': 'Datenschutz',
         '/terms': 'Allgemeine Geschäftsbedingungen',
-        '/imprint': 'Impressum'
+        '/imprint': 'Impressum',
+        '/sitemap': 'Sitemap',
+        '/cookies': 'Cookie-Einstellungen'
       }
       
       return titles[route.path] || 'Seite in Entwicklung'
