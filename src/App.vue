@@ -3,6 +3,7 @@
     <AppHeader 
       :current-user="currentUser"
       :cart-item-count="cartItemCount"
+      :is-admin="isAdmin"
       @logout="handleLogout"
     />
     
@@ -37,6 +38,7 @@ export default {
     const cartItemCount = ref(0)
     const userProfile = ref(null)
     const newsletterLoading = ref(false)
+    const isAdmin = ref(false)
     const router = useRouter()
 
     const loadUserProfile = async (uid) => {
@@ -61,6 +63,7 @@ export default {
         }
       }
 
+      // ← DAS stand vorher versehentlich in checkAdminStatus
       userProfile.value = {
         id: uid,
         email: currentUser.value?.email || '',
@@ -69,12 +72,31 @@ export default {
       }
     }
 
+    const checkAdminStatus = async (user) => {
+      if (!user) {
+        isAdmin.value = false
+        return
+      }
+
+      try {
+        const userDoc = await getUserDocument(user.uid)
+        if (userDoc.success && userDoc.data) {
+          isAdmin.value = userDoc.data.isAdmin()
+        }
+      } catch (error) {
+        console.error('Error checking admin status:', error)
+        isAdmin.value = false
+      }
+    }
+
     onMounted(() => {
       observeAuthState(async (user) => {
         currentUser.value = user
         if (user) {
+          await checkAdminStatus(user)
           await loadUserProfile(user.uid)
         } else {
+          isAdmin.value = false
           userProfile.value = null
           newsletterLoading.value = false
         }
@@ -86,6 +108,7 @@ export default {
       if (result.success) {
         currentUser.value = null
         cartItemCount.value = 0
+        isAdmin.value = false
         userProfile.value = null
         newsletterLoading.value = false
         router.push('/login')
@@ -119,6 +142,7 @@ export default {
       cartItemCount,
       userProfile,
       newsletterLoading,
+      isAdmin,
       handleLogout,
       handleNewsletterToggle
     }
@@ -126,25 +150,3 @@ export default {
 }
 </script>
 
-<style>
-#app {
-  min-height: 100vh;
-  background-color: var(--gray-50);
-  display: flex;
-  flex-direction: column;
-}
-
-.main-content {
-  flex: 1;
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  width: 100%;
-}
-
-@media (max-width: 768px) {
-  .main-content {
-    padding: 1rem;
-  }
-}
-</style>

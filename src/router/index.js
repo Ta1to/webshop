@@ -6,12 +6,14 @@ import ProfileView from '../views/ProfileView.vue'
 import CategoriesView from '../views/CategoriesView.vue'
 import CategoryView from '../views/CategoryView.vue'
 import ProductView from '../views/ProductView.vue'
+import AdminView from '../views/AdminView.vue'
 import { getCurrentUser } from '../services/auth'
 import ContactView from '../views/ContactView.vue'
 import FAQView from '../views/FAQView.vue'
 import ShippingView from '../views/ShippingView.vue'
 import ReturnsView from '../views/ReturnsView.vue'
 import SizeGuideView from '../views/SizeGuideView.vue'
+import { getUserDocument } from '../services/db'
 
 const routes = [
     {
@@ -71,6 +73,12 @@ const routes = [
         name: 'Profile',
         component: ProfileView,
         meta: { requiresAuth: true }
+    },
+    {
+        path: '/admin',
+        name: 'Admin',
+        component: AdminView,
+        meta: { requiresAuth: true, requiresAdmin: true }
     },
     {
         path: '/orders',
@@ -140,14 +148,29 @@ const router = createRouter({
 })
 
 // Navigation guard for protected routes
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
     const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
+    const requiresAdmin = to.matched.some(record => record.meta.requiresAdmin)
     const currentUser = getCurrentUser()
 
     if (requiresAuth && !currentUser) {
         next('/login')
     } else if ((to.path === '/login' || to.path === '/register') && currentUser) {
         next('/')
+    } else if (requiresAdmin) {
+        // Check if user has admin role
+        try {
+            const userDoc = await getUserDocument(currentUser.uid)
+            if (userDoc.success && userDoc.data.isAdmin()) {
+                next()
+            } else {
+                // Not an admin, redirect to home
+                next('/')
+            }
+        } catch (error) {
+            console.error('Error checking admin status:', error)
+            next('/')
+        }
     } else {
         next()
     }
