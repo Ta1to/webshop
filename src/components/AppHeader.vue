@@ -1,13 +1,28 @@
 <template>
-  <!-- Modular header component with full width and responsive design -->
+  <!-- Modern header with top bar and navigation tabs -->
   <header class="app-header">
-    <nav class="navbar">
-      <div class="nav-container">
+    <!-- Top Bar -->
+    <div class="top-bar">
+      <div class="top-bar-container">
         <!-- Brand/Logo -->
         <div class="nav-brand">
           <router-link to="/" class="brand-link">
             <span class="brand-text">evaris</span>
           </router-link>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="search-container">
+          <div class="search-bar">
+            <Search class="search-icon" :size="20" />
+            <input 
+              type="text" 
+              v-model="searchQuery"
+              @input="handleSearch"
+              placeholder="Produkte suchen..."
+              class="search-input"
+            />
+          </div>
         </div>
 
         <!-- Mobile Menu Toggle -->
@@ -22,69 +37,76 @@
           <span class="hamburger-line"></span>
         </button>
 
-        <!-- Navigation Links -->
-        <div class="nav-links" :class="{ active: isMobileMenuOpen }">
-          <router-link 
-            to="/" 
-            class="nav-link"
-            @click="closeMobileMenu"
-          >
-            <Home class="nav-icon" :size="18" />
-            Home
-          </router-link>
-          
-          <router-link 
-            to="/products" 
-            class="nav-link"
-            @click="closeMobileMenu"
-          >
-            <ShoppingBag class="nav-icon" :size="18" />
-            Produkte
-          </router-link>
-          
+        <!-- Right Side Actions -->
+        <div class="top-actions" :class="{ active: isMobileMenuOpen }">
+          <!-- Cart Icon -->
           <router-link 
             to="/cart" 
-            class="nav-link cart-link"
+            class="cart-link"
             @click="closeMobileMenu"
           >
-            <ShoppingCart class="nav-icon" :size="18" />
-            Warenkorb
+            <ShoppingCart class="cart-icon" :size="28" />
             <span v-if="cartItemCount > 0" class="cart-badge">{{ cartItemCount }}</span>
           </router-link>
-        </div>
 
-        <!-- User Actions -->
-        <div class="user-actions" :class="{ active: isMobileMenuOpen }">
-          <div v-if="currentUser" class="user-menu">
+          <!-- User Profile -->
+          <div class="user-menu">
             <div class="user-info">
-              <User class="user-avatar" :size="20" />
-              <span class="user-name">{{ getUserDisplayName }}</span>
+              <User class="user-avatar" :size="28" />
+              <div class="user-text">
+                <span class="user-greeting">Hallo</span>
+                <span class="user-name">{{ getUserDisplayName }}</span>
+              </div>
             </div>
             <div class="user-dropdown">
-              <router-link to="/profile" class="dropdown-item" @click="closeMobileMenu">
-                <User class="dropdown-icon" :size="16" />
-                Profil
-              </router-link>
-              <router-link to="/orders" class="dropdown-item" @click="closeMobileMenu">
-                <Package class="dropdown-icon" :size="16" />
-                Bestellungen
-              </router-link>
-              <button @click="handleLogout" class="dropdown-item logout-item">
-                <LogOut class="dropdown-icon" :size="16" />
-                Abmelden
-              </button>
+              <template v-if="currentUser">
+                <router-link to="/profile" class="dropdown-item" @click="closeMobileMenu">
+                  <User class="dropdown-icon" :size="16" />
+                  Profil
+                </router-link>
+                <router-link to="/orders" class="dropdown-item" @click="closeMobileMenu">
+                  <Package class="dropdown-icon" :size="16" />
+                  Bestellungen
+                </router-link>
+                <button @click="handleLogout" class="dropdown-item logout-item">
+                  <LogOut class="dropdown-icon" :size="16" />
+                  Abmelden
+                </button>
+              </template>
+              <template v-else>
+                <router-link to="/login" class="dropdown-item" @click="closeMobileMenu">
+                  Anmelden
+                </router-link>
+                <router-link to="/register" class="dropdown-item" @click="closeMobileMenu">
+                  Registrieren
+                </router-link>
+              </template>
             </div>
           </div>
-          
-          <div v-else class="auth-buttons">
-            <router-link to="/login" class="auth-button login-btn" @click="closeMobileMenu">
-              Anmelden
-            </router-link>
-            <router-link to="/register" class="auth-button register-btn" @click="closeMobileMenu">
-              Registrieren
-            </router-link>
-          </div>
         </div>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <nav class="nav-tabs" :class="{ active: isMobileMenuOpen }">
+      <div class="nav-tabs-container">
+        <router-link 
+          to="/" 
+          class="nav-tab"
+          @click="closeMobileMenu"
+        >
+          <Home class="nav-icon" :size="18" />
+          Home
+        </router-link>
+        
+        <router-link 
+          to="/products" 
+          class="nav-tab"
+          @click="closeMobileMenu"
+        >
+          <ShoppingBag class="nav-icon" :size="18" />
+          Alle Produkte
+        </router-link>
       </div>
     </nav>
   </header>
@@ -93,7 +115,7 @@
 <script>
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { Home, ShoppingBag, ShoppingCart, User, Package, LogOut } from 'lucide-vue-next'
+import { Home, ShoppingBag, ShoppingCart, User, Package, LogOut, Search } from 'lucide-vue-next'
 
 export default {
   name: 'AppHeader',
@@ -103,7 +125,8 @@ export default {
     ShoppingCart,
     User,
     Package,
-    LogOut
+    LogOut,
+    Search
   },
   props: {
     currentUser: {
@@ -115,14 +138,15 @@ export default {
       default: 0
     }
   },
-  emits: ['logout'],
+  emits: ['logout', 'search'],
   setup(props, { emit }) {
     const router = useRouter()
     const isMobileMenuOpen = ref(false)
+    const searchQuery = ref('')
 
     const getUserDisplayName = computed(() => {
-      if (!props.currentUser) return ''
-      return props.currentUser.displayName || props.currentUser.email?.split('@')[0] || 'Benutzer'
+      if (!props.currentUser) return 'Konto'
+      return props.currentUser.displayName || props.currentUser.email?.split('@')[0] || 'Konto'
     })
 
     const toggleMobileMenu = () => {
@@ -138,12 +162,18 @@ export default {
       emit('logout')
     }
 
+    const handleSearch = () => {
+      emit('search', searchQuery.value)
+    }
+
     return {
       isMobileMenuOpen,
+      searchQuery,
       getUserDisplayName,
       toggleMobileMenu,
       closeMobileMenu,
-      handleLogout
+      handleLogout,
+      handleSearch
     }
   }
 }
@@ -155,24 +185,26 @@ export default {
   top: 0;
   z-index: 1000;
   background-color: var(--white);
-  border-bottom: 1px solid var(--gray-200);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   width: 100vw;
   margin-left: calc(-50vw + 50%);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.navbar {
+/* Top Bar */
+.top-bar {
   background-color: var(--white);
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--gray-200);
 }
 
-.nav-container {
+.top-bar-container {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 1rem 2rem;
+  padding: 0 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  position: relative;
+  gap: 2rem;
 }
 
 /* Brand */
@@ -184,18 +216,67 @@ export default {
   text-decoration: none;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.brand-link:hover {
+  border-color: var(--primary-green);
 }
 
 .brand-text {
   font-size: 1.75rem;
   font-weight: 700;
   color: var(--primary-green);
-  transition: color 0.3s ease;
 }
 
-.brand-link:hover .brand-text {
-  color: var(--primary-green-dark);
+/* Search Container */
+.search-container {
+  flex: 1;
+  max-width: 600px;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  background-color: var(--white);
+  border: 2px solid var(--gray-300);
+  border-radius: 6px;
+  padding: 0 0.75rem;
+  transition: all 0.3s ease;
+}
+
+.search-bar:focus-within {
+  border-color: var(--primary-green);
+  box-shadow: 0 0 0 3px var(--primary-green-lighter);
+}
+
+.search-icon {
+  color: var(--gray-500);
+  margin-right: 0.5rem;
+  flex-shrink: 0;
+}
+
+.search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 0.9rem;
+  color: var(--gray-700);
+  background: transparent;
+  box-shadow: none;
+}
+
+.search-input:focus {
+  outline: none;
+  border: none;
+  box-shadow: none;
+}
+
+.search-input::placeholder {
+  color: var(--gray-400);
 }
 
 /* Mobile Menu Toggle */
@@ -233,72 +314,55 @@ export default {
   transform: rotate(45deg) translate(-5px, -6px);
 }
 
-/* Navigation Links */
-.nav-links {
+/* Top Actions */
+.top-actions {
   display: flex;
   align-items: center;
-  gap: 2rem;
-  flex: 1;
-  justify-content: center;
+  gap: 1.5rem;
 }
 
-.nav-link {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: var(--gray-700);
-  text-decoration: none;
-  font-weight: 500;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  transition: all 0.3s ease;
-  position: relative;
-}
-
-.nav-link:hover {
-  color: var(--primary-green);
-  background-color: var(--primary-green-lighter);
-}
-
-.nav-link.router-link-active {
-  color: var(--primary-green);
-  background-color: var(--primary-green-lighter);
-}
-
-.nav-icon {
-  display: flex;
-  align-items: center;
-}
-
+/* Cart Link */
 .cart-link {
   position: relative;
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  color: var(--gray-700);
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.cart-link:hover {
+  border-color: var(--primary-green);
+  background-color: var(--primary-green-lighter);
+  color: var(--primary-green);
+}
+
+.cart-icon {
+  display: flex;
+  align-items: center;
 }
 
 .cart-badge {
   position: absolute;
-  top: -8px;
-  right: -8px;
+  top: 0;
+  right: 0;
   background-color: var(--error);
   color: var(--white);
   border-radius: 50%;
   width: 20px;
   height: 20px;
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
   min-width: 20px;
 }
 
-/* User Actions */
-.user-actions {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  flex-shrink: 0;
-}
-
+/* User Menu */
 .user-menu {
   position: relative;
   display: flex;
@@ -310,24 +374,47 @@ export default {
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
+  border: 2px solid transparent;
   border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .user-info:hover {
-  background-color: var(--gray-100);
+  border-color: var(--primary-green);
+  background-color: var(--primary-green-lighter);
 }
 
 .user-avatar {
   display: flex;
   align-items: center;
+  color: var(--gray-700);
+}
+
+.user-info:hover .user-avatar {
+  color: var(--primary-green);
+}
+
+.user-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.2;
+}
+
+.user-greeting {
+  font-size: 0.75rem;
+  color: var(--gray-500);
 }
 
 .user-name {
-  color: var(--gray-700);
-  font-weight: 500;
   font-size: 0.95rem;
+  color: var(--gray-700);
+  font-weight: 600;
+}
+
+.user-info:hover .user-name {
+  color: var(--primary-green);
 }
 
 .user-dropdown {
@@ -337,13 +424,14 @@ export default {
   background-color: var(--white);
   border: 1px solid var(--gray-200);
   border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   min-width: 200px;
   opacity: 0;
   visibility: hidden;
-  transform: translateY(-10px);
+  transform: translateY(10px);
   transition: all 0.3s ease;
   z-index: 1000;
+  margin-top: 0.5rem;
 }
 
 .user-menu:hover .user-dropdown {
@@ -359,16 +447,18 @@ export default {
   padding: 0.75rem 1rem;
   color: var(--gray-700);
   text-decoration: none;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
   border: none;
   background: none;
   width: 100%;
   text-align: left;
   font-size: 0.95rem;
+  cursor: pointer;
 }
 
 .dropdown-item:hover {
-  background-color: var(--gray-100);
+  background-color: var(--primary-green-lighter);
+  color: var(--primary-green);
 }
 
 .dropdown-item:first-child {
@@ -381,7 +471,6 @@ export default {
 
 .logout-item {
   color: var(--error);
-  cursor: pointer;
 }
 
 .logout-item:hover {
@@ -393,41 +482,48 @@ export default {
   align-items: center;
 }
 
-/* Auth Buttons */
-.auth-buttons {
+/* Navigation Tabs */
+.nav-tabs {
+  background-color: var(--gray-50);
+  border-bottom: 1px solid var(--gray-200);
+}
+
+.nav-tabs-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 2rem;
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0;
 }
 
-.auth-button {
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
+.nav-tab {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--gray-700);
   text-decoration: none;
+  font-size: 0.95rem;
   font-weight: 500;
+  padding: 0.75rem 1.5rem;
+  border-bottom: 3px solid transparent;
   transition: all 0.3s ease;
-  border: 2px solid transparent;
+  white-space: nowrap;
 }
 
-.login-btn {
+.nav-tab:hover {
   color: var(--primary-green);
-  border-color: var(--primary-green);
+  background-color: var(--primary-green-lighter);
 }
 
-.login-btn:hover {
-  background-color: var(--primary-green);
-  color: var(--white);
+.nav-tab.router-link-active {
+  color: var(--primary-green);
+  border-bottom-color: var(--primary-green);
 }
 
-.register-btn {
-  background-color: var(--primary-green);
-  color: var(--white);
-  border-color: var(--primary-green);
-}
-
-.register-btn:hover {
-  background-color: var(--primary-green-dark);
-  border-color: var(--primary-green-dark);
+.nav-icon {
+  display: flex;
+  align-items: center;
 }
 
 /* Mobile Styles */
@@ -436,53 +532,46 @@ export default {
     display: flex;
   }
 
-  .nav-links,
-  .user-actions {
-    position: absolute;
-    top: 100%;
+  .top-bar-container {
+    padding: 0.5rem 1rem;
+  }
+
+  .search-container {
+    order: 4;
+    width: 100%;
+    max-width: 100%;
+    margin-top: 1rem;
+  }
+
+  .top-actions {
+    position: fixed;
+    top: 70px;
     left: 0;
     right: 0;
     background-color: var(--white);
-    border-top: 1px solid var(--gray-200);
     flex-direction: column;
     padding: 1rem;
-    transform: translateY(-100%);
+    transform: translateX(100%);
     opacity: 0;
     visibility: hidden;
     transition: all 0.3s ease;
+    border-top: 1px solid var(--gray-200);
+    gap: 0;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   }
 
-  .nav-links.active,
-  .user-actions.active {
-    transform: translateY(0);
+  .top-actions.active {
+    transform: translateX(0);
     opacity: 1;
     visibility: visible;
   }
 
-  .nav-links {
-    gap: 0.5rem;
-    border-bottom: 1px solid var(--gray-200);
-    margin-bottom: 1rem;
-  }
-
-  .nav-link {
-    width: 100%;
-    justify-content: flex-start;
-    padding: 1rem;
-  }
-
-  .user-actions {
-    gap: 0.5rem;
-  }
-
-  .user-menu {
-    width: 100%;
-  }
-
+  .cart-link,
   .user-info {
     width: 100%;
-    justify-content: center;
-    padding: 1rem;
+    justify-content: flex-start;
+    border: none;
+    border-bottom: 1px solid var(--gray-200);
   }
 
   .user-dropdown {
@@ -491,32 +580,47 @@ export default {
     visibility: visible;
     transform: none;
     box-shadow: none;
-    border: 1px solid var(--gray-200);
-    border-radius: 8px;
-    margin-top: 0.5rem;
+    border: none;
+    border-radius: 0;
+    margin-top: 0;
   }
 
-  .auth-buttons {
-    width: 100%;
+  .dropdown-item {
+    border-bottom: 1px solid var(--gray-200);
+  }
+
+  .nav-tabs {
+    transform: translateX(100%);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .nav-tabs.active {
+    transform: translateX(0);
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .nav-tabs-container {
     flex-direction: column;
+    padding: 0;
+    gap: 0;
   }
 
-  .auth-button {
+  .nav-tab {
     width: 100%;
-    text-align: center;
-    padding: 1rem;
+    justify-content: flex-start;
+    border: none;
+    border-bottom: 1px solid var(--gray-200);
   }
 
-  .user-name {
+  .user-text {
     display: none;
   }
 }
 
 @media (max-width: 480px) {
-  .nav-container {
-    padding: 1rem;
-  }
-  
   .brand-text {
     font-size: 1.5rem;
   }
