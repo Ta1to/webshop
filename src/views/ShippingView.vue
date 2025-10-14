@@ -32,7 +32,7 @@
             <div class="icon-badge"><Globe :size="18" /></div>
             <div>
               <p class="label">Europaweiter Versand</p>
-              <p class="helper">4-6 Werktage, verzollte Lieferung in EU-Laender</p>
+              <p class="helper">4-6 Werktage, verzollte Lieferung in EU-Länder</p>
             </div>
           </li>
         </ul>
