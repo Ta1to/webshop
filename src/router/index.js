@@ -13,6 +13,9 @@ import FAQView from '../views/FAQView.vue'
 import ShippingView from '../views/ShippingView.vue'
 import ReturnsView from '../views/ReturnsView.vue'
 import SizeGuideView from '../views/SizeGuideView.vue'
+import PrivacyView from '../views/PrivacyView.vue'
+import TermsView from '../views/TermsView.vue'
+import ImprintView from '../views/ImprintView.vue'
 import { getUserDocument } from '../services/db'
 
 const routes = [
@@ -118,17 +121,17 @@ const routes = [
     {
         path: '/privacy',
         name: 'Privacy',
-        component: () => import('../views/PlaceholderView.vue')
+        component: PrivacyView
     },
     {
         path: '/terms',
         name: 'Terms',
-        component: () => import('../views/PlaceholderView.vue')
+        component: TermsView
     },
     {
         path: '/imprint',
         name: 'Imprint',
-        component: () => import('../views/PlaceholderView.vue')
+        component: ImprintView
     },
     {
         path: '/sitemap',
