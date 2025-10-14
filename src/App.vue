@@ -3,6 +3,7 @@
     <AppHeader 
       :current-user="currentUser"
       :cart-item-count="cartItemCount"
+      :is-admin="isAdmin"
       @logout="handleLogout"
     />
     
@@ -18,6 +19,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { observeAuthState, logoutUser } from './services/auth'
+import { getUserDocument } from './services/db'
 import AppHeader from './components/AppHeader.vue'
 import AppFooter from './components/AppFooter.vue'
 
@@ -30,11 +32,30 @@ export default {
   setup() {
   const currentUser = ref(null)
   const cartItemCount = ref(0)
+  const isAdmin = ref(false)
     const router = useRouter()
 
+    const checkAdminStatus = async (user) => {
+      if (!user) {
+        isAdmin.value = false
+        return
+      }
+      
+      try {
+        const userDoc = await getUserDocument(user.uid)
+        if (userDoc.success && userDoc.data) {
+          isAdmin.value = userDoc.data.isAdmin()
+        }
+      } catch (error) {
+        console.error('Error checking admin status:', error)
+        isAdmin.value = false
+      }
+    }
+
     onMounted(() => {
-      observeAuthState((user) => {
+      observeAuthState(async (user) => {
         currentUser.value = user
+        await checkAdminStatus(user)
       })
       
     })
@@ -44,6 +65,7 @@ export default {
       if (result.success) {
         currentUser.value = null
         cartItemCount.value = 0
+        isAdmin.value = false
         router.push('/login')
       }
     }
@@ -51,6 +73,7 @@ export default {
     return {
       currentUser,
       cartItemCount,
+      isAdmin,
       handleLogout
     }
   }

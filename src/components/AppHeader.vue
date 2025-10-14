@@ -68,6 +68,10 @@
                   <Package class="dropdown-icon" :size="16" />
                   Bestellungen
                 </router-link>
+                <router-link v-if="isAdmin" to="/admin" class="dropdown-item admin-item" @click="closeMobileMenu">
+                  <Shield class="dropdown-icon" :size="16" />
+                  Admin Dashboard
+                </router-link>
                 <button @click="handleLogout" class="dropdown-item logout-item">
                   <LogOut class="dropdown-icon" :size="16" />
                   Abmelden
@@ -127,7 +131,7 @@
 <script>
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { Home, ShoppingBag, ShoppingCart, User, Package, LogOut, Search, LayoutGrid, Laptop, Shirt, BookOpen, Dumbbell } from 'lucide-vue-next'
+import { Home, ShoppingBag, ShoppingCart, User, Package, LogOut, Search, LayoutGrid, Laptop, Shirt, BookOpen, Dumbbell, Shield } from 'lucide-vue-next'
 import { categories } from '../data/Categories'
 
 export default {
@@ -144,7 +148,8 @@ export default {
     Laptop,
     Shirt,
     BookOpen,
-    Dumbbell
+    Dumbbell,
+    Shield
   },
   props: {
     currentUser: {
@@ -154,6 +159,10 @@ export default {
     cartItemCount: {
       type: Number,
       default: 0
+    },
+    isAdmin: {
+      type: Boolean,
+      default: false
     }
   },
   emits: ['logout', 'search'],
@@ -506,6 +515,15 @@ export default {
 
 .logout-item:hover {
   background-color: var(--error-light);
+}
+
+.admin-item {
+  color: var(--primary-green);
+  font-weight: 600;
+}
+
+.admin-item:hover {
+  background-color: var(--primary-green-lighter);
 }
 
 .dropdown-icon {
