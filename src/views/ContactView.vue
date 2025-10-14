@@ -5,7 +5,7 @@
       <h1>Kontakt</h1>
       <p class="intro">
         Unser Support-Team hilft Ihnen gern bei Fragen zu Bestellung, Lieferung oder Produkten.
-        Waehlen Sie den passenden Kanal oder nutzen Sie das Formular, wir melden uns schnellstmoeglich.
+        Wählen Sie den passenden Kanal oder nutzen Sie das Formular, wir melden uns schnellstmöglich.
       </p>
     </section>
 
