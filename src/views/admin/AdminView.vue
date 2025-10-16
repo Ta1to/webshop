@@ -125,7 +125,13 @@
         <div class="data-card">
           <div class="card-header">
             <h2>Kategorien</h2>
-            <span class="badge">{{ categories.length }}</span>
+            <div class="header-actions">
+              <span class="badge">{{ categories.length }}</span>
+              <button @click="openCreateCategoryModal" class="btn-add">
+                <Plus :size="18" />
+                Neu
+              </button>
+            </div>
           </div>
           <div class="table-container">
             <table v-if="categories.length > 0" class="data-table">
@@ -134,6 +140,7 @@
                   <th>Name</th>
                   <th>Slug</th>
                   <th>Beschreibung</th>
+                  <th>Aktionen</th>
                 </tr>
               </thead>
               <tbody>
@@ -146,6 +153,24 @@
                   </td>
                   <td><code>{{ category.slug }}</code></td>
                   <td class="description">{{ category.description }}</td>
+                  <td>
+                    <div class="action-buttons">
+                      <button 
+                        @click="openEditCategoryModal(category)" 
+                        class="btn-action btn-edit"
+                        title="Bearbeiten"
+                      >
+                        <Edit2 :size="16" />
+                      </button>
+                      <button 
+                        @click="confirmDeleteCategory(category)" 
+                        class="btn-action btn-delete"
+                        title="Löschen"
+                      >
+                        <Trash2 :size="16" />
+                      </button>
+                    </div>
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -157,7 +182,13 @@
         <div class="data-card">
           <div class="card-header">
             <h2>Produkte</h2>
-            <span class="badge">{{ products.length }}</span>
+            <div class="header-actions">
+              <span class="badge">{{ products.length }}</span>
+              <button @click="openCreateProductModal" class="btn-add">
+                <Plus :size="18" />
+                Neu
+              </button>
+            </div>
           </div>
           <div class="table-container">
             <table v-if="products.length > 0" class="data-table">
@@ -168,14 +199,15 @@
                   <th>Preis</th>
                   <th>Lager</th>
                   <th>Status</th>
+                  <th>Aktionen</th>
                 </tr>
               </thead>
               <tbody>
                 <tr v-for="product in products" :key="product.id">
                   <td>
                     <div class="product-cell">
-                      <img v-if="product.images && product.images.length > 0" 
-                           :src="product.images[0]" 
+                      <img v-if="product.imageUrl" 
+                           :src="product.imageUrl" 
                            :alt="product.name"
                            class="product-thumbnail">
                       <div class="product-placeholder" v-else>📦</div>
@@ -189,6 +221,24 @@
                     <span :class="['status-badge', product.stock > 0 ? 'available' : 'out-of-stock']">
                       {{ product.stock > 0 ? 'Verfügbar' : 'Nicht vorrätig' }}
                     </span>
+                  </td>
+                  <td>
+                    <div class="action-buttons">
+                      <button 
+                        @click="openEditProductModal(product)" 
+                        class="btn-action btn-edit"
+                        title="Bearbeiten"
+                      >
+                        <Edit2 :size="16" />
+                      </button>
+                      <button 
+                        @click="confirmDeleteProduct(product)" 
+                        class="btn-action btn-delete"
+                        title="Löschen"
+                      >
+                        <Trash2 :size="16" />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               </tbody>
@@ -262,15 +312,34 @@
     :message="errorConfig.message"
     confirm-text="OK"
   />
+
+  <!-- Product Modal -->
+  <ProductModal
+    :is-open="productModal.isOpen"
+    :mode="productModal.mode"
+    :product="productModal.product"
+    :categories="categories"
+    @close="closeProductModal"
+    @submit="handleProductSubmit"
+  />
+
+  <!-- Category Modal -->
+  <CategoryModal
+    :is-open="categoryModal.isOpen"
+    :mode="categoryModal.mode"
+    :category="categoryModal.category"
+    @close="closeCategoryModal"
+    @submit="handleCategorySubmit"
+  />
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { getAllDocuments, updateDocument, deleteDocument } from '../services/db'
-import { categories as categoriesData } from '../data/Categories'
-import { products as productsData } from '../data/Products'
-import AlertDialog from '../components/AlertDialog.vue'
-import { Users, LayoutGrid, Package, ShoppingCart, Shield, Trash2 } from 'lucide-vue-next'
+import { getAllDocuments, updateDocument, deleteDocument, createDocument } from '../../services/db'
+import AlertDialog from '../../components/AlertDialog.vue'
+import ProductModal from '../../components/modal/ProductModal.vue'
+import CategoryModal from '../../components/modal/CategoryModal.vue'
+import { Users, LayoutGrid, Package, ShoppingCart, Shield, Trash2, Plus, Edit2 } from 'lucide-vue-next'
 
 const loading = ref(true)
 const error = ref(null)
@@ -304,6 +373,10 @@ const categories = ref([])
 const products = ref([])
 const orders = ref([])
 
+// Modal states
+const productModal = ref({ isOpen: false, mode: 'create', product: null })
+const categoryModal = ref({ isOpen: false, mode: 'create', category: null })
+
 // Statistics
 const stats = ref({
   totalUsers: 0,
@@ -325,13 +398,19 @@ const loadDashboardData = async () => {
       stats.value.totalUsers = users.value.length
     }
 
-    // Load categories from static data
-    categories.value = categoriesData
-    stats.value.totalCategories = categories.value.length
+    // Load categories from Firestore
+    const categoriesResult = await getAllDocuments('categories')
+    if (categoriesResult.success) {
+      categories.value = categoriesResult.data
+      stats.value.totalCategories = categories.value.length
+    }
 
-    // Load products from static data
-    products.value = productsData
-    stats.value.totalProducts = products.value.length
+    // Load products from Firestore
+    const productsResult = await getAllDocuments('products')
+    if (productsResult.success) {
+      products.value = productsResult.data
+      stats.value.totalProducts = products.value.length
+    }
 
     // Load orders from Firestore
     const ordersResult = await getAllDocuments('orders')
@@ -461,6 +540,182 @@ const confirmDeleteUser = async (user) => {
         errorConfig.value = {
           title: 'Fehler',
           message: 'Ein unerwarteter Fehler ist aufgetreten.'
+        }
+        errorDialog.value.open()
+      }
+    }
+  }
+  
+  confirmDialog.value.open()
+}
+
+// ==================== PRODUCT CRUD ====================
+
+const openCreateProductModal = () => {
+  productModal.value = { isOpen: true, mode: 'create', product: null }
+}
+
+const openEditProductModal = (product) => {
+  productModal.value = { isOpen: true, mode: 'edit', product }
+}
+
+const closeProductModal = () => {
+  productModal.value = { isOpen: false, mode: 'create', product: null }
+}
+
+const handleProductSubmit = async (formData) => {
+  try {
+    if (productModal.value.mode === 'create') {
+      const result = await createDocument('products', formData)
+      
+      if (result.success) {
+        await loadDashboardData() // Reload data
+        closeProductModal()
+        successConfig.value = {
+          title: 'Erfolg',
+          message: 'Produkt erfolgreich erstellt!'
+        }
+        successDialog.value.open()
+      } else {
+        throw new Error(result.error)
+      }
+    } else {
+      const result = await updateDocument('products', productModal.value.product.id, formData)
+      
+      if (result.success) {
+        await loadDashboardData() // Reload data
+        closeProductModal()
+        successConfig.value = {
+          title: 'Erfolg',
+          message: 'Produkt erfolgreich aktualisiert!'
+        }
+        successDialog.value.open()
+      } else {
+        throw new Error(result.error)
+      }
+    }
+  } catch (err) {
+    console.error('Error saving product:', err)
+    errorConfig.value = {
+      title: 'Fehler',
+      message: `Fehler beim Speichern des Produkts:\n${err.message}`
+    }
+    errorDialog.value.open()
+  }
+}
+
+const confirmDeleteProduct = (product) => {
+  dialogConfig.value = {
+    title: 'Produkt löschen',
+    message: `Möchten Sie das Produkt "${product.name}" wirklich löschen?\n\nDiese Aktion kann nicht rückgängig gemacht werden!`,
+    confirmText: 'Löschen',
+    onConfirm: async () => {
+      try {
+        const result = await deleteDocument('products', product.id)
+        
+        if (result.success) {
+          await loadDashboardData()
+          successConfig.value = {
+            title: 'Erfolg',
+            message: 'Produkt erfolgreich gelöscht!'
+          }
+          successDialog.value.open()
+        } else {
+          throw new Error(result.error)
+        }
+      } catch (err) {
+        console.error('Error deleting product:', err)
+        errorConfig.value = {
+          title: 'Fehler',
+          message: `Fehler beim Löschen des Produkts:\n${err.message}`
+        }
+        errorDialog.value.open()
+      }
+    }
+  }
+  
+  confirmDialog.value.open()
+}
+
+// ==================== CATEGORY CRUD ====================
+
+const openCreateCategoryModal = () => {
+  categoryModal.value = { isOpen: true, mode: 'create', category: null }
+}
+
+const openEditCategoryModal = (category) => {
+  categoryModal.value = { isOpen: true, mode: 'edit', category }
+}
+
+const closeCategoryModal = () => {
+  categoryModal.value = { isOpen: false, mode: 'create', category: null }
+}
+
+const handleCategorySubmit = async (formData) => {
+  try {
+    if (categoryModal.value.mode === 'create') {
+      const result = await createDocument('categories', formData)
+      
+      if (result.success) {
+        await loadDashboardData()
+        closeCategoryModal()
+        successConfig.value = {
+          title: 'Erfolg',
+          message: 'Kategorie erfolgreich erstellt!'
+        }
+        successDialog.value.open()
+      } else {
+        throw new Error(result.error)
+      }
+    } else {
+      const result = await updateDocument('categories', categoryModal.value.category.id, formData)
+      
+      if (result.success) {
+        await loadDashboardData()
+        closeCategoryModal()
+        successConfig.value = {
+          title: 'Erfolg',
+          message: 'Kategorie erfolgreich aktualisiert!'
+        }
+        successDialog.value.open()
+      } else {
+        throw new Error(result.error)
+      }
+    }
+  } catch (err) {
+    console.error('Error saving category:', err)
+    errorConfig.value = {
+      title: 'Fehler',
+      message: `Fehler beim Speichern der Kategorie:\n${err.message}`
+    }
+    errorDialog.value.open()
+  }
+}
+
+const confirmDeleteCategory = (category) => {
+  dialogConfig.value = {
+    title: 'Kategorie löschen',
+    message: `Möchten Sie die Kategorie "${category.name}" wirklich löschen?\n\nDiese Aktion kann nicht rückgängig gemacht werden!`,
+    confirmText: 'Löschen',
+    onConfirm: async () => {
+      try {
+        const result = await deleteDocument('categories', category.id)
+        
+        if (result.success) {
+          await loadDashboardData()
+          successConfig.value = {
+            title: 'Erfolg',
+            message: 'Kategorie erfolgreich gelöscht!'
+          }
+          successDialog.value.open()
+        } else {
+          throw new Error(result.error)
+        }
+      } catch (err) {
+        console.error('Error deleting category:', err)
+        errorConfig.value = {
+          title: 'Fehler',
+          message: `Fehler beim Löschen der Kategorie:\n${err.message}`
         }
         errorDialog.value.open()
       }
@@ -637,6 +892,33 @@ onMounted(() => {
   color: var(--gray-800);
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.btn-add {
+  padding: 0.5rem 1rem;
+  background: var(--primary-green);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.btn-add:hover {
+  background: var(--primary-green-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
 .badge {
   background: var(--primary-green-lighter);
   color: var(--primary-green);
@@ -768,6 +1050,17 @@ onMounted(() => {
   background: var(--primary-green);
   color: white;
   box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+}
+
+.btn-edit {
+  color: #3B82F6;
+  background: #DBEAFE;
+}
+
+.btn-edit:hover {
+  background: #3B82F6;
+  color: white;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
 }
 
 .btn-delete {

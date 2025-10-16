@@ -152,8 +152,8 @@
 
 <script>
 import { reactive, ref, computed, onMounted, onBeforeUnmount } from 'vue'
-import { observeAuthState, updateUserProfile } from '../services/auth'
-import { getUserDocument } from '../services/db'
+import { observeAuthState, updateUserProfile } from '../../services/auth'
+import { getUserDocument } from '../../services/db'
 
 export default {
   name: 'ProfileView',

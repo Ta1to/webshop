@@ -55,7 +55,7 @@
 <script>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { loginUser } from '../services/auth'
+import { loginUser } from '../../services/auth'
 
 export default {
   name: 'LoginView',

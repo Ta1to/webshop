@@ -1,11 +1,18 @@
 <template>
   <div class="product-view">
-    <div class="product-container" v-if="product">
+    <!-- Loading State -->
+    <div v-if="loading" class="loading-container">
+      <div class="spinner"></div>
+      <p>Produkt wird geladen...</p>
+    </div>
+
+    <!-- Product Content -->
+    <div class="product-container" v-else-if="product">
       <div class="product-layout">
         <!-- Product Image -->
         <div class="product-image-section">
           <div class="product-image-main">
-            <img :src="product.image" :alt="product.name" />
+            <img :src="product.imageUrl || product.image" :alt="product.name" />
           </div>
         </div>
 
@@ -86,7 +93,7 @@
             @click="goToProduct(relatedProduct)"
           >
             <div class="related-image">
-              <img :src="relatedProduct.image" :alt="relatedProduct.name" />
+              <img :src="relatedProduct.imageUrl || relatedProduct.image" :alt="relatedProduct.name" />
             </div>
             <div class="related-info">
               <h4 class="related-name">{{ relatedProduct.name }}</h4>
@@ -106,10 +113,9 @@
 </template>
 
 <script>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { products } from '../data/Products'
-import { categories } from '../data/Categories'
+import { getAllDocuments } from '../../services/db'
 import { 
   ShoppingCart, 
   Package, 
@@ -133,15 +139,40 @@ export default {
     const router = useRouter()
     const route = useRoute()
     const quantity = ref(1)
+    const products = ref([])
+    const categories = ref([])
+    const loading = ref(true)
+
+    // Load data from Firestore
+    onMounted(async () => {
+      loading.value = true
+      try {
+        const [productsResult, categoriesResult] = await Promise.all([
+          getAllDocuments('products'),
+          getAllDocuments('categories')
+        ])
+        
+        if (productsResult.success) {
+          products.value = productsResult.data
+        }
+        if (categoriesResult.success) {
+          categories.value = categoriesResult.data
+        }
+      } catch (error) {
+        console.error('Error loading product data:', error)
+      } finally {
+        loading.value = false
+      }
+    })
 
     const product = computed(() => {
-      const id = parseInt(route.params.id)
-      return products.find(p => p.id === id)
+      const id = route.params.id
+      return products.value.find(p => p.id === id)
     })
 
     const category = computed(() => {
       if (!product.value) return null
-      return categories.find(c => c.id === product.value.categoryId)
+      return categories.value.find(c => c.name === product.value.category)
     })
 
     const categoryName = computed(() => {
@@ -168,8 +199,8 @@ export default {
 
     const relatedProducts = computed(() => {
       if (!product.value) return []
-      return products
-        .filter(p => p.categoryId === product.value.categoryId && p.id !== product.value.id)
+      return products.value
+        .filter(p => p.category === product.value.category && p.id !== product.value.id)
         .slice(0, 4)
     })
 
@@ -206,6 +237,7 @@ export default {
       stockClass,
       stockText,
       relatedProducts,
+      loading,
       formatPrice,
       addToCart,
       goToProduct
@@ -225,6 +257,30 @@ export default {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 1rem;
+}
+
+.loading-container {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: white;
+  border-radius: 16px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #10b981;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 .product-layout {

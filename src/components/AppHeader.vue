@@ -129,10 +129,10 @@
 </template>
 
 <script>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { Home, ShoppingBag, ShoppingCart, User, Package, LogOut, Search, LayoutGrid, Laptop, Shirt, BookOpen, Dumbbell, Shield } from 'lucide-vue-next'
-import { categories } from '../data/Categories'
+import { getAllDocuments } from '../services/db'
 
 export default {
   name: 'AppHeader',
@@ -170,6 +170,15 @@ export default {
     const router = useRouter()
     const isMobileMenuOpen = ref(false)
     const searchQuery = ref('')
+    const categories = ref([])
+
+    // Load categories from Firestore
+    onMounted(async () => {
+      const result = await getAllDocuments('categories')
+      if (result.success) {
+        categories.value = result.data
+      }
+    })
 
     const getUserDisplayName = computed(() => {
       if (!props.currentUser) return 'Konto'

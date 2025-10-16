@@ -1,8 +1,15 @@
 <template>
   <div class="category-view">
     <div class="category-container">
-      <!-- Category Header -->
-      <div v-if="category" class="category-header">
+      <!-- Loading State -->
+      <div v-if="loading" class="loading-state">
+        <div class="spinner"></div>
+        <p>Kategorie wird geladen...</p>
+      </div>
+
+      <template v-else>
+        <!-- Category Header -->
+        <div v-if="category" class="category-header">
         <div class="category-icon-large">
           <component :is="getIcon(category.icon)" :size="64" />
         </div>
@@ -22,7 +29,7 @@
           @click="goToProduct(product)"
         >
           <div class="product-image">
-            <img :src="product.image" :alt="product.name" />
+            <img :src="product.imageUrl || product.image" :alt="product.name" />
           </div>
           <div class="product-info">
             <h3 class="product-name">{{ product.name }}</h3>
@@ -41,19 +48,19 @@
         </div>
       </div>
 
-      <div v-else class="empty-state">
-        <Package :size="64" />
-        <p>Keine Produkte in dieser Kategorie gefunden.</p>
-      </div>
+        <div v-else class="empty-state">
+          <Package :size="64" />
+          <p>Keine Produkte in dieser Kategorie gefunden.</p>
+        </div>
+      </template>
     </div>
   </div>
 </template>
 
 <script>
-import { computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { categories } from '../data/Categories'
-import { products } from '../data/Products'
+import { getAllDocuments } from '../../services/db'
 import { Laptop, Shirt, BookOpen, Dumbbell, Home, ShoppingCart, Package } from 'lucide-vue-next'
 
 export default {
@@ -70,15 +77,40 @@ export default {
   setup() {
     const router = useRouter()
     const route = useRoute()
+    
+    const categories = ref([])
+    const products = ref([])
+    const loading = ref(true)
+
+    onMounted(async () => {
+      loading.value = true
+      try {
+        const [categoriesResult, productsResult] = await Promise.all([
+          getAllDocuments('categories'),
+          getAllDocuments('products')
+        ])
+        
+        if (categoriesResult.success) {
+          categories.value = categoriesResult.data
+        }
+        if (productsResult.success) {
+          products.value = productsResult.data
+        }
+      } catch (error) {
+        console.error('Error loading data:', error)
+      } finally {
+        loading.value = false
+      }
+    })
 
     const category = computed(() => {
       const slug = route.params.slug
-      return categories.find(c => c.slug === slug)
+      return categories.value.find(c => c.slug === slug)
     })
 
     const categoryProducts = computed(() => {
       if (!category.value) return []
-      return products.filter(p => p.categoryId === category.value.id)
+      return products.value.filter(p => p.category === category.value.name)
     })
 
     const getIcon = (iconName) => {
@@ -106,6 +138,7 @@ export default {
     return {
       category,
       categoryProducts,
+      loading,
       getIcon,
       formatPrice,
       goToProduct
@@ -125,6 +158,28 @@ export default {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 1rem;
+}
+
+.loading-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: white;
+  border-radius: 16px;
+}
+
+.spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #10b981;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 .category-header {

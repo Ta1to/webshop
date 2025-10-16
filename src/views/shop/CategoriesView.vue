@@ -4,7 +4,16 @@
       <h1 class="page-title">Kategorien</h1>
       <p class="page-subtitle">Entdecken Sie unsere Produktkategorien</p>
       
-      <div class="categories-grid">
+      <div v-if="loading" class="loading">
+        <div class="spinner"></div>
+        <p>Kategorien werden geladen...</p>
+      </div>
+
+      <div v-else-if="categories.length === 0" class="empty-state">
+        <p>Keine Kategorien verfügbar</p>
+      </div>
+      
+      <div v-else class="categories-grid">
         <div 
           v-for="category in categories" 
           :key="category.id"
@@ -26,10 +35,9 @@
 </template>
 
 <script>
-import { computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { categories } from '../data/Categories'
-import { products } from '../data/Products'
+import { getAllDocuments } from '../../services/db'
 import { Laptop, Shirt, BookOpen, Dumbbell, Home } from 'lucide-vue-next'
 
 export default {
@@ -43,6 +51,30 @@ export default {
   },
   setup() {
     const router = useRouter()
+    
+    const categories = ref([])
+    const products = ref([])
+    const loading = ref(true)
+
+    onMounted(async () => {
+      try {
+        const [categoriesResult, productsResult] = await Promise.all([
+          getAllDocuments('categories'),
+          getAllDocuments('products')
+        ])
+        
+        if (categoriesResult.success) {
+          categories.value = categoriesResult.data
+        }
+        if (productsResult.success) {
+          products.value = productsResult.data
+        }
+      } catch (error) {
+        console.error('Error loading data:', error)
+      } finally {
+        loading.value = false
+      }
+    })
 
     const getIcon = (iconName) => {
       const icons = {
@@ -56,7 +88,10 @@ export default {
     }
 
     const getProductCount = (categoryId) => {
-      return products.filter(p => p.categoryId === categoryId).length
+      // Match by category name since products store category name, not ID
+      const category = categories.value.find(c => c.id === categoryId)
+      if (!category) return 0
+      return products.value.filter(p => p.category === category.name).length
     }
 
     const goToCategory = (category) => {
@@ -65,6 +100,7 @@ export default {
 
     return {
       categories,
+      loading,
       getIcon,
       getProductCount,
       goToCategory
@@ -99,6 +135,28 @@ export default {
   color: #666;
   font-size: 1.1rem;
   margin-bottom: 3rem;
+}
+
+.loading,
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #666;
+}
+
+.spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #10b981;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 .categories-grid {
