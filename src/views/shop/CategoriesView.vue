@@ -113,7 +113,6 @@ export default {
 .categories-view {
   min-height: calc(100vh - 180px);
   padding: 2rem 0;
-  background: #ffffff;
 }
 
 .categories-container {

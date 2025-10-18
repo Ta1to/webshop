@@ -6,6 +6,7 @@ import ProfileView from '../views/auth/ProfileView.vue'
 import CategoriesView from '../views/shop/CategoriesView.vue'
 import CategoryView from '../views/shop/CategoryView.vue'
 import ProductView from '../views/shop/ProductView.vue'
+import CartView from '../views/shop/CartView.vue'
 import AdminView from '../views/admin/AdminView.vue'
 import { getCurrentUser } from '../services/auth'
 import ContactView from '../views/info/ContactView.vue'
@@ -49,6 +50,11 @@ const routes = [
         name: 'Product',
         component: ProductView
     },
+    {
+        path: '/cart',
+        name: 'Cart',
+        component: CartView
+    },
     // Placeholder routes for navigation links
     // These can be replaced with real views later
     {
@@ -64,11 +70,6 @@ const routes = [
     {
         path: '/new-arrivals',
         name: 'NewArrivals',
-        component: () => import('../views/PlaceholderView.vue'),
-    },
-    {
-        path: '/cart',
-        name: 'Cart',
         component: () => import('../views/PlaceholderView.vue'),
     },
     {

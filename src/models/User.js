@@ -9,6 +9,7 @@ export class User {
     this.photoURL = data.photoURL || ''
     this.role = data.role || 'user'
     this.newsletter = data.newsletter ?? false
+    this.cart = data.cart || []
     this.createdAt = data.createdAt || null
     this.updatedAt = data.updatedAt || null
   }
@@ -34,6 +35,7 @@ export class User {
       photoURL: this.photoURL,
       role: this.role,
       newsletter: this.newsletter,
+      cart: this.cart,
       updatedAt: this.updatedAt
     }
   }

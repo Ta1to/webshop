@@ -151,7 +151,6 @@ export default {
 .category-view {
   min-height: calc(100vh - 180px);
   padding: 2rem 0;
-  background: #f8f9fa;
 }
 
 .category-container {

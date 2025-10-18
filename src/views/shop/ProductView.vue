@@ -109,6 +109,16 @@
       <h2>Produkt nicht gefunden</h2>
       <router-link to="/categories" class="back-link">Zurück zu den Kategorien</router-link>
     </div>
+
+    <!-- Cart Dialog -->
+    <CartDialog
+      :is-open="showCartDialog"
+      :product="product || {}"
+      :quantity="quantity"
+      :cart-item-count="cartItemCount"
+      :cart-total="cartTotal"
+      @close="closeCartDialog"
+    />
   </div>
 </template>
 
@@ -116,6 +126,8 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { getAllDocuments } from '../../services/db'
+import { addToCart as addToCartService, getCartItemCount, getCartTotal } from '../../services/cart'
+import CartDialog from '../../components/CartDialog.vue'
 import { 
   ShoppingCart, 
   Package, 
@@ -133,7 +145,8 @@ export default {
     Truck,
     RotateCcw,
     Shield,
-    AlertCircle
+    AlertCircle,
+    CartDialog
   },
   setup() {
     const router = useRouter()
@@ -142,6 +155,9 @@ export default {
     const products = ref([])
     const categories = ref([])
     const loading = ref(true)
+    const showCartDialog = ref(false)
+    const cartItemCount = ref(0)
+    const cartTotal = ref(0)
 
     // Load data from Firestore
     onMounted(async () => {
@@ -211,12 +227,36 @@ export default {
       }).format(price)
     }
 
-    const addToCart = () => {
+    const addToCart = async () => {
       if (product.value && product.value.stock > 0) {
-        console.log(`Adding ${quantity.value}x ${product.value.name} to cart`)
-        // TODO: Implement cart functionality
-        alert(`${quantity.value}x ${product.value.name} wurde zum Warenkorb hinzugefügt!`)
+        const result = await addToCartService(
+          product.value.id, 
+          quantity.value,
+          {
+            name: product.value.name,
+            price: product.value.price,
+            imageUrl: product.value.imageUrl || product.value.image
+          }
+        )
+        
+        if (result.success) {
+          // Update cart info
+          cartItemCount.value = await getCartItemCount()
+          cartTotal.value = await getCartTotal()
+          
+          // Show dialog
+          showCartDialog.value = true
+          
+          // Reset quantity
+          quantity.value = 1
+        } else {
+          alert('Fehler beim Hinzufügen zum Warenkorb')
+        }
       }
+    }
+
+    const closeCartDialog = () => {
+      showCartDialog.value = false
     }
 
     const goToProduct = (newProduct) => {
@@ -238,8 +278,12 @@ export default {
       stockText,
       relatedProducts,
       loading,
+      showCartDialog,
+      cartItemCount,
+      cartTotal,
       formatPrice,
       addToCart,
+      closeCartDialog,
       goToProduct
     }
   }

@@ -24,6 +24,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { observeAuthState, logoutUser } from './services/auth'
 import { getUserDocument, updateUserDocument, createUserDocument } from './services/db'
+import { getCartItemCount, mergeGuestCart } from './services/cart'
 import AppHeader from './components/AppHeader.vue'
 import AppFooter from './components/AppFooter.vue'
 
@@ -72,6 +73,10 @@ export default {
       }
     }
 
+    const updateCartCount = async () => {
+      cartItemCount.value = await getCartItemCount()
+    }
+
     const checkAdminStatus = async (user) => {
       if (!user) {
         isAdmin.value = false
@@ -90,15 +95,24 @@ export default {
     }
 
     onMounted(() => {
+      // Update cart count on load
+      updateCartCount()
+
       observeAuthState(async (user) => {
         currentUser.value = user
         if (user) {
           await checkAdminStatus(user)
           await loadUserProfile(user.uid)
+          // Merge guest cart into user cart after login
+          await mergeGuestCart()
+          // Update cart count
+          await updateCartCount()
         } else {
           isAdmin.value = false
           userProfile.value = null
           newsletterLoading.value = false
+          // Update cart count for guest
+          await updateCartCount()
         }
       })
     })
