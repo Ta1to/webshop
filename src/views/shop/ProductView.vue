@@ -41,12 +41,11 @@
           <div class="product-actions">
             <div class="quantity-selector">
               <label for="quantity">Menge:</label>
-              <input 
-                id="quantity"
-                type="number" 
-                v-model.number="quantity" 
-                min="1" 
-                :max="product.stock" 
+              <QuantityControl
+                v-model="quantity"
+                :min="1"
+                :max="product.stock"
+                :disabled="product.stock === 0"
               />
             </div>
 
@@ -127,7 +126,8 @@ import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { getAllDocuments } from '../../services/db'
 import { addToCart as addToCartService, getCartItemCount, getCartTotal } from '../../services/cart'
-import CartDialog from '../../components/CartDialog.vue'
+import CartDialog from '../../components/dialog/CartDialog.vue'
+import QuantityControl from '../../components/utility/QuantityControl.vue'
 import { 
   ShoppingCart, 
   Package, 
@@ -146,7 +146,8 @@ export default {
     RotateCcw,
     Shield,
     AlertCircle,
-    CartDialog
+    CartDialog,
+    QuantityControl
   },
   setup() {
     const router = useRouter()
@@ -434,36 +435,13 @@ export default {
 .quantity-selector {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 1rem;
 }
 
 .quantity-selector label {
   font-weight: 600;
   color: #1a1a1a;
-  font-size: 0.95rem;
-}
-
-.quantity-selector input {
-  width: 80px;
-  padding: 0.75rem;
-  border: 2px solid #e0e0e0;
-  border-radius: 8px;
-  text-align: center;
   font-size: 1rem;
-  font-weight: 600;
-  background: white;
-  transition: border-color 0.2s;
-}
-
-.quantity-selector input:focus {
-  outline: none;
-  border-color: #10b981;
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
-}
-
-.quantity-selector input::-webkit-inner-spin-button,
-.quantity-selector input::-webkit-outer-spin-button {
-  opacity: 1;
 }
 
 .add-to-cart-btn-large {

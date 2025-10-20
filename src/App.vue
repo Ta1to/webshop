@@ -22,11 +22,12 @@
 <script>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { observeAuthState, logoutUser } from './services/auth'
-import { getUserDocument, updateUserDocument, createUserDocument } from './services/db'
-import { getCartItemCount, mergeGuestCart } from './services/cart'
-import AppHeader from './components/AppHeader.vue'
-import AppFooter from './components/AppFooter.vue'
+import { observeAuthState, logoutUser } from '@/services/auth'
+import { getUserDocument, updateUserDocument, createUserDocument } from '@/services/db'
+import { mergeGuestCart, registerCartUpdateCallback } from '@/services/cart'
+import { initCartStore, updateCartItems, useCartItemCount } from '@/stores/cartStore'
+import AppHeader from '@/components/layout/AppHeader.vue'
+import AppFooter from '@/components/layout/AppFooter.vue'
 
 export default {
   name: 'App',
@@ -36,7 +37,7 @@ export default {
   },
   setup() {
     const currentUser = ref(null)
-    const cartItemCount = ref(0)
+    const cartItemCount = useCartItemCount() // Reactive ref from store
     const userProfile = ref(null)
     const newsletterLoading = ref(false)
     const isAdmin = ref(false)
@@ -94,9 +95,12 @@ export default {
       }
     }
 
-    onMounted(() => {
-      // Update cart count on load
-      updateCartCount()
+    onMounted(async () => {
+      // Initialize cart store
+      await initCartStore()
+      
+      // Register callback for cart updates
+      registerCartUpdateCallback(updateCartItems)
 
       observeAuthState(async (user) => {
         currentUser.value = user
@@ -106,13 +110,13 @@ export default {
           // Merge guest cart into user cart after login
           await mergeGuestCart()
           // Update cart count
-          await updateCartCount()
+          await updateCartItems()
         } else {
           isAdmin.value = false
           userProfile.value = null
           newsletterLoading.value = false
           // Update cart count for guest
-          await updateCartCount()
+          await updateCartItems()
         }
       })
     })
@@ -121,7 +125,7 @@ export default {
       const result = await logoutUser()
       if (result.success) {
         currentUser.value = null
-        cartItemCount.value = 0
+        await updateCartItems() // Update cart count for guest after logout
         isAdmin.value = false
         userProfile.value = null
         newsletterLoading.value = false

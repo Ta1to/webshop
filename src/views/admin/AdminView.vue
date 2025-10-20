@@ -336,7 +336,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { getAllDocuments, updateDocument, deleteDocument, createDocument } from '../../services/db'
-import AlertDialog from '../../components/AlertDialog.vue'
+import AlertDialog from '../../components/dialog/AlertDialog.vue'
 import ProductModal from '../../components/modal/ProductModal.vue'
 import CategoryModal from '../../components/modal/CategoryModal.vue'
 import { Users, LayoutGrid, Package, ShoppingCart, Shield, Trash2, Plus, Edit2 } from 'lucide-vue-next'

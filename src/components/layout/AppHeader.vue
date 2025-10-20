@@ -132,7 +132,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { Home, ShoppingBag, ShoppingCart, User, Package, LogOut, Search, LayoutGrid, Laptop, Shirt, BookOpen, Dumbbell, Shield } from 'lucide-vue-next'
-import { getAllDocuments } from '../services/db'
+import { getAllDocuments } from '@/services/db'
 
 export default {
   name: 'AppHeader',

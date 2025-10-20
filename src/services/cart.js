@@ -4,6 +4,16 @@ import { getCurrentUser } from './auth'
 const CART_COOKIE_NAME = 'webshop_cart'
 const CART_COOKIE_DAYS = 30
 
+// Import the store update function (will be set to avoid circular dependency)
+let updateStoreCallback = null
+
+/**
+ * Register callback to update cart store
+ */
+export const registerCartUpdateCallback = (callback) => {
+  updateStoreCallback = callback
+}
+
 /**
  * Cart Service
  * Manages cart storage in cookies (guest) or Firestore (logged in users)
@@ -81,6 +91,11 @@ const saveCart = async (cart) => {
   } else {
     // Save to cookies
     setCookie(CART_COOKIE_NAME, cart, CART_COOKIE_DAYS)
+  }
+  
+  // Notify store of cart update
+  if (updateStoreCallback) {
+    await updateStoreCallback()
   }
 }
 
@@ -232,4 +247,9 @@ export const mergeGuestCart = async () => {
   
   // Clear guest cart cookie
   deleteCookie(CART_COOKIE_NAME)
+  
+  // Notify store of cart update
+  if (updateStoreCallback) {
+    await updateStoreCallback()
+  }
 }
