@@ -232,12 +232,7 @@ export default {
       if (product.value && product.value.stock > 0) {
         const result = await addToCartService(
           product.value.id, 
-          quantity.value,
-          {
-            name: product.value.name,
-            price: product.value.price,
-            imageUrl: product.value.imageUrl || product.value.image
-          }
+          quantity.value
         )
         
         if (result.success) {

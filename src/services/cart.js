@@ -1,4 +1,4 @@
-import { updateUserDocument, getUserDocument } from './db'
+import { updateUserDocument, getUserDocument, getDocument } from './db'
 import { getCurrentUser } from './auth'
 
 const CART_COOKIE_NAME = 'webshop_cart'
@@ -17,6 +17,8 @@ export const registerCartUpdateCallback = (callback) => {
 /**
  * Cart Service
  * Manages cart storage in cookies (guest) or Firestore (logged in users)
+ * Cart items are stored as: { productId: string, quantity: number, addedAt: timestamp }
+ * Product details are fetched separately when displaying the cart
  */
 
 // ==================== COOKIE HELPERS ====================
@@ -60,10 +62,10 @@ const deleteCookie = (name) => {
 // ==================== CART OPERATIONS ====================
 
 /**
- * Get cart items
+ * Get raw cart items (just IDs and quantities)
  * Returns cart from Firestore if user is logged in, otherwise from cookies
  */
-export const getCart = async () => {
+const getRawCart = async () => {
   const user = getCurrentUser()
   
   if (user) {
@@ -77,6 +79,40 @@ export const getCart = async () => {
     // Get cart from cookies
     return getCookie(CART_COOKIE_NAME) || []
   }
+}
+
+/**
+ * Get cart items with full product details
+ * Fetches product data from Firestore and filters out deleted products
+ */
+export const getCart = async () => {
+  const rawCart = await getRawCart()
+  const cartWithDetails = []
+
+  for (const item of rawCart) {
+    try {
+      const productResult = await getDocument('products', item.productId)
+      
+      // Only add item if product still exists
+      if (productResult.success && productResult.data) {
+        cartWithDetails.push({
+          productId: item.productId,
+          quantity: item.quantity,
+          addedAt: item.addedAt,
+          updatedAt: item.updatedAt,
+          // Product details
+          name: productResult.data.name,
+          price: productResult.data.price,
+          imageUrl: productResult.data.imageUrl || productResult.data.image,
+          stock: productResult.data.stock
+        })
+      }
+    } catch (error) {
+      console.warn(`Product ${item.productId} not found, skipping...`)
+    }
+  }
+
+  return cartWithDetails
 }
 
 /**
@@ -103,34 +139,30 @@ const saveCart = async (cart) => {
  * Add item to cart
  * @param {string} productId - Product ID
  * @param {number} quantity - Quantity to add
- * @param {object} productData - Product data (name, price, imageUrl)
  */
-export const addToCart = async (productId, quantity = 1, productData = {}) => {
+export const addToCart = async (productId, quantity = 1) => {
   try {
-    const cart = await getCart()
+    const rawCart = await getRawCart()
     
     // Check if product already exists in cart
-    const existingItemIndex = cart.findIndex(item => item.productId === productId)
+    const existingItemIndex = rawCart.findIndex(item => item.productId === productId)
     
     if (existingItemIndex > -1) {
       // Update quantity
-      cart[existingItemIndex].quantity += quantity
-      cart[existingItemIndex].updatedAt = new Date().toISOString()
+      rawCart[existingItemIndex].quantity += quantity
+      rawCart[existingItemIndex].updatedAt = new Date().toISOString()
     } else {
-      // Add new item
-      cart.push({
+      // Add new item (only ID and quantity)
+      rawCart.push({
         productId,
         quantity,
-        name: productData.name || '',
-        price: productData.price || 0,
-        imageUrl: productData.imageUrl || '',
         addedAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       })
     }
     
-    await saveCart(cart)
-    return { success: true, cart }
+    await saveCart(rawCart)
+    return { success: true }
   } catch (error) {
     console.error('Error adding to cart:', error)
     return { success: false, error: error.message }
@@ -144,8 +176,8 @@ export const addToCart = async (productId, quantity = 1, productData = {}) => {
  */
 export const updateCartItem = async (productId, quantity) => {
   try {
-    const cart = await getCart()
-    const itemIndex = cart.findIndex(item => item.productId === productId)
+    const rawCart = await getRawCart()
+    const itemIndex = rawCart.findIndex(item => item.productId === productId)
     
     if (itemIndex === -1) {
       return { success: false, error: 'Item not found in cart' }
@@ -153,15 +185,15 @@ export const updateCartItem = async (productId, quantity) => {
     
     if (quantity <= 0) {
       // Remove item
-      cart.splice(itemIndex, 1)
+      rawCart.splice(itemIndex, 1)
     } else {
       // Update quantity
-      cart[itemIndex].quantity = quantity
-      cart[itemIndex].updatedAt = new Date().toISOString()
+      rawCart[itemIndex].quantity = quantity
+      rawCart[itemIndex].updatedAt = new Date().toISOString()
     }
     
-    await saveCart(cart)
-    return { success: true, cart }
+    await saveCart(rawCart)
+    return { success: true }
   } catch (error) {
     console.error('Error updating cart item:', error)
     return { success: false, error: error.message }
@@ -174,11 +206,11 @@ export const updateCartItem = async (productId, quantity) => {
  */
 export const removeFromCart = async (productId) => {
   try {
-    const cart = await getCart()
-    const filteredCart = cart.filter(item => item.productId !== productId)
+    const rawCart = await getRawCart()
+    const filteredCart = rawCart.filter(item => item.productId !== productId)
     
     await saveCart(filteredCart)
-    return { success: true, cart: filteredCart }
+    return { success: true }
   } catch (error) {
     console.error('Error removing from cart:', error)
     return { success: false, error: error.message }

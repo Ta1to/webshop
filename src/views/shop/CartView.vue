@@ -192,10 +192,9 @@ export default {
 
       updating.value = true
       try {
-        const result = await updateCartItem(item.productId, item.quantity)
-        if (result.success) {
-          cart.value = result.cart
-        }
+        await updateCartItem(item.productId, item.quantity)
+        // Reload cart to get updated data
+        await loadCart()
       } catch (error) {
         console.error('Error updating quantity:', error)
       } finally {
@@ -217,10 +216,9 @@ export default {
 
       updating.value = true
       try {
-        const result = await removeFromCart(itemToDelete.value.productId)
-        if (result.success) {
-          cart.value = result.cart
-        }
+        await removeFromCart(itemToDelete.value.productId)
+        // Reload cart to get updated data
+        await loadCart()
       } catch (error) {
         console.error('Error removing item:', error)
       } finally {
@@ -236,8 +234,7 @@ export default {
 
     // Proceed to checkout
     const proceedToCheckout = () => {
-      // TODO: Implement checkout
-      alert('Checkout-Funktionalität wird in Kürze implementiert!')
+      router.push('/checkout')
     }
 
     // Load cart on mount
