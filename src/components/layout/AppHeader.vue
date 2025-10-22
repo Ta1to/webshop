@@ -549,11 +549,10 @@ export default {
 }
 
 .nav-tabs-container {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 0 2rem;
+  padding: 0 1rem;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0;
 }
 
@@ -565,7 +564,7 @@ export default {
   text-decoration: none;
   font-size: 0.95rem;
   font-weight: 500;
-  padding: 0.75rem 1.5rem;
+  padding: 0.75rem 1rem;
   border-bottom: 3px solid transparent;
   transition: all 0.3s ease;
   white-space: nowrap;

@@ -5,6 +5,28 @@
       <p class="subtitle">Verwaltungsübersicht</p>
     </div>
 
+    <!-- Test Data Actions -->
+    <div class="test-data-section">
+      <div class="test-data-card">
+        <h3>Testdaten Generieren</h3>
+        <p>Erstelle Mock-Daten für Produkte und Kategorien aus dem Nachhaltigkeits-Sortiment</p>
+        <div class="test-data-buttons">
+          <button @click="loadMockCategories" class="btn-mock" :disabled="loadingMock">
+            <LayoutGrid :size="18" />
+            {{ loadingMock ? 'Lädt...' : 'Kategorien laden' }}
+          </button>
+          <button @click="loadMockProducts" class="btn-mock" :disabled="loadingMock">
+            <Package :size="18" />
+            {{ loadingMock ? 'Lädt...' : 'Produkte laden' }}
+          </button>
+          <button @click="loadAllMockData" class="btn-mock btn-mock-primary" :disabled="loadingMock">
+            <Plus :size="18" />
+            {{ loadingMock ? 'Lädt...' : 'Alle Testdaten laden' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- Loading State -->
     <div v-if="loading" class="loading">
       <div class="spinner"></div>
@@ -340,9 +362,11 @@ import AlertDialog from '../../components/dialog/AlertDialog.vue'
 import ProductModal from '../../components/modal/ProductModal.vue'
 import CategoryModal from '../../components/modal/CategoryModal.vue'
 import { Users, LayoutGrid, Package, ShoppingCart, Shield, Trash2, Plus, Edit2 } from 'lucide-vue-next'
+import { mockCategories, mockProducts } from '../../data'
 
 const loading = ref(true)
 const error = ref(null)
+const loadingMock = ref(false)
 
 // Alert refs
 const confirmDialog = ref(null)
@@ -428,6 +452,193 @@ const loadDashboardData = async () => {
     error.value = 'Fehler beim Laden der Dashboard-Daten'
   } finally {
     loading.value = false
+  }
+}
+
+// ==================== MOCK DATA LOADING ====================
+
+// Load mock categories
+const loadMockCategories = async () => {
+  loadingMock.value = true
+  
+  try {
+    let successCount = 0
+    let errorCount = 0
+    
+    for (const category of mockCategories) {
+      // Create slug from name
+      const slug = category.name.toLowerCase()
+        .replace(/ä/g, 'ae')
+        .replace(/ö/g, 'oe')
+        .replace(/ü/g, 'ue')
+        .replace(/ß/g, 'ss')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, '')
+      
+      const categoryData = {
+        ...category,
+        slug,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }
+      
+      const result = await createDocument('categories', categoryData)
+      if (result.success) {
+        successCount++
+      } else {
+        errorCount++
+      }
+    }
+    
+    // Reload data
+    await loadDashboardData()
+    
+    successConfig.value = {
+      title: 'Kategorien geladen',
+      message: `${successCount} Kategorien erfolgreich erstellt!${errorCount > 0 ? `\n${errorCount} Fehler aufgetreten.` : ''}`
+    }
+    successDialog.value.open()
+    
+  } catch (err) {
+    console.error('Error loading mock categories:', err)
+    errorConfig.value = {
+      title: 'Fehler',
+      message: `Fehler beim Laden der Mock-Kategorien:\n${err.message}`
+    }
+    errorDialog.value.open()
+  } finally {
+    loadingMock.value = false
+  }
+}
+
+// Load mock products
+const loadMockProducts = async () => {
+  loadingMock.value = true
+  
+  try {
+    // Check if categories exist
+    if (categories.value.length === 0) {
+      errorConfig.value = {
+        title: 'Keine Kategorien',
+        message: 'Bitte erstellen Sie zuerst Kategorien, bevor Sie Produkte laden.'
+      }
+      errorDialog.value.open()
+      loadingMock.value = false
+      return
+    }
+    
+    let successCount = 0
+    let errorCount = 0
+    
+    for (const product of mockProducts) {
+      const productData = {
+        ...product,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }
+      
+      const result = await createDocument('products', productData)
+      if (result.success) {
+        successCount++
+      } else {
+        errorCount++
+      }
+    }
+    
+    // Reload data
+    await loadDashboardData()
+    
+    successConfig.value = {
+      title: 'Produkte geladen',
+      message: `${successCount} Produkte erfolgreich erstellt!${errorCount > 0 ? `\n${errorCount} Fehler aufgetreten.` : ''}`
+    }
+    successDialog.value.open()
+    
+  } catch (err) {
+    console.error('Error loading mock products:', err)
+    errorConfig.value = {
+      title: 'Fehler',
+      message: `Fehler beim Laden der Mock-Produkte:\n${err.message}`
+    }
+    errorDialog.value.open()
+  } finally {
+    loadingMock.value = false
+  }
+}
+
+// Load all mock data (categories first, then products)
+const loadAllMockData = async () => {
+  loadingMock.value = true
+  
+  try {
+    // First load categories
+    let categorySuccessCount = 0
+    let categoryErrorCount = 0
+    
+    for (const category of mockCategories) {
+      const slug = category.name.toLowerCase()
+        .replace(/ä/g, 'ae')
+        .replace(/ö/g, 'oe')
+        .replace(/ü/g, 'ue')
+        .replace(/ß/g, 'ss')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, '')
+      
+      const categoryData = {
+        ...category,
+        slug,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }
+      
+      const result = await createDocument('categories', categoryData)
+      if (result.success) {
+        categorySuccessCount++
+      } else {
+        categoryErrorCount++
+      }
+    }
+    
+    // Reload to get category IDs
+    await loadDashboardData()
+    
+    // Then load products
+    let productSuccessCount = 0
+    let productErrorCount = 0
+    
+    for (const product of mockProducts) {
+      const productData = {
+        ...product,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }
+      
+      const result = await createDocument('products', productData)
+      if (result.success) {
+        productSuccessCount++
+      } else {
+        productErrorCount++
+      }
+    }
+    
+    // Final reload
+    await loadDashboardData()
+    
+    successConfig.value = {
+      title: 'Testdaten geladen',
+      message: `✅ ${categorySuccessCount} Kategorien erstellt\n✅ ${productSuccessCount} Produkte erstellt${categoryErrorCount + productErrorCount > 0 ? `\n\n⚠️ ${categoryErrorCount + productErrorCount} Fehler aufgetreten` : ''}`
+    }
+    successDialog.value.open()
+    
+  } catch (err) {
+    console.error('Error loading all mock data:', err)
+    errorConfig.value = {
+      title: 'Fehler',
+      message: `Fehler beim Laden der Testdaten:\n${err.message}`
+    }
+    errorDialog.value.open()
+  } finally {
+    loadingMock.value = false
   }
 }
 
@@ -751,6 +962,74 @@ onMounted(() => {
 .subtitle {
   color: #666;
   font-size: 1.1rem;
+}
+
+/* Test Data Section */
+.test-data-section {
+  margin-bottom: 2rem;
+}
+
+.test-data-card {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border: 2px solid var(--primary-green-lighter);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.1);
+}
+
+.test-data-card h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--primary-green);
+  margin: 0 0 0.5rem 0;
+}
+
+.test-data-card p {
+  color: #666;
+  margin: 0 0 1rem 0;
+  font-size: 0.95rem;
+}
+
+.test-data-buttons {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.btn-mock {
+  padding: 0.75rem 1.5rem;
+  background: white;
+  color: var(--primary-green);
+  border: 2px solid var(--primary-green);
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-mock:hover:not(:disabled) {
+  background: var(--primary-green);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.btn-mock:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-mock-primary {
+  background: var(--primary-green);
+  color: white;
+}
+
+.btn-mock-primary:hover:not(:disabled) {
+  background: var(--primary-green-dark);
 }
 
 /* Loading */
