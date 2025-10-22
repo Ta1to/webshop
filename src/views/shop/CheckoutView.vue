@@ -33,6 +33,11 @@
               <h2>Lieferadresse</h2>
             </div>
 
+            <div v-if="profileDataLoaded" class="profile-loaded-notice">
+              <Check :size="18" />
+              <span>Deine Adressdaten wurden aus deinem Profil geladen</span>
+            </div>
+
             <form class="checkout-form" @submit.prevent="nextStep">
               <div class="form-row">
                 <div class="form-group">
@@ -331,9 +336,12 @@
 </template>
 
 <script>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import { getCart, getCartTotal, clearCart } from '../../services/cart'
+import { observeAuthState, getCurrentUser } from '../../services/auth'
+import { getUserDocument } from '../../services/db'
+import { createOrder } from '../../services/orders'
 import { 
   Check,
   MapPin,
@@ -371,6 +379,8 @@ export default {
     const cart = ref([])
     const termsAccepted = ref(false)
     const isProcessing = ref(false)
+    const profileDataLoaded = ref(false)
+    let unsubscribeAuth = null
 
     const steps = ['Adresse', 'Versand', 'Zahlung', 'Überprüfen']
 
@@ -437,17 +447,84 @@ export default {
 
     const selectedPayment = ref('credit-card')
 
-    // Load cart
     onMounted(async () => {
       cart.value = await getCart()
       
-      // Redirect if cart is empty
       if (cart.value.length === 0) {
         router.push('/cart')
       }
+
+      unsubscribeAuth = observeAuthState(async (user) => {
+        if (user) {
+          const result = await getUserDocument(user.uid)
+          if (result.success && result.data) {
+            const userData = result.data
+            let hasData = false
+            
+            // Auto-fill address fields from user profile
+            if (userData.displayName) {
+              const nameParts = userData.displayName.trim().split(' ')
+              if (nameParts.length === 1) {
+                shippingAddress.value.firstName = nameParts[0]
+              } else if (nameParts.length >= 2) {
+                shippingAddress.value.firstName = nameParts[0]
+                shippingAddress.value.lastName = nameParts.slice(1).join(' ')
+              }
+              hasData = true
+            }
+
+            if (userData.email) {
+              shippingAddress.value.email = userData.email
+              hasData = true
+            }
+
+            if (userData.phone) {
+              shippingAddress.value.phone = userData.phone
+              hasData = true
+            }
+
+            if (userData.street) {
+              shippingAddress.value.street = userData.street
+              hasData = true
+            }
+
+            if (userData.postalCode) {
+              shippingAddress.value.postalCode = userData.postalCode
+              hasData = true
+            }
+
+            if (userData.city) {
+              shippingAddress.value.city = userData.city
+              hasData = true
+            }
+
+            if (userData.country) {
+              // Map country name to country code if needed
+              const countryMap = {
+                'Deutschland': 'DE',
+                'Österreich': 'AT',
+                'Schweiz': 'CH',
+                'DE': 'DE',
+                'AT': 'AT',
+                'CH': 'CH'
+              }
+              shippingAddress.value.country = countryMap[userData.country] || 'DE'
+              hasData = true
+            }
+
+            // Show notice if at least some data was loaded
+            profileDataLoaded.value = hasData
+          }
+        }
+      })
     })
 
-    // Computed
+    onBeforeUnmount(() => {
+      if (unsubscribeAuth) {
+        unsubscribeAuth()
+      }
+    })
+
     const subtotal = computed(() => {
       return cart.value.reduce((total, item) => total + (item.price * item.quantity), 0)
     })
@@ -502,15 +579,60 @@ export default {
 
       isProcessing.value = true
 
-      // Simulate order processing
-      setTimeout(async () => {
-        // Clear cart
-        await clearCart()
+      try {
+        const currentUser = getCurrentUser()
         
-        // Redirect to success page (to be created)
-        alert('Bestellung erfolgreich aufgegeben!\n\nVielen Dank für Ihren Einkauf!')
-        router.push('/')
-      }, 2000)
+        // Prepare order data
+        const orderData = {
+          userId: currentUser?.uid || null,
+          userEmail: shippingAddress.value.email,
+          items: cart.value.map(item => ({
+            id: item.id,
+            productId: item.id,
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity,
+            image: item.image || null,
+            category: item.category || null
+          })),
+          shippingAddress: {
+            firstName: shippingAddress.value.firstName,
+            lastName: shippingAddress.value.lastName,
+            email: shippingAddress.value.email,
+            phone: shippingAddress.value.phone,
+            street: shippingAddress.value.street,
+            postalCode: shippingAddress.value.postalCode,
+            city: shippingAddress.value.city,
+            country: shippingAddress.value.country
+          },
+          shippingMethod: selectedShipping.value,
+          shippingCost: shippingCost.value,
+          paymentMethod: selectedPayment.value,
+          subtotal: subtotal.value,
+          total: total.value,
+          status: 'pending'
+        }
+
+        // Create order in Firestore
+        const result = await createOrder(orderData)
+
+        if (result.success) {
+          // Clear cart
+          await clearCart()
+          
+          // Redirect to success page with order ID
+          router.push({
+            path: '/checkout/success',
+            query: { orderId: result.orderId }
+          })
+        } else {
+          throw new Error(result.error || 'Fehler beim Erstellen der Bestellung')
+        }
+      } catch (error) {
+        console.error('Error placing order:', error)
+        alert(`Fehler beim Aufgeben der Bestellung: ${error.message}`)
+        isProcessing.value = false
+      }
     }
 
     return {
@@ -526,6 +648,7 @@ export default {
       selectedPaymentMethod,
       termsAccepted,
       isProcessing,
+      profileDataLoaded,
       subtotal,
       shippingCost,
       total,
@@ -676,6 +799,38 @@ export default {
   font-weight: 700;
   color: var(--gray-900);
   margin: 0;
+}
+
+/* Profile Loaded Notice */
+.profile-loaded-notice {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1.25rem;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%);
+  border: 1px solid var(--primary-green-lighter);
+  border-radius: 10px;
+  color: var(--primary-green-dark);
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin-bottom: 1.5rem;
+  animation: slideDown 0.3s ease;
+}
+
+.profile-loaded-notice svg {
+  flex-shrink: 0;
+  color: var(--primary-green);
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Forms */

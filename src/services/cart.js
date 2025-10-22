@@ -86,33 +86,49 @@ const getRawCart = async () => {
  * Fetches product data from Firestore and filters out deleted products
  */
 export const getCart = async () => {
-  const rawCart = await getRawCart()
-  const cartWithDetails = []
+  try {
+    const rawCart = await getRawCart()
+    const cartWithDetails = []
+    const invalidProductIds = []
 
-  for (const item of rawCart) {
-    try {
-      const productResult = await getDocument('products', item.productId)
-      
-      // Only add item if product still exists
-      if (productResult.success && productResult.data) {
-        cartWithDetails.push({
-          productId: item.productId,
-          quantity: item.quantity,
-          addedAt: item.addedAt,
-          updatedAt: item.updatedAt,
-          // Product details
-          name: productResult.data.name,
-          price: productResult.data.price,
-          imageUrl: productResult.data.imageUrl || productResult.data.image,
-          stock: productResult.data.stock
-        })
+    for (const item of rawCart) {
+      try {
+        const productResult = await getDocument('products', item.productId)
+        
+        if (productResult.success && productResult.data) {
+          cartWithDetails.push({
+            id: item.productId,
+            productId: item.productId,
+            quantity: item.quantity,
+            addedAt: item.addedAt,
+            updatedAt: item.updatedAt,
+            name: productResult.data.name,
+            price: productResult.data.price,
+            image: productResult.data.imageUrl || productResult.data.image,
+            imageUrl: productResult.data.imageUrl || productResult.data.image,
+            category: productResult.data.category,
+            stock: productResult.data.stock
+          })
+        } else {
+          invalidProductIds.push(item.productId)
+        }
+      } catch (error) {
+        console.warn(`Product ${item.productId} not found, skipping...`)
+        invalidProductIds.push(item.productId)
       }
-    } catch (error) {
-      console.warn(`Product ${item.productId} not found, skipping...`)
     }
-  }
 
-  return cartWithDetails
+    if (invalidProductIds.length > 0) {
+      for (const productId of invalidProductIds) {
+        await removeFromCart(productId)
+      }
+    }
+
+    return cartWithDetails
+  } catch (error) {
+    console.error('Error getting cart:', error)
+    return []
+  }
 }
 
 /**

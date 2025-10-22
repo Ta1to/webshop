@@ -5,10 +5,14 @@ export class Order {
   constructor(data = {}) {
     this.id = data.id || null
     this.userId = data.userId || ''
+    this.userEmail = data.userEmail || ''
     this.items = data.items || []
-    this.totalAmount = data.totalAmount || 0
+    this.total = data.total || data.totalAmount || 0
+    this.subtotal = data.subtotal || 0
+    this.shippingCost = data.shippingCost || 0
     this.status = data.status || OrderStatus.PENDING
     this.shippingAddress = data.shippingAddress || {}
+    this.shippingMethod = data.shippingMethod || ''
     this.paymentMethod = data.paymentMethod || ''
     this.createdAt = data.createdAt || null
     this.updatedAt = data.updatedAt || null
@@ -31,10 +35,14 @@ export class Order {
   toFirestore() {
     return {
       userId: this.userId,
+      userEmail: this.userEmail,
       items: this.items,
-      totalAmount: this.totalAmount,
+      total: this.total,
+      subtotal: this.subtotal,
+      shippingCost: this.shippingCost,
       status: this.status,
       shippingAddress: this.shippingAddress,
+      shippingMethod: this.shippingMethod,
       paymentMethod: this.paymentMethod,
       updatedAt: this.updatedAt
     }
@@ -47,7 +55,7 @@ export class Order {
     return new Intl.NumberFormat(locale, {
       style: 'currency',
       currency: currency
-    }).format(this.totalAmount)
+    }).format(this.total)
   }
 
   /**
@@ -92,7 +100,7 @@ export class Order {
       errors.push('Order must have at least one item')
     }
     
-    if (this.totalAmount <= 0) {
+    if (this.total <= 0) {
       errors.push('Total amount must be positive')
     }
     

@@ -232,7 +232,9 @@
                            :src="product.imageUrl" 
                            :alt="product.name"
                            class="product-thumbnail">
-                      <div class="product-placeholder" v-else>📦</div>
+                      <div class="product-placeholder" v-else>
+                        <Package :size="18" />
+                      </div>
                       <span>{{ product.name }}</span>
                     </div>
                   </td>
@@ -281,22 +283,45 @@
                 <tr>
                   <th>Bestell-ID</th>
                   <th>Kunde</th>
+                  <th>Artikel</th>
                   <th>Betrag</th>
                   <th>Status</th>
                   <th>Datum</th>
+                  <th>Aktionen</th>
                 </tr>
               </thead>
               <tbody>
                 <tr v-for="order in orders" :key="order.id">
                   <td><code>{{ order.id.substring(0, 8) }}</code></td>
                   <td>{{ order.userEmail || 'N/A' }}</td>
+                  <td>{{ order.items?.length || 0 }} Artikel</td>
                   <td class="price">{{ formatPrice(order.total) }}</td>
                   <td>
-                    <span :class="['status-badge', order.status]">
-                      {{ getOrderStatusText(order.status) }}
-                    </span>
+                    <select 
+                      :value="order.status" 
+                      @change="updateStatus(order, $event.target.value)"
+                      class="status-select"
+                      :class="order.status"
+                    >
+                      <option value="pending">Ausstehend</option>
+                      <option value="processing">In Bearbeitung</option>
+                      <option value="shipped">Versandt</option>
+                      <option value="delivered">Zugestellt</option>
+                      <option value="cancelled">Storniert</option>
+                    </select>
                   </td>
                   <td>{{ formatDate(order.createdAt) }}</td>
+                  <td>
+                    <div class="action-buttons">
+                      <button
+                        @click="viewOrderDetails(order)"
+                        class="btn-action btn-edit"
+                        title="Details anzeigen"
+                      >
+                        <ChevronRight :size="18" />
+                      </button>
+                    </div>
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -358,10 +383,11 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { getAllDocuments, updateDocument, deleteDocument, createDocument } from '../../services/db'
+import { getAllOrders, updateOrderStatus } from '../../services/orders'
 import AlertDialog from '../../components/dialog/AlertDialog.vue'
 import ProductModal from '../../components/modal/ProductModal.vue'
 import CategoryModal from '../../components/modal/CategoryModal.vue'
-import { Users, LayoutGrid, Package, ShoppingCart, Shield, Trash2, Plus, Edit2 } from 'lucide-vue-next'
+import { Users, LayoutGrid, Package, ShoppingCart, Shield, Trash2, Plus, Edit2, ChevronRight } from 'lucide-vue-next'
 import { mockCategories, mockProducts } from '../../data'
 
 const loading = ref(true)
@@ -437,14 +463,10 @@ const loadDashboardData = async () => {
     }
 
     // Load orders from Firestore
-    const ordersResult = await getAllDocuments('orders')
+    const ordersResult = await getAllOrders()
     if (ordersResult.success) {
-      orders.value = ordersResult.data.sort((a, b) => {
-        const dateA = a.createdAt?.toDate?.() || new Date(0)
-        const dateB = b.createdAt?.toDate?.() || new Date(0)
-        return dateB - dateA
-      }).slice(0, 10) // Show only last 10 orders
-      stats.value.totalOrders = ordersResult.data.length
+      orders.value = ordersResult.orders.slice(0, 10) // Show only last 10 orders
+      stats.value.totalOrders = ordersResult.orders.length
     }
 
   } catch (err) {
@@ -621,12 +643,11 @@ const loadAllMockData = async () => {
       }
     }
     
-    // Final reload
     await loadDashboardData()
     
     successConfig.value = {
       title: 'Testdaten geladen',
-      message: `✅ ${categorySuccessCount} Kategorien erstellt\n✅ ${productSuccessCount} Produkte erstellt${categoryErrorCount + productErrorCount > 0 ? `\n\n⚠️ ${categoryErrorCount + productErrorCount} Fehler aufgetreten` : ''}`
+      message: `${categorySuccessCount} Kategorien erstellt\n${productSuccessCount} Produkte erstellt${categoryErrorCount + productErrorCount > 0 ? `\n\n${categoryErrorCount + productErrorCount} Fehler aufgetreten` : ''}`
     }
     successDialog.value.open()
     
@@ -667,13 +688,65 @@ const getOrderStatusText = (status) => {
     pending: 'Ausstehend',
     processing: 'In Bearbeitung',
     shipped: 'Versandt',
-    delivered: 'Geliefert',
+    delivered: 'Zugestellt',
     cancelled: 'Storniert'
   }
   return statusMap[status] || status
 }
 
-// Toggle user role between admin and user
+// Update order status
+const updateStatus = async (order, newStatus) => {
+  if (order.status === newStatus) return
+
+  try {
+    const result = await updateOrderStatus(order.id, newStatus)
+
+    if (result.success) {
+      // Update local order status
+      order.status = newStatus
+      
+      successConfig.value = {
+        title: 'Status aktualisiert',
+        message: `Der Bestellstatus wurde erfolgreich zu "${getOrderStatusText(newStatus)}" geändert.`
+      }
+      successDialog.value.open()
+    } else {
+      throw new Error(result.error)
+    }
+  } catch (err) {
+    console.error('Error updating order status:', err)
+    errorConfig.value = {
+      title: 'Fehler',
+      message: `Fehler beim Aktualisieren des Bestellstatus:\n${err.message}`
+    }
+    errorDialog.value.open()
+  }
+}
+
+// View order details
+const viewOrderDetails = (order) => {
+  let itemsList = ''
+  if (order.items && order.items.length > 0) {
+    itemsList = order.items.map(item => 
+      `• ${item.name} (${item.quantity}x ${formatPrice(item.price)})`
+    ).join('\n')
+  }
+
+  const shippingAddr = order.shippingAddress
+  const addressText = shippingAddr 
+    ? `${shippingAddr.firstName} ${shippingAddr.lastName}\n${shippingAddr.street}\n${shippingAddr.postalCode} ${shippingAddr.city}\n${shippingAddr.country}`
+    : 'Keine Adresse angegeben'
+
+  dialogConfig.value = {
+    title: `Bestellung #${order.id.slice(0, 8).toUpperCase()}`,
+    message: `Artikel:\n${itemsList || 'Keine Artikel'}\n\nLieferadresse:\n${addressText}\n\nGesamt: ${formatPrice(order.total)}\nDatum: ${formatDate(order.createdAt)}\nStatus: ${getOrderStatusText(order.status)}`,
+    confirmText: 'OK',
+    onConfirm: () => {}
+  }
+  
+  confirmDialog.value.open()
+}
+
 const toggleUserRole = async (user) => {
   const newRole = user.role === 'admin' ? 'user' : 'admin'
   const roleName = newRole === 'admin' ? 'Admin' : 'Benutzer'
@@ -1413,6 +1486,57 @@ onMounted(() => {
 .status-badge.cancelled {
   background: var(--error-light);
   color: var(--error);
+}
+
+/* Status Select */
+.status-select {
+  padding: 0.375rem 0.75rem;
+  border-radius: 6px;
+  border: 2px solid transparent;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.status-select.pending {
+  background: #FEF3C7;
+  color: #D97706;
+  border-color: #FDE68A;
+}
+
+.status-select.processing {
+  background: #DBEAFE;
+  color: #3B82F6;
+  border-color: #93C5FD;
+}
+
+.status-select.shipped {
+  background: #A7F3D0;
+  color: #047857;
+  border-color: #6EE7B7;
+}
+
+.status-select.delivered {
+  background: var(--primary-green-lighter);
+  color: var(--primary-green-dark);
+  border-color: var(--primary-green);
+}
+
+.status-select.cancelled {
+  background: var(--error-light);
+  color: var(--error);
+  border-color: #FCA5A5;
+}
+
+.status-select:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.status-select:focus {
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
 }
 
 /* Misc */

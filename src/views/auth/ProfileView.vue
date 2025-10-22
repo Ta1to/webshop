@@ -54,7 +54,7 @@
                   <template v-if="editingField === 'displayName'">
                     <button
                       type="button"
-                      class="action-button ghost"
+                      class="action-button cancel"
                       @click="cancelEditing"
                       :disabled="savingField === 'displayName'"
                     >
@@ -62,7 +62,7 @@
                     </button>
                     <button
                       type="button"
-                      class="action-button primary"
+                      class="action-button save"
                       @click="handleSaveField('displayName')"
                       :disabled="savingField === 'displayName'"
                     >
@@ -73,7 +73,7 @@
                   <template v-else>
                     <button
                       type="button"
-                      class="action-button ghost"
+                      class="action-button edit"
                       @click="startEditing('displayName')"
                     >
                       Bearbeiten
@@ -101,7 +101,7 @@
                   <template v-if="editingField === 'email'">
                     <button
                       type="button"
-                      class="action-button ghost"
+                      class="action-button cancel"
                       @click="cancelEditing"
                       :disabled="savingField === 'email'"
                     >
@@ -109,7 +109,7 @@
                     </button>
                     <button
                       type="button"
-                      class="action-button primary"
+                      class="action-button save"
                       @click="handleSaveField('email')"
                       :disabled="savingField === 'email'"
                     >
@@ -120,8 +120,214 @@
                   <template v-else>
                     <button
                       type="button"
-                      class="action-button ghost"
+                      class="action-button edit"
                       @click="startEditing('email')"
+                    >
+                      Bearbeiten
+                    </button>
+                  </template>
+                </div>
+              </div>
+
+              <div class="details-row">
+                <div class="details-label">Straße & Hausnr.</div>
+                <div class="details-value">
+                  <template v-if="editingField === 'street'">
+                    <input
+                      id="street"
+                      type="text"
+                      v-model="editBuffer.street"
+                      maxlength="100"
+                      placeholder="z.B. Musterstraße 123"
+                      autofocus
+                    />
+                  </template>
+                  <template v-else>
+                    {{ form.street || 'Nicht angegeben' }}
+                  </template>
+                </div>
+                <div class="details-actions">
+                  <template v-if="editingField === 'street'">
+                    <button
+                      type="button"
+                      class="action-button cancel"
+                      @click="cancelEditing"
+                      :disabled="savingField === 'street'"
+                    >
+                      Abbrechen
+                    </button>
+                    <button
+                      type="button"
+                      class="action-button save"
+                      @click="handleSaveField('street')"
+                      :disabled="savingField === 'street'"
+                    >
+                      <span v-if="savingField === 'street'">Speichere...</span>
+                      <span v-else>Speichern</span>
+                    </button>
+                  </template>
+                  <template v-else>
+                    <button
+                      type="button"
+                      class="action-button edit"
+                      @click="startEditing('street')"
+                    >
+                      Bearbeiten
+                    </button>
+                  </template>
+                </div>
+              </div>
+
+              <div class="details-row">
+                <div class="details-label">PLZ & Ort</div>
+                <div class="details-value">
+                  <template v-if="editingField === 'city'">
+                    <div class="city-input-group">
+                      <input
+                        id="postalCode"
+                        type="text"
+                        v-model="editBuffer.postalCode"
+                        maxlength="10"
+                        placeholder="PLZ"
+                        class="postal-code-input"
+                      />
+                      <input
+                        id="city"
+                        type="text"
+                        v-model="editBuffer.city"
+                        maxlength="100"
+                        placeholder="Stadt"
+                        class="city-input"
+                      />
+                    </div>
+                  </template>
+                  <template v-else>
+                    {{ cityLabel }}
+                  </template>
+                </div>
+                <div class="details-actions">
+                  <template v-if="editingField === 'city'">
+                    <button
+                      type="button"
+                      class="action-button cancel"
+                      @click="cancelEditing"
+                      :disabled="savingField === 'city'"
+                    >
+                      Abbrechen
+                    </button>
+                    <button
+                      type="button"
+                      class="action-button save"
+                      @click="handleSaveField('city')"
+                      :disabled="savingField === 'city'"
+                    >
+                      <span v-if="savingField === 'city'">Speichere...</span>
+                      <span v-else>Speichern</span>
+                    </button>
+                  </template>
+                  <template v-else>
+                    <button
+                      type="button"
+                      class="action-button edit"
+                      @click="startEditing('city')"
+                    >
+                      Bearbeiten
+                    </button>
+                  </template>
+                </div>
+              </div>
+
+              <div class="details-row">
+                <div class="details-label">Land</div>
+                <div class="details-value">
+                  <template v-if="editingField === 'country'">
+                    <input
+                      id="country"
+                      type="text"
+                      v-model="editBuffer.country"
+                      maxlength="100"
+                      placeholder="z.B. Deutschland"
+                      autofocus
+                    />
+                  </template>
+                  <template v-else>
+                    {{ form.country || 'Nicht angegeben' }}
+                  </template>
+                </div>
+                <div class="details-actions">
+                  <template v-if="editingField === 'country'">
+                    <button
+                      type="button"
+                      class="action-button cancel"
+                      @click="cancelEditing"
+                      :disabled="savingField === 'country'"
+                    >
+                      Abbrechen
+                    </button>
+                    <button
+                      type="button"
+                      class="action-button save"
+                      @click="handleSaveField('country')"
+                      :disabled="savingField === 'country'"
+                    >
+                      <span v-if="savingField === 'country'">Speichere...</span>
+                      <span v-else>Speichern</span>
+                    </button>
+                  </template>
+                  <template v-else>
+                    <button
+                      type="button"
+                      class="action-button edit"
+                      @click="startEditing('country')"
+                    >
+                      Bearbeiten
+                    </button>
+                  </template>
+                </div>
+              </div>
+
+              <div class="details-row">
+                <div class="details-label">Telefon</div>
+                <div class="details-value">
+                  <template v-if="editingField === 'phone'">
+                    <input
+                      id="phone"
+                      type="tel"
+                      v-model="editBuffer.phone"
+                      maxlength="20"
+                      placeholder="z.B. +49 123 456789"
+                      autofocus
+                    />
+                  </template>
+                  <template v-else>
+                    {{ form.phone || 'Nicht angegeben' }}
+                  </template>
+                </div>
+                <div class="details-actions">
+                  <template v-if="editingField === 'phone'">
+                    <button
+                      type="button"
+                      class="action-button cancel"
+                      @click="cancelEditing"
+                      :disabled="savingField === 'phone'"
+                    >
+                      Abbrechen
+                    </button>
+                    <button
+                      type="button"
+                      class="action-button save"
+                      @click="handleSaveField('phone')"
+                      :disabled="savingField === 'phone'"
+                    >
+                      <span v-if="savingField === 'phone'">Speichere...</span>
+                      <span v-else>Speichern</span>
+                    </button>
+                  </template>
+                  <template v-else>
+                    <button
+                      type="button"
+                      class="action-button edit"
+                      @click="startEditing('phone')"
                     >
                       Bearbeiten
                     </button>
@@ -168,12 +374,22 @@ export default {
 
     const form = reactive({
       displayName: '',
-      email: ''
+      email: '',
+      street: '',
+      postalCode: '',
+      city: '',
+      country: '',
+      phone: ''
     })
 
     const editBuffer = reactive({
       displayName: '',
-      email: ''
+      email: '',
+      street: '',
+      postalCode: '',
+      city: '',
+      country: '',
+      phone: ''
     })
 
     let unsubscribeAuth = null
@@ -212,19 +428,54 @@ export default {
       })
     })
 
+    const cityLabel = computed(() => {
+      const postal = form.postalCode?.trim() || ''
+      const city = form.city?.trim() || ''
+      
+      if (!postal && !city) {
+        return 'Nicht angegeben'
+      }
+      if (postal && city) {
+        return `${postal} ${city}`
+      }
+      return postal || city
+    })
+
     const applyFormValues = (authUser, data) => {
       const resolvedDisplayName = data?.displayName || authUser?.displayName || ''
       const resolvedEmail = data?.email || authUser?.email || ''
+      const resolvedStreet = data?.street || ''
+      const resolvedPostalCode = data?.postalCode || ''
+      const resolvedCity = data?.city || ''
+      const resolvedCountry = data?.country || ''
+      const resolvedPhone = data?.phone || ''
 
       form.displayName = resolvedDisplayName
       form.email = resolvedEmail
+      form.street = resolvedStreet
+      form.postalCode = resolvedPostalCode
+      form.city = resolvedCity
+      form.country = resolvedCountry
+      form.phone = resolvedPhone
 
       if (editingField.value !== 'displayName') {
         editBuffer.displayName = resolvedDisplayName
       }
-
       if (editingField.value !== 'email') {
         editBuffer.email = resolvedEmail
+      }
+      if (editingField.value !== 'street') {
+        editBuffer.street = resolvedStreet
+      }
+      if (editingField.value !== 'city') {
+        editBuffer.postalCode = resolvedPostalCode
+        editBuffer.city = resolvedCity
+      }
+      if (editingField.value !== 'country') {
+        editBuffer.country = resolvedCountry
+      }
+      if (editingField.value !== 'phone') {
+        editBuffer.phone = resolvedPhone
       }
     }
 
@@ -291,12 +542,51 @@ export default {
     }
 
     const handleSaveField = async (field) => {
-      if (savingField.value) {
+      if (savingField.value || !user.value) {
+        if (!user.value) {
+          errorMessage.value = 'Es ist kein Benutzer angemeldet.'
+        }
         return
       }
 
       successMessage.value = ''
       errorMessage.value = ''
+
+      if (field === 'city') {
+        const trimmedPostal = (editBuffer.postalCode ?? '').trim()
+        const trimmedCity = (editBuffer.city ?? '').trim()
+        const currentPostal = (form.postalCode || '').trim()
+        const currentCity = (form.city || '').trim()
+
+        if (trimmedPostal === currentPostal && trimmedCity === currentCity) {
+          editingField.value = ''
+          editBuffer.postalCode = form.postalCode || ''
+          editBuffer.city = form.city || ''
+          return
+        }
+
+        const payload = {
+          postalCode: trimmedPostal,
+          city: trimmedCity
+        }
+
+        savingField.value = field
+
+        const result = await updateUserProfile(payload)
+
+        if (result.success) {
+          successMessage.value = 'PLZ und Ort wurden aktualisiert.'
+          await loadUserData(user.value, false)
+          editBuffer.postalCode = form.postalCode || ''
+          editBuffer.city = form.city || ''
+          editingField.value = ''
+        } else {
+          errorMessage.value = getErrorMessage(result.error)
+        }
+
+        savingField.value = ''
+        return
+      }
 
       const rawValue = editBuffer[field] ?? ''
       const trimmedValue = rawValue.trim()
@@ -312,20 +602,18 @@ export default {
         return
       }
 
-      if (!user.value) {
-        errorMessage.value = 'Es ist kein Benutzer angemeldet.'
-        return
-      }
-
       if (trimmedValue === currentValue) {
         editingField.value = ''
         editBuffer[field] = form[field] || ''
         return
       }
 
-      const payload = field === 'email'
-        ? { email: trimmedValue.toLowerCase() }
-        : { displayName: trimmedValue }
+      let payload
+      if (field === 'email') {
+        payload = { email: trimmedValue.toLowerCase() }
+      } else {
+        payload = { [field]: trimmedValue }
+      }
 
       savingField.value = field
 
@@ -334,7 +622,10 @@ export default {
       if (result.success) {
         const successMap = {
           displayName: 'Dein Name wurde aktualisiert.',
-          email: 'Deine E-Mail-Adresse wurde aktualisiert.'
+          email: 'Deine E-Mail-Adresse wurde aktualisiert.',
+          street: 'Deine Straße wurde aktualisiert.',
+          country: 'Dein Land wurde aktualisiert.',
+          phone: 'Deine Telefonnummer wurde aktualisiert.'
         }
         successMessage.value = successMap[field] || 'Dein Profil wurde aktualisiert.'
         await loadUserData(user.value, false)
@@ -376,6 +667,7 @@ export default {
       initials,
       roleLabel,
       createdAtLabel,
+      cityLabel,
       successMessage,
       errorMessage,
       editingField,
@@ -602,43 +894,72 @@ export default {
 }
 
 .action-button {
-  padding: 0.55rem 1.1rem;
-  font-size: 0.95rem;
+  padding: 0.625rem 1.25rem;
+  font-size: 0.9rem;
   border-radius: 8px;
   border: none;
   cursor: pointer;
   transition: all 0.2s ease;
   font-weight: 600;
-  min-width: 130px;
+  min-width: 110px;
   text-align: center;
+  white-space: nowrap;
 }
 
-.action-button.primary {
+.action-button.save {
   background: linear-gradient(135deg, var(--primary-green) 0%, var(--primary-green-dark) 100%);
   color: var(--white);
   border: 1px solid transparent;
 }
 
-.action-button.primary:hover:not(:disabled) {
+.action-button.save:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 6px 14px rgba(16, 185, 129, 0.25);
+  box-shadow: 0 6px 14px rgba(16, 185, 129, 0.3);
 }
 
-.action-button.ghost {
-  background: var(--white);
+.action-button.cancel {
+  background: var(--gray-100);
+  color: var(--gray-700);
+  border: 1px solid var(--gray-300);
+}
+
+.action-button.cancel:hover:not(:disabled) {
+  background: var(--gray-200);
+  border-color: var(--gray-400);
+}
+
+.action-button.edit {
+  background: transparent;
   color: var(--primary-green);
   border: 1.5px solid var(--primary-green);
 }
 
-.action-button.ghost:hover:not(:disabled) {
+.action-button.edit:hover:not(:disabled) {
   background: var(--primary-green-lighter);
+  transform: translateY(-1px);
 }
 
 .action-button:disabled {
-  opacity: 0.6;
+  opacity: 0.5;
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
+}
+
+.city-input-group {
+  display: flex;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.postal-code-input {
+  flex: 0 0 120px;
+  width: 120px;
+}
+
+.city-input {
+  flex: 1;
+  min-width: 0;
 }
 
 .alert {

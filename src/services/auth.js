@@ -75,7 +75,7 @@ export const updateUserProfile = async (profileUpdates = {}) => {
     return { success: false, error: 'auth/user-not-found' }
   }
 
-  const { displayName, email, photoURL } = profileUpdates
+  const { displayName, email, photoURL, street, postalCode, city, country, phone } = profileUpdates
   const authProfileUpdates = {}
 
   if (displayName !== undefined && displayName !== user.displayName) {
@@ -107,6 +107,27 @@ export const updateUserProfile = async (profileUpdates = {}) => {
 
     if (photoURL !== undefined) {
       firestoreUpdates.photoURL = photoURL
+    }
+
+    // Address fields
+    if (street !== undefined) {
+      firestoreUpdates.street = street
+    }
+
+    if (postalCode !== undefined) {
+      firestoreUpdates.postalCode = postalCode
+    }
+
+    if (city !== undefined) {
+      firestoreUpdates.city = city
+    }
+
+    if (country !== undefined) {
+      firestoreUpdates.country = country
+    }
+
+    if (phone !== undefined) {
+      firestoreUpdates.phone = phone
     }
 
     if (Object.keys(firestoreUpdates).length > 0) {

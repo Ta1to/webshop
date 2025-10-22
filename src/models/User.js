@@ -11,7 +11,12 @@ export class User {
     this.newsletter = data.newsletter ?? false
     this.cart = data.cart || []
     this.wishlist = data.wishlist || []
-    this.address = data.address || {}
+    // Additional profile fields
+    this.street = data.street || ''
+    this.postalCode = data.postalCode || ''
+    this.city = data.city || ''
+    this.country = data.country || ''
+    this.phone = data.phone || ''
     this.createdAt = data.createdAt || null
     this.updatedAt = data.updatedAt || null
   }
@@ -39,7 +44,11 @@ export class User {
       newsletter: this.newsletter,
       cart: this.cart,
       wishlist: this.wishlist,
-      address: this.address,
+      street: this.street,
+      postalCode: this.postalCode,
+      city: this.city,
+      country: this.country,
+      phone: this.phone,
       updatedAt: this.updatedAt
     }
   }

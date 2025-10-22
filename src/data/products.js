@@ -190,7 +190,6 @@ export const mockProducts = [
     tags: ['Wiederverwendbar', 'Bio-Baumwolle', 'Zero Waste']
   },
 
-  // Öko-Haushalt
   {
     name: 'Bio-Reinigungsmittel Starter-Set',
     description: 'Komplettes Putzmittel-Set aus biologischen Inhaltsstoffen. Enthält Allzweckreiniger, Badreiniger und Glasreiniger. Vegan.',
@@ -232,7 +231,6 @@ export const mockProducts = [
     tags: ['DIY', 'Bio', 'Kreativ']
   },
 
-  // Grüne Technologie
   {
     name: 'Solar-Powerbank 20.000mAh',
     description: 'Tragbare Solar-Ladestation für Smartphones und Tablets. Wasserdicht, mit LED-Taschenlampe. Lädt auch per USB-C.',
@@ -316,7 +314,6 @@ export const mockProducts = [
     tags: ['Upcycling', 'Robust', 'Unikat']
   },
 
-  // Nachhaltige Mobilität
   {
     name: 'Fahrrad-Reparatur-Set Kompakt',
     description: 'Alles für unterwegs! Multitool, Reifenheber, Flickzeug und Mini-Pumpe in Satteltasche. Qualitätswerkzeug für jede Tour.',

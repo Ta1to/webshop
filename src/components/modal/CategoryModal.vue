@@ -48,13 +48,12 @@
               </div>
 
               <div class="form-group">
-                <label for="icon">Icon (Emoji)</label>
+                <label for="icon">Icon Name (Lucide)</label>
                 <input 
                   id="icon"
                   v-model="formData.icon" 
                   type="text" 
-                  placeholder="📱"
-                  maxlength="2"
+                  placeholder="Package"
                 />
               </div>
 
@@ -98,16 +97,15 @@ const formData = ref({
   name: '',
   slug: '',
   description: '',
-  icon: '📦'
+  icon: 'Package'
 })
 
-// Define resetForm first
 const resetForm = () => {
   formData.value = {
     name: '',
     slug: '',
     description: '',
-    icon: '📦'
+    icon: 'Package'
   }
 }
 
