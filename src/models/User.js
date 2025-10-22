@@ -10,6 +10,8 @@ export class User {
     this.role = data.role || 'user'
     this.newsletter = data.newsletter ?? false
     this.cart = data.cart || []
+    this.wishlist = data.wishlist || []
+    this.address = data.address || {}
     this.createdAt = data.createdAt || null
     this.updatedAt = data.updatedAt || null
   }
@@ -36,6 +38,8 @@ export class User {
       role: this.role,
       newsletter: this.newsletter,
       cart: this.cart,
+      wishlist: this.wishlist,
+      address: this.address,
       updatedAt: this.updatedAt
     }
   }

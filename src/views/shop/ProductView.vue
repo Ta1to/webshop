@@ -49,10 +49,21 @@
               />
             </div>
 
-            <button class="add-to-cart-btn-large" @click="addToCart" :disabled="product.stock === 0">
-              <ShoppingCart :size="20" />
-              {{ product.stock === 0 ? 'Nicht verfügbar' : 'In den Warenkorb' }}
-            </button>
+            <div class="action-buttons">
+              <button 
+                class="wishlist-btn-secondary" 
+                @click="toggleWishlist"
+                :class="{ 'is-wishlisted': isProductInWishlist }"
+                :title="isProductInWishlist ? 'Von Wunschliste entfernen' : 'Zur Wunschliste hinzufügen'"
+              > 
+                <Heart :size="32" :fill="isProductInWishlist ? 'currentColor' : 'none'" />
+              </button>
+              
+              <button class="add-to-cart-btn-large" @click="addToCart" :disabled="product.stock === 0">
+                <ShoppingCart :size="20" />
+                {{ product.stock === 0 ? 'Nicht verfügbar' : 'In den Warenkorb' }}
+              </button>
+            </div>
           </div>
 
           <div class="product-info-grid">
@@ -126,6 +137,7 @@ import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { getAllDocuments } from '../../services/db'
 import { addToCart as addToCartService, getCartItemCount, getCartTotal } from '../../services/cart'
+import { addToWishlist, removeFromWishlist, isInWishlist } from '../../services/wishlist'
 import CartDialog from '../../components/dialog/CartDialog.vue'
 import QuantityControl from '../../components/utility/QuantityControl.vue'
 import { 
@@ -134,7 +146,8 @@ import {
   Truck, 
   RotateCcw, 
   Shield,
-  AlertCircle 
+  AlertCircle,
+  Heart
 } from 'lucide-vue-next'
 
 export default {
@@ -146,6 +159,7 @@ export default {
     RotateCcw,
     Shield,
     AlertCircle,
+    Heart,
     CartDialog,
     QuantityControl
   },
@@ -159,6 +173,14 @@ export default {
     const showCartDialog = ref(false)
     const cartItemCount = ref(0)
     const cartTotal = ref(0)
+    const isProductInWishlist = ref(false)
+
+    // Check if product is in wishlist
+    const checkWishlistStatus = async () => {
+      if (product.value) {
+        isProductInWishlist.value = await isInWishlist(product.value.id)
+      }
+    }
 
     // Load data from Firestore
     onMounted(async () => {
@@ -179,6 +201,7 @@ export default {
         console.error('Error loading product data:', error)
       } finally {
         loading.value = false
+        await checkWishlistStatus()
       }
     })
 
@@ -259,9 +282,26 @@ export default {
       router.push(`/product/${newProduct.id}`)
     }
 
-    // Reset quantity when product changes
-    watch(() => route.params.id, () => {
+    const toggleWishlist = async () => {
+      if (!product.value) return
+      
+      if (isProductInWishlist.value) {
+        const result = await removeFromWishlist(product.value.id)
+        if (result.success) {
+          isProductInWishlist.value = false
+        }
+      } else {
+        const result = await addToWishlist(product.value.id)
+        if (result.success) {
+          isProductInWishlist.value = true
+        }
+      }
+    }
+
+    // Reset quantity and check wishlist status when product changes
+    watch(() => route.params.id, async () => {
       quantity.value = 1
+      await checkWishlistStatus()
     })
 
     return {
@@ -277,10 +317,12 @@ export default {
       showCartDialog,
       cartItemCount,
       cartTotal,
+      isProductInWishlist,
       formatPrice,
       addToCart,
       closeCartDialog,
-      goToProduct
+      goToProduct,
+      toggleWishlist
     }
   }
 }
@@ -437,6 +479,50 @@ export default {
   font-weight: 600;
   color: #1a1a1a;
   font-size: 1rem;
+}
+
+.action-buttons {
+  flex: 1;
+  display: flex;
+  gap: 0.75rem;
+}
+
+.wishlist-btn-secondary {
+  width: 56px;
+  height: 56px;
+  border: 2px solid #e0e0e0;
+  background: white;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  font-size: 24px;
+}
+
+.wishlist-btn-secondary:hover {
+  border-color: #ef4444;
+  color: #ef4444;
+  transform: scale(1.05);
+}
+
+.wishlist-btn-secondary:active {
+  transform: scale(0.95);
+}
+
+.wishlist-btn-secondary.is-wishlisted {
+  background: #fef2f2;
+  border-color: #ef4444;
+  color: #ef4444;
+  animation: heartBeat 0.3s ease;
+}
+
+@keyframes heartBeat {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
 }
 
 .add-to-cart-btn-large {
@@ -608,6 +694,10 @@ export default {
   }
 
   .quantity-selector {
+    width: 100%;
+  }
+
+  .action-buttons {
     width: 100%;
   }
 

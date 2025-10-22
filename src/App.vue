@@ -25,7 +25,9 @@ import { useRouter } from 'vue-router'
 import { observeAuthState, logoutUser } from '@/services/auth'
 import { getUserDocument, updateUserDocument, createUserDocument } from '@/services/db'
 import { mergeGuestCart, registerCartUpdateCallback } from '@/services/cart'
+import { mergeGuestWishlist, registerWishlistUpdateCallback } from '@/services/wishlist'
 import { initCartStore, updateCartItems, useCartItemCount } from '@/stores/cartStore'
+import { initWishlistStore, updateWishlistItems } from '@/stores/wishlistStore'
 import AppHeader from '@/components/layout/AppHeader.vue'
 import AppFooter from '@/components/layout/AppFooter.vue'
 
@@ -99,8 +101,14 @@ export default {
       // Initialize cart store
       await initCartStore()
       
+      // Initialize wishlist store
+      await initWishlistStore()
+      
       // Register callback for cart updates
       registerCartUpdateCallback(updateCartItems)
+      
+      // Register callback for wishlist updates
+      registerWishlistUpdateCallback(updateWishlistItems)
 
       observeAuthState(async (user) => {
         currentUser.value = user
@@ -109,14 +117,20 @@ export default {
           await loadUserProfile(user.uid)
           // Merge guest cart into user cart after login
           await mergeGuestCart()
+          // Merge guest wishlist into user wishlist after login
+          await mergeGuestWishlist()
           // Update cart count
           await updateCartItems()
+          // Update wishlist
+          await updateWishlistItems()
         } else {
           isAdmin.value = false
           userProfile.value = null
           newsletterLoading.value = false
           // Update cart count for guest
           await updateCartItems()
+          // Update wishlist for guest
+          await updateWishlistItems()
         }
       })
     })
@@ -126,6 +140,7 @@ export default {
       if (result.success) {
         currentUser.value = null
         await updateCartItems() // Update cart count for guest after logout
+        await updateWishlistItems() // Update wishlist for guest after logout
         isAdmin.value = false
         userProfile.value = null
         newsletterLoading.value = false

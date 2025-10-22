@@ -183,7 +183,7 @@ export default {
 }
 
 .success-icon {
-  color: #28a745;
+  color: var(--primary-green);
   margin-bottom: 1rem;
   animation: scaleIn 0.4s ease-out 0.2s both;
 }

@@ -68,6 +68,10 @@
                   <Package class="dropdown-icon" :size="16" />
                   Bestellungen
                 </router-link>
+                <router-link to="/wishlist" class="dropdown-item" @click="closeMobileMenu">
+                  <ScrollText class="dropdown-icon" :size="16" />
+                  Wunschliste
+                </router-link>
                 <router-link v-if="isAdmin" to="/admin" class="dropdown-item admin-item" @click="closeMobileMenu">
                   <Shield class="dropdown-icon" :size="16" />
                   Admin Dashboard
@@ -131,7 +135,7 @@
 <script>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { Home, ShoppingBag, ShoppingCart, User, Package, LogOut, Search, LayoutGrid, Laptop, Shirt, BookOpen, Dumbbell, Shield } from 'lucide-vue-next'
+import { Home, ShoppingBag, ShoppingCart, User, Package, LogOut, Search, LayoutGrid, Laptop, Shirt, BookOpen, Dumbbell, Shield, ScrollText } from 'lucide-vue-next'
 import { getAllDocuments } from '@/services/db'
 
 export default {
@@ -149,7 +153,8 @@ export default {
     Shirt,
     BookOpen,
     Dumbbell,
-    Shield
+    Shield,
+    ScrollText
   },
   props: {
     currentUser: {
@@ -269,10 +274,6 @@ export default {
   border: 2px solid transparent;
   border-radius: 8px;
   transition: all 0.3s ease;
-}
-
-.brand-link:hover {
-  border-color: var(--primary-green);
 }
 
 .brand-text {
@@ -523,7 +524,8 @@ export default {
 }
 
 .logout-item:hover {
-  background-color: var(--error-light);
+  color: var(--white);
+  background-color: var(--error) !important;
 }
 
 .admin-item {

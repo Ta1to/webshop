@@ -98,7 +98,7 @@
     <!-- Delete Confirmation Dialog -->
     <AlertDialog
       ref="deleteDialog"
-      type="warning"
+      type="confirm"
       :title="deleteDialogTitle"
       :message="deleteDialogMessage"
       confirm-text="Entfernen"

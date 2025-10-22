@@ -19,6 +19,8 @@ import PrivacyView from '../views/legal/PrivacyView.vue'
 import TermsView from '../views/legal/TermsView.vue'
 import ImprintView from '../views/legal/ImprintView.vue'
 import { getUserDocument } from '../services/db'
+import WishlistView from '../views/auth/WishlistView.vue'
+import NotFoundView from '../views/NotFoundView.vue'
 
 const routes = [
     {
@@ -98,7 +100,8 @@ const routes = [
     {
         path: '/wishlist',
         name: 'Wishlist',
-        component: () => import('../views/PlaceholderView.vue'),
+        component: WishlistView,
+        meta: { requiresAuth: true }
     },
     {
         path: '/contact',
@@ -149,7 +152,13 @@ const routes = [
         path: '/cookies',
         name: 'Cookies',
         component: () => import('../views/PlaceholderView.vue')
-    }
+    },
+    {
+        path: '/:pathMatch(.*)*',
+        name: 'NotFound',
+        component: NotFoundView
+    },
+
 ]
 
 const router = createRouter({
