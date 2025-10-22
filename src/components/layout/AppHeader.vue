@@ -12,17 +12,39 @@
         </div>
 
         <!-- Search Bar -->
-        <div class="search-container">
+        <div class="search-container" ref="searchContainerRef">
           <div class="search-bar">
             <Search class="search-icon" :size="20" />
             <input 
               type="text" 
               v-model="searchQuery"
-              @input="handleSearch"
+              @input="handleSearchInput"
+              @focus="handleSearchFocus"
+              @keydown.escape="closeSearchDropdown"
+              @keydown.enter="handleSearchEnter"
               placeholder="Produkte suchen..."
               class="search-input"
             />
+            <button 
+              v-if="searchQuery.length > 0"
+              @click="clearSearch"
+              class="clear-search"
+              aria-label="Suche löschen"
+            >
+              <X :size="18" />
+            </button>
           </div>
+          
+          <!-- Search Suggestions Dropdown -->
+          <SearchDropdown
+            :suggestions="searchSuggestions"
+            :is-open="isSearchDropdownOpen"
+            :search-query="searchQuery"
+            @select="closeSearchDropdown"
+            @tag-select="handleTagSelect"
+            @view-all="handleViewAllResults"
+            @close="closeSearchDropdown"
+          />
         </div>
 
         <!-- Mobile Menu Toggle -->
@@ -133,10 +155,12 @@
 </template>
 
 <script>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { Home, ShoppingBag, ShoppingCart, User, Package, LogOut, Search, LayoutGrid, Laptop, Shirt, BookOpen, Dumbbell, Shield, ScrollText } from 'lucide-vue-next'
+import { Home, ShoppingBag, ShoppingCart, User, Package, LogOut, Search, LayoutGrid, Laptop, Shirt, BookOpen, Dumbbell, Shield, ScrollText, X } from 'lucide-vue-next'
 import { getAllDocuments } from '@/services/db'
+import { getSearchSuggestions } from '@/services/search'
+import SearchDropdown from '@/components/utility/SearchDropdown.vue'
 
 export default {
   name: 'AppHeader',
@@ -154,7 +178,9 @@ export default {
     BookOpen,
     Dumbbell,
     Shield,
-    ScrollText
+    ScrollText,
+    X,
+    SearchDropdown
   },
   props: {
     currentUser: {
@@ -176,12 +202,30 @@ export default {
     const isMobileMenuOpen = ref(false)
     const searchQuery = ref('')
     const categories = ref([])
+    const isSearchDropdownOpen = ref(false)
+    const searchSuggestions = ref({
+      products: [],
+      categories: [],
+      tags: []
+    })
+    const searchContainerRef = ref(null)
+    let searchDebounceTimer = null
 
     // Load categories from Firestore
     onMounted(async () => {
       const result = await getAllDocuments('categories')
       if (result.success) {
         categories.value = result.data
+      }
+      
+      // Add click outside listener for search dropdown
+      document.addEventListener('click', handleClickOutside)
+    })
+
+    onUnmounted(() => {
+      document.removeEventListener('click', handleClickOutside)
+      if (searchDebounceTimer) {
+        clearTimeout(searchDebounceTimer)
       }
     })
 
@@ -214,20 +258,115 @@ export default {
       emit('logout')
     }
 
-    const handleSearch = () => {
+    // Search functionality
+    const fetchSearchSuggestions = async (query) => {
+      if (query.length < 2) {
+        searchSuggestions.value = {
+          products: [],
+          categories: [],
+          tags: []
+        }
+        return
+      }
+
+      try {
+        const suggestions = await getSearchSuggestions(query, 8)
+        searchSuggestions.value = suggestions
+      } catch (error) {
+        console.error('Error fetching search suggestions:', error)
+      }
+    }
+
+    const handleSearchInput = () => {
+      // Clear previous debounce timer
+      if (searchDebounceTimer) {
+        clearTimeout(searchDebounceTimer)
+      }
+
+      // Open dropdown if query length > 0
+      if (searchQuery.value.length > 0) {
+        isSearchDropdownOpen.value = true
+      } else {
+        isSearchDropdownOpen.value = false
+      }
+
+      // Debounce search suggestions
+      searchDebounceTimer = setTimeout(() => {
+        fetchSearchSuggestions(searchQuery.value)
+      }, 300)
+
       emit('search', searchQuery.value)
+    }
+
+    const handleSearchFocus = () => {
+      if (searchQuery.value.length > 0) {
+        isSearchDropdownOpen.value = true
+        fetchSearchSuggestions(searchQuery.value)
+      }
+    }
+
+    const handleSearchEnter = () => {
+      if (searchQuery.value.trim().length > 0) {
+        handleViewAllResults()
+      }
+    }
+
+    const handleTagSelect = (tag) => {
+      searchQuery.value = tag
+      handleViewAllResults()
+    }
+
+    const handleViewAllResults = () => {
+      closeSearchDropdown()
+      closeMobileMenu()
+      
+      // Navigate to search results page with query parameter
+      router.push({
+        path: '/categories',
+        query: { search: searchQuery.value }
+      })
+    }
+
+    const clearSearch = () => {
+      searchQuery.value = ''
+      searchSuggestions.value = {
+        products: [],
+        categories: [],
+        tags: []
+      }
+      closeSearchDropdown()
+      emit('search', '')
+    }
+
+    const closeSearchDropdown = () => {
+      isSearchDropdownOpen.value = false
+    }
+
+    const handleClickOutside = (event) => {
+      if (searchContainerRef.value && !searchContainerRef.value.contains(event.target)) {
+        closeSearchDropdown()
+      }
     }
 
     return {
       categories,
       isMobileMenuOpen,
       searchQuery,
+      isSearchDropdownOpen,
+      searchSuggestions,
+      searchContainerRef,
       getUserDisplayName,
       getIcon,
       toggleMobileMenu,
       closeMobileMenu,
       handleLogout,
-      handleSearch
+      handleSearchInput,
+      handleSearchFocus,
+      handleSearchEnter,
+      handleTagSelect,
+      handleViewAllResults,
+      clearSearch,
+      closeSearchDropdown
     }
   }
 }
@@ -286,6 +425,7 @@ export default {
 .search-container {
   flex: 1;
   max-width: 600px;
+  position: relative;
 }
 
 .search-bar {
@@ -317,6 +457,7 @@ export default {
   color: var(--gray-700);
   background: transparent;
   box-shadow: none;
+  padding: 0.625rem 0;
 }
 
 .search-input:focus {
@@ -327,6 +468,25 @@ export default {
 
 .search-input::placeholder {
   color: var(--gray-400);
+}
+
+.clear-search {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: var(--gray-400);
+  cursor: pointer;
+  padding: 0.25rem;
+  margin-left: 0.5rem;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.clear-search:hover {
+  background-color: var(--gray-200);
+  color: var(--gray-700);
 }
 
 /* Mobile Menu Toggle */
