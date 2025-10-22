@@ -56,7 +56,7 @@
                 :class="{ 'is-wishlisted': isProductInWishlist }"
                 :title="isProductInWishlist ? 'Von Wunschliste entfernen' : 'Zur Wunschliste hinzufügen'"
               > 
-                <Heart :size="32" :fill="isProductInWishlist ? 'currentColor' : 'none'" />
+                <Heart :size="20" :fill="isProductInWishlist ? 'currentColor' : 'none'" />
               </button>
               
               <button class="add-to-cart-btn-large" @click="addToCart" :disabled="product.stock === 0">
@@ -488,8 +488,6 @@ export default {
 }
 
 .wishlist-btn-secondary {
-  width: 56px;
-  height: 56px;
   border: 2px solid #e0e0e0;
   background: white;
   border-radius: 8px;
@@ -500,13 +498,12 @@ export default {
   color: #666;
   transition: all 0.2s ease;
   flex-shrink: 0;
-  font-size: 24px;
 }
 
 .wishlist-btn-secondary:hover {
   border-color: #ef4444;
   color: #ef4444;
-  transform: scale(1.05);
+  background-color: var(--error-light);
 }
 
 .wishlist-btn-secondary:active {

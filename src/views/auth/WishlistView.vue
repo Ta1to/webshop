@@ -40,7 +40,7 @@
             <div class="wishlist-grid">
                 <div v-for="item in wishlistItems" :key="item.productId" class="wishlist-card">
                     <button @click="handleRemoveFromWishlist(item.productId)" class="remove-btn" title="Entfernen">
-                        <XIcon :size="20" />
+                        <XIcon :size="24" />
                     </button>
                     
                     <div class="product-image">
@@ -364,28 +364,14 @@ export default {
     position: absolute;
     top: 0.75rem;
     right: 0.75rem;
-    width: 36px;
-    height: 36px;
-    background: var(--primary-green);
     border: none;
-    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     z-index: 10;
-    transition: all 0.2s ease;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-}
-.remove-btn svg {
-    color: var(--white);
 }
 
-.remove-btn:hover {
-    background: var(--red-500);
-    color: var(--white);
-    transform: scale(1.1);
-}
 
 .product-image {
     width: 100%;
