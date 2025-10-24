@@ -11,6 +11,10 @@ import CartView from '../views/shop/CartView.vue'
 import CheckoutView from '../views/shop/CheckoutView.vue'
 import CheckoutSuccessView from '../views/shop/CheckoutSuccessView.vue'
 import AdminView from '../views/admin/AdminView.vue'
+import AdminProductsView from '../views/admin/AdminProductsView.vue'
+import AdminCategoriesView from '../views/admin/AdminCategoriesView.vue'
+import AdminUsersView from '../views/admin/AdminUsersView.vue'
+import AdminOrdersView from '../views/admin/AdminOrdersView.vue'
 import { getCurrentUser } from '../services/auth'
 import ContactView from '../views/info/ContactView.vue'
 import FAQView from '../views/info/FAQView.vue'
@@ -97,6 +101,30 @@ const routes = [
         path: '/admin',
         name: 'Admin',
         component: AdminView,
+        meta: { requiresAuth: true, requiresAdmin: true }
+    },
+    {
+        path: '/admin/products',
+        name: 'AdminProducts',
+        component: AdminProductsView,
+        meta: { requiresAuth: true, requiresAdmin: true }
+    },
+    {
+        path: '/admin/categories',
+        name: 'AdminCategories',
+        component: AdminCategoriesView,
+        meta: { requiresAuth: true, requiresAdmin: true }
+    },
+    {
+        path: '/admin/users',
+        name: 'AdminUsers',
+        component: AdminUsersView,
+        meta: { requiresAuth: true, requiresAdmin: true }
+    },
+    {
+        path: '/admin/orders',
+        name: 'AdminOrders',
+        component: AdminOrdersView,
         meta: { requiresAuth: true, requiresAdmin: true }
     },
     {

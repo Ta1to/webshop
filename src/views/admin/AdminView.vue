@@ -43,7 +43,7 @@
     <div v-else class="dashboard-content">
       <!-- Statistics Overview -->
       <div class="stats-grid">
-        <div class="stat-card">
+        <router-link to="/admin/users" class="stat-card stat-card-link">
           <div class="stat-icon users">
             <Users :size="28" />
           </div>
@@ -51,9 +51,9 @@
             <h3>{{ stats.totalUsers }}</h3>
             <p>Benutzer</p>
           </div>
-        </div>
+        </router-link>
 
-        <div class="stat-card">
+        <router-link to="/admin/categories" class="stat-card stat-card-link">
           <div class="stat-icon categories">
             <LayoutGrid :size="28" />
           </div>
@@ -61,9 +61,9 @@
             <h3>{{ stats.totalCategories }}</h3>
             <p>Kategorien</p>
           </div>
-        </div>
+        </router-link>
 
-        <div class="stat-card">
+        <router-link to="/admin/products" class="stat-card stat-card-link">
           <div class="stat-icon products">
             <Package :size="28" />
           </div>
@@ -71,9 +71,9 @@
             <h3>{{ stats.totalProducts }}</h3>
             <p>Produkte</p>
           </div>
-        </div>
+        </router-link>
 
-        <div class="stat-card">
+        <router-link to="/admin/orders" class="stat-card stat-card-link">
           <div class="stat-icon orders">
             <ShoppingCart :size="28" />
           </div>
@@ -81,7 +81,7 @@
             <h3>{{ stats.totalOrders }}</h3>
             <p>Bestellungen</p>
           </div>
-        </div>
+        </router-link>
       </div>
 
       <!-- Data Tables -->
@@ -104,7 +104,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="user in users" :key="user.id">
+                <tr v-for="user in users.slice(0, 5)" :key="user.id">
                   <td>
                     <div class="user-cell">
                       <div class="user-avatar">{{ user.displayName ? user.displayName.substring(0, 2).toUpperCase() : 'U' }}</div>
@@ -141,6 +141,12 @@
             </table>
             <p v-else class="empty-state">Keine Benutzer gefunden</p>
           </div>
+          <div v-if="users.length > 5" class="card-footer">
+            <router-link to="/admin/users" class="btn-view-all">
+              Alle {{ users.length }} Benutzer anzeigen
+              <ChevronRight :size="16" />
+            </router-link>
+          </div>
         </div>
 
         <!-- Categories Table -->
@@ -166,7 +172,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="category in categories" :key="category.id">
+                <tr v-for="category in categories.slice(0, 5)" :key="category.id">
                   <td>
                     <div class="category-cell">
                       <span class="category-icon">{{ category.icon }}</span>
@@ -198,6 +204,12 @@
             </table>
             <p v-else class="empty-state">Keine Kategorien gefunden</p>
           </div>
+          <div v-if="categories.length > 5" class="card-footer">
+            <router-link to="/admin/categories" class="btn-view-all">
+              Alle {{ categories.length }} Kategorien anzeigen
+              <ChevronRight :size="16" />
+            </router-link>
+          </div>
         </div>
 
         <!-- Products Table -->
@@ -225,7 +237,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="product in products" :key="product.id">
+                <tr v-for="product in products.slice(0, 5)" :key="product.id">
                   <td>
                     <div class="product-cell">
                       <img v-if="product.imageUrl" 
@@ -269,6 +281,12 @@
             </table>
             <p v-else class="empty-state">Keine Produkte gefunden</p>
           </div>
+          <div v-if="products.length > 5" class="card-footer">
+            <router-link to="/admin/products" class="btn-view-all">
+              Alle {{ products.length }} Produkte anzeigen
+              <ChevronRight :size="16" />
+            </router-link>
+          </div>
         </div>
 
         <!-- Recent Orders -->
@@ -291,34 +309,26 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="order in orders" :key="order.id">
+                <tr v-for="order in orders.slice(0, 5)" :key="order.id">
                   <td><code>{{ order.id.substring(0, 8) }}</code></td>
                   <td>{{ order.userEmail || 'N/A' }}</td>
                   <td>{{ order.items?.length || 0 }} Artikel</td>
                   <td class="price">{{ formatPrice(order.total) }}</td>
                   <td>
-                    <select 
-                      :value="order.status" 
-                      @change="updateStatus(order, $event.target.value)"
-                      class="status-select"
-                      :class="order.status"
-                    >
-                      <option value="pending">Ausstehend</option>
-                      <option value="processing">In Bearbeitung</option>
-                      <option value="shipped">Versandt</option>
-                      <option value="delivered">Zugestellt</option>
-                      <option value="cancelled">Storniert</option>
-                    </select>
+                    <OrderStatusSelect
+                      :status="order.status"
+                      @change="(newStatus) => updateStatus(order, newStatus)"
+                    />
                   </td>
                   <td>{{ formatDate(order.createdAt) }}</td>
                   <td>
                     <div class="action-buttons">
                       <button
                         @click="viewOrderDetails(order)"
-                        class="btn-action btn-edit"
+                        class="btn-action btn-view"
                         title="Details anzeigen"
                       >
-                        <ChevronRight :size="18" />
+                        <Eye :size="16" />
                       </button>
                     </div>
                   </td>
@@ -326,6 +336,12 @@
               </tbody>
             </table>
             <p v-else class="empty-state">Keine Bestellungen gefunden</p>
+          </div>
+          <div v-if="stats.totalOrders > 5" class="card-footer">
+            <router-link to="/admin/orders" class="btn-view-all">
+              Alle {{ stats.totalOrders }} Bestellungen anzeigen
+              <ChevronRight :size="16" />
+            </router-link>
           </div>
         </div>
       </div>
@@ -378,6 +394,13 @@
     @close="closeCategoryModal"
     @submit="handleCategorySubmit"
   />
+
+  <!-- Order Details Modal -->
+  <OrderDetailsModal
+    :is-open="orderDetailsModal.isOpen"
+    :order="orderDetailsModal.order"
+    @close="closeOrderDetailsModal"
+  />
 </template>
 
 <script setup>
@@ -387,7 +410,9 @@ import { getAllOrders, updateOrderStatus } from '../../services/orders'
 import AlertDialog from '../../components/dialog/AlertDialog.vue'
 import ProductModal from '../../components/modal/ProductModal.vue'
 import CategoryModal from '../../components/modal/CategoryModal.vue'
-import { Users, LayoutGrid, Package, ShoppingCart, Shield, Trash2, Plus, Edit2, ChevronRight } from 'lucide-vue-next'
+import OrderDetailsModal from '../../components/modal/OrderDetailsModal.vue'
+import OrderStatusSelect from '../../components/admin/OrderStatusSelect.vue'
+import { Users, LayoutGrid, Package, ShoppingCart, Shield, Trash2, Plus, Edit2, ChevronRight, Eye } from 'lucide-vue-next'
 import { mockCategories, mockProducts } from '../../data'
 
 const loading = ref(true)
@@ -426,6 +451,7 @@ const orders = ref([])
 // Modal states
 const productModal = ref({ isOpen: false, mode: 'create', product: null })
 const categoryModal = ref({ isOpen: false, mode: 'create', category: null })
+const orderDetailsModal = ref({ isOpen: false, order: null })
 
 // Statistics
 const stats = ref({
@@ -725,26 +751,17 @@ const updateStatus = async (order, newStatus) => {
 
 // View order details
 const viewOrderDetails = (order) => {
-  let itemsList = ''
-  if (order.items && order.items.length > 0) {
-    itemsList = order.items.map(item => 
-      `• ${item.name} (${item.quantity}x ${formatPrice(item.price)})`
-    ).join('\n')
+  orderDetailsModal.value = {
+    isOpen: true,
+    order: order
   }
+}
 
-  const shippingAddr = order.shippingAddress
-  const addressText = shippingAddr 
-    ? `${shippingAddr.firstName} ${shippingAddr.lastName}\n${shippingAddr.street}\n${shippingAddr.postalCode} ${shippingAddr.city}\n${shippingAddr.country}`
-    : 'Keine Adresse angegeben'
-
-  dialogConfig.value = {
-    title: `Bestellung #${order.id.slice(0, 8).toUpperCase()}`,
-    message: `Artikel:\n${itemsList || 'Keine Artikel'}\n\nLieferadresse:\n${addressText}\n\nGesamt: ${formatPrice(order.total)}\nDatum: ${formatDate(order.createdAt)}\nStatus: ${getOrderStatusText(order.status)}`,
-    confirmText: 'OK',
-    onConfirm: () => {}
+const closeOrderDetailsModal = () => {
+  orderDetailsModal.value = {
+    isOpen: false,
+    order: null
   }
-  
-  confirmDialog.value.open()
 }
 
 const toggleUserRole = async (user) => {
@@ -1174,6 +1191,30 @@ onMounted(() => {
   border: 1px solid var(--gray-200);
 }
 
+.stat-card-link {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  position: relative;
+}
+
+.stat-card-link::after {
+  content: '→';
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  font-size: 1.5rem;
+  color: var(--primary-green);
+  opacity: 0;
+  transition: all 0.3s ease;
+  transform: translateX(-10px);
+}
+
+.stat-card-link:hover::after {
+  opacity: 1;
+  transform: translateX(0);
+}
+
 .stat-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 4px 16px rgba(16, 185, 129, 0.2);
@@ -1404,6 +1445,17 @@ onMounted(() => {
   box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
 }
 
+.btn-view {
+  color: #6366F1;
+  background: #EEF2FF;
+}
+
+.btn-view:hover {
+  background: #6366F1;
+  color: white;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+}
+
 .btn-edit {
   color: #3B82F6;
   background: #DBEAFE;
@@ -1488,57 +1540,6 @@ onMounted(() => {
   color: var(--error);
 }
 
-/* Status Select */
-.status-select {
-  padding: 0.375rem 0.75rem;
-  border-radius: 6px;
-  border: 2px solid transparent;
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  outline: none;
-}
-
-.status-select.pending {
-  background: #FEF3C7;
-  color: #D97706;
-  border-color: #FDE68A;
-}
-
-.status-select.processing {
-  background: #DBEAFE;
-  color: #3B82F6;
-  border-color: #93C5FD;
-}
-
-.status-select.shipped {
-  background: #A7F3D0;
-  color: #047857;
-  border-color: #6EE7B7;
-}
-
-.status-select.delivered {
-  background: var(--primary-green-lighter);
-  color: var(--primary-green-dark);
-  border-color: var(--primary-green);
-}
-
-.status-select.cancelled {
-  background: var(--error-light);
-  color: var(--error);
-  border-color: #FCA5A5;
-}
-
-.status-select:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.status-select:focus {
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
-}
-
 /* Misc */
 .price {
   font-weight: 600;
@@ -1566,6 +1567,37 @@ code {
   padding: 3rem;
   text-align: center;
   color: #999;
+}
+
+/* Card Footer */
+.card-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #eee;
+  background: #f8f9fa;
+  display: flex;
+  justify-content: center;
+}
+
+.btn-view-all {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: white;
+  color: var(--primary-green);
+  border: 2px solid var(--primary-green);
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+}
+
+.btn-view-all:hover {
+  background: var(--primary-green);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
 }
 
 /* Responsive */
