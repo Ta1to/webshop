@@ -1,9 +1,6 @@
 <template>
     <div class="home-view">
         <div class="home-container">
-            <h1 class="page-title">Willkommen bei evaris</h1>
-            <p class="page-subtitle">Entdecken Sie nachhaltige Produkte für ein bewusstes Leben</p>
-
             <!-- Loading State -->
             <div v-if="loading" class="loading">
                 <div class="spinner"></div>
@@ -195,7 +192,7 @@ export default {
 }
 
 .home-container {
-    max-width: 1200px;
+    max-width: 1600px;
     margin: 0 auto;
     padding: 0 1rem;
 }
