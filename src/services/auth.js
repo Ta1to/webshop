@@ -5,7 +5,8 @@ import {
   onAuthStateChanged,
   updateProfile,
   updateEmail,
-  reload
+  reload,
+  sendEmailVerification
 } from 'firebase/auth'
 import { auth } from './config'
 import { createUserDocument, updateUserDocument } from './db'
@@ -22,13 +23,17 @@ export const registerUser = async (email, password, displayName) => {
       })
     }
     
+    // Send email verification
+    await sendEmailVerification(userCredential.user)
+    
     // Save additional user data in Firestore
     await createUserDocument(userCredential.user.uid, {
       email: email,
       displayName: displayName || '',
       photoURL: userCredential.user.photoURL || '',
       role: 'user', // Default role
-      newsletter: false
+      newsletter: false,
+      emailVerified: false // Initial verification status
     })
     
     return { success: true, user: userCredential.user }
@@ -41,6 +46,13 @@ export const registerUser = async (email, password, displayName) => {
 export const loginUser = async (email, password) => {
   try {
     const userCredential = await signInWithEmailAndPassword(auth, email, password)
+    
+    // Update emailVerified status in Firestore after login
+    const isVerified = userCredential.user.emailVerified
+    await updateUserDocument(userCredential.user.uid, {
+      emailVerified: isVerified
+    })
+    
     return { success: true, user: userCredential.user }
   } catch (error) {
     return { success: false, error: error.message }
@@ -139,6 +151,51 @@ export const updateUserProfile = async (profileUpdates = {}) => {
     return { success: true, user: auth.currentUser }
   } catch (error) {
     console.error('Error updating user profile:', error)
+    return { success: false, error: error.code || error.message }
+  }
+}
+
+// Send email verification
+export const sendVerificationEmail = async () => {
+  const user = auth.currentUser
+
+  if (!user) {
+    return { success: false, error: 'auth/user-not-found' }
+  }
+
+  if (user.emailVerified) {
+    return { success: false, error: 'auth/email-already-verified' }
+  }
+
+  try {
+    await sendEmailVerification(user)
+    return { success: true }
+  } catch (error) {
+    console.error('Error sending verification email:', error)
+    return { success: false, error: error.code || error.message }
+  }
+}
+
+// Refresh email verification status
+export const refreshEmailVerificationStatus = async () => {
+  const user = auth.currentUser
+
+  if (!user) {
+    return { success: false, error: 'auth/user-not-found' }
+  }
+
+  try {
+    await reload(user)
+    const isVerified = auth.currentUser.emailVerified
+    
+    // Update Firestore
+    await updateUserDocument(user.uid, {
+      emailVerified: isVerified
+    })
+
+    return { success: true, emailVerified: isVerified }
+  } catch (error) {
+    console.error('Error refreshing verification status:', error)
     return { success: false, error: error.code || error.message }
   }
 }

@@ -348,7 +348,36 @@
                 <span class="meta-label">Mitglied seit</span>
                 <span class="meta-value">{{ createdAtLabel }}</span>
               </li>
+              <li>
+                <span class="meta-label">E-Mail-Status</span>
+                <span class="badge" :class="{ 'badge-verified': isEmailVerified, 'badge-unverified': !isEmailVerified }">
+                  {{ emailVerifiedLabel }}
+                </span>
+              </li>
             </ul>
+
+            <!-- Email Verification Actions -->
+            <div v-if="!isEmailVerified" class="verification-actions">
+              <p class="verification-note">
+                Bitte verifiziere deine E-Mail-Adresse für volle Funktionalität.
+              </p>
+              <button
+                @click="handleSendVerificationEmail"
+                class="btn-verification"
+                :disabled="sendingVerification"
+              >
+                <span v-if="sendingVerification">Wird gesendet...</span>
+                <span v-else>Bestätigungs-E-Mail senden</span>
+              </button>
+              <button
+                @click="handleRefreshVerificationStatus"
+                class="btn-verification btn-secondary"
+                :disabled="refreshingVerification"
+              >
+                <span v-if="refreshingVerification">Aktualisiere...</span>
+                <span v-else>Status aktualisieren</span>
+              </button>
+            </div>
           </div>
         </div>
       </section>
@@ -358,7 +387,7 @@
 
 <script>
 import { reactive, ref, computed, onMounted, onBeforeUnmount } from 'vue'
-import { observeAuthState, updateUserProfile } from '../../services/auth'
+import { observeAuthState, updateUserProfile, sendVerificationEmail, refreshEmailVerificationStatus } from '../../services/auth'
 import { getUserDocument } from '../../services/db'
 
 export default {
@@ -371,6 +400,8 @@ export default {
     const errorMessage = ref('')
     const editingField = ref('')
     const savingField = ref('')
+    const sendingVerification = ref(false)
+    const refreshingVerification = ref(false)
 
     const form = reactive({
       displayName: '',
@@ -428,6 +459,21 @@ export default {
       })
     })
 
+    const emailVerifiedLabel = computed(() => {
+      // Check Firebase Auth first, then fallback to Firestore
+      const authVerified = user.value?.emailVerified
+      const firestoreVerified = userData.value?.emailVerified
+      const isVerified = authVerified || firestoreVerified
+      return isVerified ? 'Verifiziert' : 'Nicht verifiziert'
+    })
+
+    const isEmailVerified = computed(() => {
+      // Check Firebase Auth first, then fallback to Firestore
+      const authVerified = user.value?.emailVerified
+      const firestoreVerified = userData.value?.emailVerified
+      return authVerified || firestoreVerified
+    })
+
     const cityLabel = computed(() => {
       const postal = form.postalCode?.trim() || ''
       const city = form.city?.trim() || ''
@@ -479,7 +525,7 @@ export default {
       }
     }
 
-    const loadUserData = async (authUser, showLoader = true) => {
+    const loadUserData = async (authUser, showLoader = true, clearMessages = true) => {
       if (!authUser) {
         loading.value = false
         return
@@ -495,10 +541,27 @@ export default {
 
       if (result.success) {
         userData.value = result.data
+        
+        // Sync emailVerified status from Firebase Auth to Firestore if different
+        const authVerified = authUser.emailVerified
+        const firestoreVerified = result.data?.emailVerified
+        
+        if (authVerified !== firestoreVerified) {
+          // Update Firestore to match Firebase Auth
+          const { updateUserDocument } = await import('../../services/db')
+          await updateUserDocument(authUser.uid, { emailVerified: authVerified })
+          // Update local userData
+          userData.value.emailVerified = authVerified
+        }
+        
         applyFormValues(authUser, result.data)
-        errorMessage.value = ''
+        if (clearMessages) {
+          errorMessage.value = ''
+        }
       } else {
-        errorMessage.value = 'Benutzerdaten konnten nicht geladen werden.'
+        if (clearMessages) {
+          errorMessage.value = 'Benutzerdaten konnten nicht geladen werden.'
+        }
       }
 
       if (showLoader) {
@@ -580,8 +643,16 @@ export default {
           editBuffer.postalCode = form.postalCode || ''
           editBuffer.city = form.city || ''
           editingField.value = ''
+          // Clear success message after 5 seconds
+          setTimeout(() => {
+            successMessage.value = ''
+          }, 5000)
         } else {
           errorMessage.value = getErrorMessage(result.error)
+          // Clear error message after 5 seconds
+          setTimeout(() => {
+            errorMessage.value = ''
+          }, 5000)
         }
 
         savingField.value = ''
@@ -594,11 +665,19 @@ export default {
 
       if (field === 'email' && !trimmedValue) {
         errorMessage.value = 'Die E-Mail-Adresse darf nicht leer sein.'
+        // Clear error message after 5 seconds
+        setTimeout(() => {
+          errorMessage.value = ''
+        }, 5000)
         return
       }
 
       if (field === 'displayName' && trimmedValue && trimmedValue.length < 2) {
         errorMessage.value = 'Der Name muss mindestens 2 Zeichen lang sein.'
+        // Clear error message after 5 seconds
+        setTimeout(() => {
+          errorMessage.value = ''
+        }, 5000)
         return
       }
 
@@ -631,24 +710,118 @@ export default {
         await loadUserData(user.value, false)
         editBuffer[field] = form[field] || ''
         editingField.value = ''
+        // Clear success message after 5 seconds
+        setTimeout(() => {
+          successMessage.value = ''
+        }, 5000)
       } else {
         errorMessage.value = getErrorMessage(result.error)
+        // Clear error message after 5 seconds
+        setTimeout(() => {
+          errorMessage.value = ''
+        }, 5000)
       }
 
       savingField.value = ''
     }
 
+    const handleSendVerificationEmail = async () => {
+      if (sendingVerification.value) {
+        return
+      }
+
+      successMessage.value = ''
+      errorMessage.value = ''
+      sendingVerification.value = true
+
+      const result = await sendVerificationEmail()
+
+      if (result.success) {
+        successMessage.value = 'Bestätigungs-E-Mail wurde gesendet. Bitte überprüfe dein Postfach.'
+        // Clear success message after 5 seconds
+        setTimeout(() => {
+          successMessage.value = ''
+        }, 5000)
+      } else {
+        if (result.error === 'auth/email-already-verified') {
+          errorMessage.value = 'Deine E-Mail-Adresse ist bereits verifiziert.'
+        } else {
+          errorMessage.value = 'Fehler beim Senden der Bestätigungs-E-Mail. Bitte versuche es später erneut.'
+        }
+        // Clear error message after 5 seconds
+        setTimeout(() => {
+          errorMessage.value = ''
+        }, 5000)
+      }
+
+      sendingVerification.value = false
+    }
+
+    const handleRefreshVerificationStatus = async () => {
+      if (refreshingVerification.value) {
+        return
+      }
+
+      successMessage.value = ''
+      errorMessage.value = ''
+      refreshingVerification.value = true
+
+      const result = await refreshEmailVerificationStatus()
+
+      if (result.success) {
+        // Reload user data without clearing messages
+        await loadUserData(user.value, false, false)
+        
+        // Set message after loadUserData
+        if (result.emailVerified) {
+          successMessage.value = 'Deine E-Mail-Adresse wurde erfolgreich verifiziert!'
+          errorMessage.value = ''
+          // Clear success message after 5 seconds
+          setTimeout(() => {
+            successMessage.value = ''
+          }, 5000)
+        } else {
+          errorMessage.value = 'Deine E-Mail-Adresse ist noch nicht verifiziert. Bitte überprüfe dein Postfach.'
+          successMessage.value = ''
+          // Clear error message after 5 seconds
+          setTimeout(() => {
+            errorMessage.value = ''
+          }, 5000)
+        }
+      } else {
+        errorMessage.value = 'Fehler beim Aktualisieren des Verifizierungsstatus.'
+        successMessage.value = ''
+        // Clear error message after 5 seconds
+        setTimeout(() => {
+          errorMessage.value = ''
+        }, 5000)
+      }
+
+      refreshingVerification.value = false
+    }
+
     onMounted(() => {
       unsubscribeAuth = observeAuthState(async (authUser) => {
-        user.value = authUser
-
         if (!authUser) {
+          user.value = null
           userData.value = null
           loading.value = false
           return
         }
 
-        await loadUserData(authUser, true)
+        // Reload user to get latest emailVerified status from Firebase
+        const { reload, getAuth } = await import('firebase/auth')
+        try {
+          await reload(authUser)
+          // Get the refreshed user object
+          const auth = getAuth()
+          user.value = auth.currentUser
+        } catch (error) {
+          console.log('Could not reload user:', error)
+          user.value = authUser
+        }
+
+        await loadUserData(user.value || authUser, true)
       })
     })
 
@@ -667,14 +840,20 @@ export default {
       initials,
       roleLabel,
       createdAtLabel,
+      emailVerifiedLabel,
+      isEmailVerified,
       cityLabel,
       successMessage,
       errorMessage,
       editingField,
       savingField,
+      sendingVerification,
+      refreshingVerification,
       startEditing,
       cancelEditing,
-      handleSaveField
+      handleSaveField,
+      handleSendVerificationEmail,
+      handleRefreshVerificationStatus
     }
   }
 }
@@ -989,6 +1168,68 @@ export default {
   font-weight: 600;
   text-transform: capitalize;
   font-size: 0.9rem;
+}
+
+.badge-verified {
+  background-color: var(--primary-green-lighter);
+  color: var(--primary-green-dark);
+}
+
+.badge-unverified {
+  background-color: var(--error-light);
+  color: var(--error);
+}
+
+.verification-actions {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--gray-200);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.verification-note {
+  font-size: 0.875rem;
+  color: var(--gray-600);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.btn-verification {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: linear-gradient(135deg, var(--primary-green) 0%, var(--primary-green-dark) 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-verification:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
+}
+
+.btn-verification.btn-secondary {
+  background: var(--gray-100);
+  color: var(--gray-700);
+  border: 1px solid var(--gray-300);
+}
+
+.btn-verification.btn-secondary:hover:not(:disabled) {
+  background: var(--gray-200);
+  border-color: var(--gray-400);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.btn-verification:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
 }
 
 @media (max-width: 960px) {

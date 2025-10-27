@@ -5,8 +5,19 @@
         <h1>evaris</h1>
         <p>Erstelle dein Konto</p>
       </div>
+
+      <!-- Success message after registration -->
+      <div v-if="registrationSuccess" class="success-message">
+        <CheckCircle :size="48" />
+        <div>
+          <strong>Registrierung erfolgreich!</strong>
+          <p>Eine Bestätigungs-E-Mail wurde an <strong>{{ email }}</strong> gesendet.</p>
+          <p>Bitte überprüfe dein Postfach und bestätige deine E-Mail-Adresse.</p>
+        </div>
+        <router-link to="/login" class="btn-primary">Zur Anmeldung</router-link>
+      </div>
       
-      <form @submit.prevent="handleRegister">
+      <form v-else @submit.prevent="handleRegister">
         <div class="form-group">
           <label for="displayName">Name</label>
           <input
@@ -54,9 +65,7 @@
         </div>
 
         <div v-if="error" class="error-message">
-          <svg xmlns="http://www.w3.org/2000/svg" class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
+          <AlertCircle :size="20" />
           {{ error }}
         </div>
 
@@ -66,9 +75,9 @@
         </button>
       </form>
 
-      <div class="divider"></div>
+      <div v-if="!registrationSuccess" class="divider"></div>
 
-      <p class="login-link">
+      <p v-if="!registrationSuccess" class="login-link">
         Bereits registriert? 
         <router-link to="/login">Jetzt anmelden</router-link>
       </p>
@@ -80,9 +89,14 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { registerUser } from '../../services/auth'
+import { CheckCircle, AlertCircle } from 'lucide-vue-next'
 
 export default {
   name: 'RegisterView',
+  components: {
+    CheckCircle,
+    AlertCircle
+  },
   setup() {
     const displayName = ref('')
     const email = ref('')
@@ -90,6 +104,7 @@ export default {
     const confirmPassword = ref('')
     const error = ref('')
     const loading = ref(false)
+    const registrationSuccess = ref(false)
     const router = useRouter()
 
     const handleRegister = async () => {
@@ -111,7 +126,8 @@ export default {
       const result = await registerUser(email.value, password.value, displayName.value)
 
       if (result.success) {
-        router.push('/')
+        registrationSuccess.value = true
+        // Don't redirect immediately, show success message
       } else {
         error.value = getErrorMessage(result.error)
       }
@@ -143,6 +159,7 @@ export default {
       confirmPassword,
       error,
       loading,
+      registrationSuccess,
       handleRegister
     }
   }
@@ -259,10 +276,29 @@ small {
   font-size: 0.95rem;
 }
 
-.icon {
-  width: 20px;
-  height: 20px;
-  flex-shrink: 0;
+.success-message {
+  background-color: var(--primary-green-lighter);
+  color: var(--primary-green-dark);
+  padding: 1.5rem;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  text-align: center;
+  border: 2px solid var(--primary-green);
+}
+
+.success-message strong {
+  display: block;
+  font-size: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.success-message p {
+  margin: 0.25rem 0;
+  line-height: 1.5;
 }
 
 .divider {

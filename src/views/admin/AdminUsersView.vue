@@ -33,6 +33,12 @@
             <option value="user">Benutzer</option>
           </select>
 
+          <select v-model="selectedVerificationStatus" @change="applyFilters" class="filter-select">
+            <option value="">Alle E-Mail-Status</option>
+            <option value="verified">Verifiziert</option>
+            <option value="unverified">Nicht verifiziert</option>
+          </select>
+
           <select v-model="sortBy" @change="applySort" class="filter-select">
             <option value="name-asc">Name (A-Z)</option>
             <option value="name-desc">Name (Z-A)</option>
@@ -60,6 +66,7 @@
               <tr>
                 <th>Benutzer</th>
                 <th>E-Mail</th>
+                <th>E-Mail-Status</th>
                 <th>Rolle</th>
                 <th>Registriert</th>
                 <th>Aktionen</th>
@@ -76,6 +83,11 @@
                   </div>
                 </td>
                 <td>{{ user.email }}</td>
+                <td>
+                  <span class="verification-badge" :class="user.emailVerified ? 'verified' : 'unverified'">
+                    {{ user.emailVerified ? 'Verifiziert' : 'Nicht verifiziert' }}
+                  </span>
+                </td>
                 <td>
                   <span class="role-badge" :class="user.role">
                     {{ user.role === 'admin' ? 'Admin' : 'Benutzer' }}
@@ -162,26 +174,38 @@ import AdminFilters from '../../components/admin/AdminFilters.vue'
 import AdminTablePagination from '../../components/admin/AdminTablePagination.vue'
 import { Users, Shield, Trash2 } from 'lucide-vue-next'
 
-// State
+// ============================================================================
+// State Management
+// ============================================================================
+
 const loading = ref(true)
 const error = ref(null)
 const users = ref([])
 
-// Search & Filter
+// ============================================================================
+// Filter & Search State
+// ============================================================================
+
 const searchQuery = ref('')
 const selectedRole = ref('')
+const selectedVerificationStatus = ref('')
 const sortBy = ref('name-asc')
 
-// Pagination
+// ============================================================================
+// Pagination State
+// ============================================================================
+
 const currentPage = ref(1)
 const itemsPerPage = ref(25)
 
-// Dialog refs
+// ============================================================================
+// Dialog References
+// ============================================================================
+
 const confirmDialog = ref(null)
 const successDialog = ref(null)
 const errorDialog = ref(null)
 
-// Dialog configurations
 const dialogConfig = ref({
   title: '',
   message: '',
@@ -199,27 +223,35 @@ const errorConfig = ref({
   message: ''
 })
 
-// Computed
+// ============================================================================
+// Computed Properties
+// ============================================================================
+
 const filteredUsers = computed(() => {
   let result = [...users.value]
 
-  // Search filter
+  // Apply search filter
   if (searchQuery.value) {
     const query = searchQuery.value.toLowerCase()
-    result = result.filter(u => {
-      const name = (u.displayName || '').toLowerCase()
-      const email = (u.email || '').toLowerCase()
-      
+    result = result.filter(user => {
+      const name = (user.displayName || '').toLowerCase()
+      const email = (user.email || '').toLowerCase()
       return name.includes(query) || email.includes(query)
     })
   }
 
-  // Role filter
+  // Apply role filter
   if (selectedRole.value) {
-    result = result.filter(u => u.role === selectedRole.value)
+    result = result.filter(user => user.role === selectedRole.value)
   }
 
-  // Sort
+  // Apply verification status filter
+  if (selectedVerificationStatus.value) {
+    const isVerified = selectedVerificationStatus.value === 'verified'
+    result = result.filter(user => user.emailVerified === isVerified)
+  }
+
+  // Apply sorting
   result.sort((a, b) => {
     switch (sortBy.value) {
       case 'name-asc':
@@ -242,7 +274,9 @@ const filteredUsers = computed(() => {
   return result
 })
 
-const totalPages = computed(() => Math.ceil(filteredUsers.value.length / itemsPerPage.value))
+const totalPages = computed(() => 
+  Math.ceil(filteredUsers.value.length / itemsPerPage.value)
+)
 
 const paginatedUsers = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage.value
@@ -251,28 +285,39 @@ const paginatedUsers = computed(() => {
 })
 
 const hasActiveFilters = computed(() => {
-  return searchQuery.value || selectedRole.value || sortBy.value !== 'name-asc'
+  return searchQuery.value || 
+         selectedRole.value || 
+         selectedVerificationStatus.value || 
+         sortBy.value !== 'name-asc'
 })
 
-// Methods
+// ============================================================================
+// Data Loading
+// ============================================================================
+
 const loadUsers = async () => {
   loading.value = true
   error.value = null
 
   try {
-    const usersResult = await getAllDocuments('users')
-    if (usersResult.success) {
-      users.value = usersResult.data
+    const result = await getAllDocuments('users')
+    
+    if (result.success) {
+      users.value = result.data
     } else {
-      throw new Error(usersResult.error)
+      throw new Error(result.error)
     }
   } catch (err) {
-    console.error('Error loading users:', err)
+    console.error('Failed to load users:', err)
     error.value = 'Fehler beim Laden der Benutzer'
   } finally {
     loading.value = false
   }
 }
+
+// ============================================================================
+// Filter Management
+// ============================================================================
 
 const applyFilters = () => {
   currentPage.value = 1
@@ -285,11 +330,15 @@ const applySort = () => {
 const resetFilters = () => {
   searchQuery.value = ''
   selectedRole.value = ''
+  selectedVerificationStatus.value = ''
   sortBy.value = 'name-asc'
   currentPage.value = 1
 }
 
-// User actions
+// ============================================================================
+// User Actions
+// ============================================================================
+
 const confirmToggleRole = (user) => {
   const newRole = user.role === 'admin' ? 'user' : 'admin'
   const roleName = newRole === 'admin' ? 'Admin' : 'Benutzer'
@@ -298,32 +347,35 @@ const confirmToggleRole = (user) => {
     title: 'Rolle ändern',
     message: `Möchten Sie die Rolle von "${user.displayName || user.email}" zu "${roleName}" ändern?`,
     confirmText: 'Rolle ändern',
-    onConfirm: async () => {
-      try {
-        const result = await updateDocument('users', user.id, { role: newRole })
-        
-        if (result.success) {
-          await loadUsers()
-          successConfig.value = {
-            title: 'Rolle geändert',
-            message: `Die Rolle wurde erfolgreich zu "${roleName}" geändert.`
-          }
-          successDialog.value.open()
-        } else {
-          throw new Error(result.error)
-        }
-      } catch (err) {
-        console.error('Error updating user role:', err)
-        errorConfig.value = {
-          title: 'Fehler',
-          message: `Fehler beim Ändern der Rolle:\n${err.message}`
-        }
-        errorDialog.value.open()
-      }
-    }
+    onConfirm: () => handleToggleRole(user, newRole, roleName)
   }
   
   confirmDialog.value.open()
+}
+
+const handleToggleRole = async (user, newRole, roleName) => {
+  try {
+    const result = await updateDocument('users', user.id, { role: newRole })
+    
+    if (!result.success) {
+      throw new Error(result.error)
+    }
+    
+    await loadUsers()
+    
+    successConfig.value = {
+      title: 'Rolle geändert',
+      message: `Die Rolle wurde erfolgreich zu "${roleName}" geändert.`
+    }
+    successDialog.value.open()
+  } catch (err) {
+    console.error('Failed to update user role:', err)
+    errorConfig.value = {
+      title: 'Fehler',
+      message: `Fehler beim Ändern der Rolle:\n${err.message}`
+    }
+    errorDialog.value.open()
+  }
 }
 
 const confirmDeleteUser = (user) => {
@@ -331,48 +383,60 @@ const confirmDeleteUser = (user) => {
     title: 'Benutzer löschen',
     message: `Möchten Sie den Benutzer "${user.displayName || user.email}" wirklich löschen?\n\nDiese Aktion kann nicht rückgängig gemacht werden!`,
     confirmText: 'Löschen',
-    onConfirm: async () => {
-      try {
-        const result = await deleteDocument('users', user.id)
-        
-        if (result.success) {
-          await loadUsers()
-          successConfig.value = {
-            title: 'Benutzer gelöscht',
-            message: `Der Benutzer "${user.displayName || user.email}" wurde erfolgreich gelöscht.`
-          }
-          successDialog.value.open()
-        } else {
-          throw new Error(result.error)
-        }
-      } catch (err) {
-        console.error('Error deleting user:', err)
-        errorConfig.value = {
-          title: 'Fehler',
-          message: `Fehler beim Löschen des Benutzers:\n${err.message}`
-        }
-        errorDialog.value.open()
-      }
-    }
+    onConfirm: () => handleDeleteUser(user)
   }
   
   confirmDialog.value.open()
 }
 
-// Utility functions
+const handleDeleteUser = async (user) => {
+  try {
+    const result = await deleteDocument('users', user.id)
+    
+    if (!result.success) {
+      throw new Error(result.error)
+    }
+    
+    await loadUsers()
+    
+    successConfig.value = {
+      title: 'Benutzer gelöscht',
+      message: `Der Benutzer "${user.displayName || user.email}" wurde erfolgreich gelöscht.`
+    }
+    successDialog.value.open()
+  } catch (err) {
+    console.error('Failed to delete user:', err)
+    errorConfig.value = {
+      title: 'Fehler',
+      message: `Fehler beim Löschen des Benutzers:\n${err.message}`
+    }
+    errorDialog.value.open()
+  }
+}
+
+// ============================================================================
+// Utility Functions
+// ============================================================================
+
 const getUserInitials = (user) => {
   if (user.displayName) {
     return user.displayName.substring(0, 2).toUpperCase()
   }
+  
   if (user.email) {
     return user.email.substring(0, 2).toUpperCase()
   }
+  
   return 'U'
 }
 
 const formatDate = (timestamp) => {
-  if (!timestamp) return 'N/A'
+  if (!timestamp) {
+    return 'N/A'
+  }
+  
   const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp)
+  
   return date.toLocaleDateString('de-DE', {
     year: 'numeric',
     month: 'short',
@@ -380,19 +444,30 @@ const formatDate = (timestamp) => {
   })
 }
 
+// ============================================================================
+// Lifecycle Hooks
+// ============================================================================
+
 onMounted(() => {
   loadUsers()
 })
 </script>
 
 <style scoped>
+/* ============================================================================
+   Layout
+   ============================================================================ */
+
 .admin-users-view {
   max-width: 1600px;
   margin: 0 auto;
   padding: 2rem;
 }
 
-/* Loading */
+/* ============================================================================
+   Loading State
+   ============================================================================ */
+
 .loading {
   text-align: center;
   padding: 4rem 2rem;
@@ -413,7 +488,10 @@ onMounted(() => {
   100% { transform: rotate(360deg); }
 }
 
-/* Error */
+/* ============================================================================
+   Error State
+   ============================================================================ */
+
 .error-message {
   background: var(--error-light);
   border: 1px solid var(--error);
@@ -434,6 +512,10 @@ onMounted(() => {
   font-size: 1rem;
 }
 
+/* ============================================================================
+   Filter Controls
+   ============================================================================ */
+
 .filter-select {
   flex: 1;
   min-width: 200px;
@@ -452,7 +534,10 @@ onMounted(() => {
   box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
 }
 
-/* Results Info */
+/* ============================================================================
+   Results Info
+   ============================================================================ */
+
 .results-info {
   margin-bottom: 1rem;
   color: var(--gray-600);
@@ -464,7 +549,10 @@ onMounted(() => {
   font-weight: 600;
 }
 
-/* Table Card */
+/* ============================================================================
+   Table Card
+   ============================================================================ */
+
 .table-card {
   background: white;
   border-radius: 12px;
@@ -511,7 +599,10 @@ onMounted(() => {
   background: var(--primary-green-lighter);
 }
 
-/* User Cell */
+/* ============================================================================
+   User Cell
+   ============================================================================ */
+
 .user-cell {
   display: flex;
   align-items: center;
@@ -531,7 +622,10 @@ onMounted(() => {
   font-size: 0.875rem;
 }
 
-/* Role Badge */
+/* ============================================================================
+   Badges
+   ============================================================================ */
+
 .role-badge {
   display: inline-block;
   padding: 0.375rem 0.875rem;
@@ -551,7 +645,29 @@ onMounted(() => {
   color: var(--primary-green);
 }
 
-/* Action Buttons */
+.verification-badge {
+  display: inline-block;
+  padding: 0.375rem 0.875rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.verification-badge.verified {
+  background: #D1FAE5;
+  color: #065F46;
+}
+
+.verification-badge.unverified {
+  background: #FEE2E2;
+  color: #991B1B;
+}
+
+/* ============================================================================
+   Action Buttons
+   ============================================================================ */
+
 .action-buttons {
   display: flex;
   gap: 0.5rem;
@@ -595,7 +711,10 @@ onMounted(() => {
   box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
 }
 
-/* Empty State */
+/* ============================================================================
+   Empty State
+   ============================================================================ */
+
 .empty-state {
   text-align: center;
   padding: 4rem 2rem;
@@ -639,7 +758,10 @@ onMounted(() => {
   box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
 }
 
-/* Responsive */
+/* ============================================================================
+   Responsive Design
+   ============================================================================ */
+
 @media (max-width: 768px) {
   .admin-users-view {
     padding: 1rem;

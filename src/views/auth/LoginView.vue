@@ -30,9 +30,7 @@
         </div>
 
         <div v-if="error" class="error-message">
-          <svg xmlns="http://www.w3.org/2000/svg" class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
+          <AlertCircle :size="20" />
           {{ error }}
         </div>
 
@@ -56,9 +54,13 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { loginUser } from '../../services/auth'
+import { AlertCircle } from 'lucide-vue-next'
 
 export default {
   name: 'LoginView',
+  components: {
+    AlertCircle
+  },
   setup() {
     const email = ref('')
     const password = ref('')
@@ -211,12 +213,6 @@ input:focus {
   align-items: center;
   gap: 0.5rem;
   font-size: 0.95rem;
-}
-
-.icon {
-  width: 20px;
-  height: 20px;
-  flex-shrink: 0;
 }
 
 .divider {
