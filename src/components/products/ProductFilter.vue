@@ -118,13 +118,8 @@ export default {
       const value = priceRange.value[type]
       if (value === '') return
       
-      // Entferne alles außer Zahlen und Punkt/Komma
       let cleanValue = value.toString().replace(/[^\d.,]/g, '')
-      
-      // Ersetze Komma durch Punkt
       cleanValue = cleanValue.replace(',', '.')
-      
-      // Parse zu Number
       const numValue = parseFloat(cleanValue)
       
       if (isNaN(numValue) || numValue < 0) {
