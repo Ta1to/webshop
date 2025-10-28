@@ -206,8 +206,7 @@ export default {
 }
 
 .clear-btn:hover {
-  color: #059669;
-  text-decoration: underline;
+  color: #e5e7eb;
 }
 
 .filter-section {
