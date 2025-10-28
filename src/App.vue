@@ -39,7 +39,7 @@ export default {
   },
   setup() {
     const currentUser = ref(null)
-    const cartItemCount = useCartItemCount() // Reactive ref from store
+    const cartItemCount = useCartItemCount()
     const userProfile = ref(null)
     const newsletterLoading = ref(false)
     const isAdmin = ref(false)
