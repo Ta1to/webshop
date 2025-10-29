@@ -115,6 +115,15 @@
             :products="products"
             @close="closeOfferModal"
             @submit="handleOfferSubmit"
+            @open-product-modal="openProductModalFromOffer"
+        />
+
+        <!-- Product Modal -->
+        <ProductModal
+            :is-open="isProductModalOpen"
+            mode="create"
+            @close="closeProductModal"
+            @submit="handleProductSubmit"
         />
 
         <!-- Confirm Delete Dialog -->
@@ -146,6 +155,7 @@ import { ref, onMounted, computed } from 'vue'
 import { Plus, Edit, Trash, Package } from 'lucide-vue-next'
 import AdminPageHeader from '../../components/admin/AdminPageHeader.vue'
 import OfferModal from '../../components/modal/OfferModal.vue'
+import ProductModal from '../../components/modal/ProductModal.vue'
 import AlertDialog from '../../components/dialog/AlertDialog.vue'
 import { 
     getAllOffers, 
@@ -154,7 +164,7 @@ import {
     deleteOffer,
     calculateDiscountedPrice as calcPrice
 } from '../../services/offers'
-import { getAllProducts } from '../../services/db'
+import { getAllProducts, createProduct } from '../../services/db'
 
 // State
 const loading = ref(true)
@@ -166,6 +176,9 @@ const products = ref([])
 const isOfferModalOpen = ref(false)
 const offerModalMode = ref('create')
 const selectedOffer = ref(null)
+
+// Product Modal state
+const isProductModalOpen = ref(false)
 
 // Dialog refs
 const confirmDialog = ref(null)
@@ -267,6 +280,37 @@ const editOffer = (offer) => {
 const closeOfferModal = () => {
     isOfferModalOpen.value = false
     selectedOffer.value = null
+}
+
+// Open product modal from offer modal
+const openProductModalFromOffer = () => {
+    isProductModalOpen.value = true
+}
+
+// Close product modal
+const closeProductModal = () => {
+    isProductModalOpen.value = false
+}
+
+// Handle product submit
+const handleProductSubmit = async (productData) => {
+    try {
+        await createProduct(productData)
+        await successDialog.value?.show(
+            'Produkt erstellt',
+            'Das Produkt wurde erfolgreich erstellt und kann jetzt für Angebote verwendet werden.'
+        )
+        
+        closeProductModal()
+        // Reload products to update the dropdown in OfferModal
+        await loadData()
+    } catch (err) {
+        console.error('Error saving product:', err)
+        await errorDialog.value?.show(
+            'Fehler',
+            'Beim Speichern des Produkts ist ein Fehler aufgetreten.'
+        )
+    }
 }
 
 // Handle offer submit

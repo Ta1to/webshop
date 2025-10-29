@@ -15,6 +15,7 @@ import AdminProductsView from '../views/admin/AdminProductsView.vue'
 import AdminCategoriesView from '../views/admin/AdminCategoriesView.vue'
 import AdminUsersView from '../views/admin/AdminUsersView.vue'
 import AdminOrdersView from '../views/admin/AdminOrdersView.vue'
+import AdminOffersView from '../views/admin/AdminOffersView.vue'
 import { getCurrentUser } from '../services/auth'
 import ContactView from '../views/info/ContactView.vue'
 import FAQView from '../views/info/FAQView.vue'
@@ -125,6 +126,12 @@ const routes = [
         path: '/admin/orders',
         name: 'AdminOrders',
         component: AdminOrdersView,
+        meta: { requiresAuth: true, requiresAdmin: true }
+    },
+    {
+        path: '/admin/offers',
+        name: 'AdminOffers',
+        component: AdminOffersView,
         meta: { requiresAuth: true, requiresAdmin: true }
     },
     {

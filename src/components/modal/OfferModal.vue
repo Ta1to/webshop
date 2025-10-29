@@ -14,7 +14,18 @@
             <form @submit.prevent="handleSubmit">
               <!-- Product Selection -->
               <div class="form-group">
-                <label for="product">Produkt auswählen *</label>
+                <div class="label-with-action">
+                  <label for="product">Produkt auswählen *</label>
+                  <button 
+                    v-if="mode === 'create'" 
+                    type="button" 
+                    @click="openProductModal" 
+                    class="btn-link"
+                  >
+                    <Plus :size="16" />
+                    Neues Produkt erstellen
+                  </button>
+                </div>
                 <select 
                   id="product" 
                   v-model="formData.productId" 
@@ -32,6 +43,9 @@
                 </select>
                 <p v-if="mode === 'edit'" class="field-note">
                   Produkt kann bei bestehenden Angeboten nicht geändert werden
+                </p>
+                <p v-if="mode === 'create' && products.length === 0" class="field-note warning">
+                  Keine Produkte vorhanden. Bitte erstellen Sie zuerst ein Produkt.
                 </p>
               </div>
 
@@ -94,30 +108,6 @@
                 </div>
               </div>
 
-              <!-- Date Range -->
-              <div class="form-row">
-                <div class="form-group">
-                  <label for="startDate">Startdatum</label>
-                  <input 
-                    id="startDate"
-                    v-model="formData.startDate" 
-                    type="datetime-local"
-                  />
-                  <p class="field-note">Optional - Leer lassen für sofortigen Start</p>
-                </div>
-
-                <div class="form-group">
-                  <label for="endDate">Enddatum</label>
-                  <input 
-                    id="endDate"
-                    v-model="formData.endDate" 
-                    type="datetime-local"
-                    :min="formData.startDate"
-                  />
-                  <p class="field-note">Optional - Leer lassen für unbegrenzt</p>
-                </div>
-              </div>
-
               <div class="modal-actions">
                 <button type="button" @click="close" class="btn-secondary">
                   Abbrechen
@@ -137,7 +127,7 @@
 
 <script setup>
 import { ref, watch, computed } from 'vue'
-import { X, Loader } from 'lucide-vue-next'
+import { X, Loader, Plus } from 'lucide-vue-next'
 
 const props = defineProps({
   isOpen: Boolean,
@@ -155,7 +145,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['close', 'submit'])
+const emit = defineEmits(['close', 'submit', 'openProductModal'])
 
 const saving = ref(false)
 
@@ -217,6 +207,10 @@ const close = () => {
     resetForm()
     emit('close')
   }
+}
+
+const openProductModal = () => {
+  emit('openProductModal')
 }
 
 const handleSubmit = async () => {
@@ -352,6 +346,42 @@ const handleSubmit = async () => {
   margin: 0.5rem 0 0 0;
   font-size: 0.875rem;
   color: var(--gray-500);
+}
+
+.field-note.warning {
+  color: #f59e0b;
+  font-weight: 500;
+}
+
+.label-with-action {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.label-with-action label {
+  margin-bottom: 0;
+}
+
+.btn-link {
+  background: none;
+  border: none;
+  color: var(--primary-green);
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  transition: all 0.2s;
+}
+
+.btn-link:hover {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--primary-green-dark);
 }
 
 /* Product Preview */
