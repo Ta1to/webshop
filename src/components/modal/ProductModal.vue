@@ -84,7 +84,7 @@
                     class="btn-remove-image"
                     title="Bild entfernen"
                   >
-                    <X :size="20" />
+                    <Trash :size="20" />
                   </button>
                 </div>
 
@@ -187,7 +187,7 @@
 
 <script setup>
 import { ref, watch } from 'vue'
-import { X, Loader, Upload, Check } from 'lucide-vue-next'
+import { X, Loader, Upload, Check, Trash} from 'lucide-vue-next'
 import { uploadImage, validateImageUrl, compressImage } from '@/services/storage'
 
 const props = defineProps({
@@ -447,7 +447,7 @@ const handleSubmit = async () => {
 
 .btn-close:hover {
   background: var(--gray-100);
-  color: var(--error);
+  color: var(--primary-green);
 }
 
 .modal-body {
@@ -595,7 +595,7 @@ const handleSubmit = async () => {
   margin-bottom: 1rem;
   border-radius: 8px;
   overflow: hidden;
-  max-width: 400px;
+  max-width: 600px;
 }
 
 .image-preview {
@@ -610,22 +610,14 @@ const handleSubmit = async () => {
   position: absolute;
   top: 0.5rem;
   right: 0.5rem;
-  background: rgba(239, 68, 68, 0.95);
-  border: none;
-  color: white;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all 0.2s;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .btn-remove-image:hover {
-  background: rgb(220, 38, 38);
   transform: scale(1.1);
 }
 
