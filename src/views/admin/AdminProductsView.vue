@@ -136,6 +136,13 @@
                       <Edit2 :size="16" />
                     </button>
                     <button 
+                      @click="openEditOfferProductModal(product)" 
+                      class="btn-action btn-offer"
+                      title="Bearbeiten"
+                    >
+                      <BadgePercent :size="16" />
+                    </button>
+                    <button 
                       @click="confirmDeleteProduct(product)" 
                       class="btn-action btn-delete"
                       title="Löschen"
@@ -219,7 +226,7 @@ import ProductModal from '../../components/modal/ProductModal.vue'
 import AdminPageHeader from '../../components/admin/AdminPageHeader.vue'
 import AdminFilters from '../../components/admin/AdminFilters.vue'
 import AdminTablePagination from '../../components/admin/AdminTablePagination.vue'
-import { Package, Edit2, Trash2, Plus } from 'lucide-vue-next'
+import { Package, Edit2, Trash2, Plus, BadgePercent } from 'lucide-vue-next'
 
 // State
 const loading = ref(true)
@@ -424,6 +431,10 @@ const openCreateProductModal = () => {
 
 const openEditProductModal = (product) => {
   productModal.value = { isOpen: true, mode: 'edit', product }
+}
+
+const openEditOfferProductModal = (product) => {
+  productModal.value = { isOpen: true, mode: 'edit-offer', product }
 }
 
 const closeProductModal = () => {
@@ -812,6 +823,17 @@ onMounted(() => {
 
 .btn-edit:hover {
   background: #3B82F6;
+  color: white;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+
+.btn-offer {
+  color: #F59E0B;
+  background: #FEF3C7;
+}
+
+.btn-offer:hover {
+  background: #F59E0B;
   color: white;
   box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
 }

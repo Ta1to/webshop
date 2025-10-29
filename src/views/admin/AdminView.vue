@@ -344,6 +344,67 @@
             </router-link>
           </div>
         </div>
+
+        <div class="data-card">
+          <div class="card-header">
+            <h2>Letzte Angebote</h2>
+            <div class="header-actions">
+              <span class="badge">{{ offers.length }}</span>
+              <button @click="openCreateProductModal" class="btn-add">
+                <Plus :size="18" />
+                Neu
+              </button>
+            </div>
+          </div>
+          <div class="table-container">
+            <table v-if="offers.length > 0" class="data-table">
+              <thead>
+                <tr>
+                  <th>Angebot-ID</th>
+                  <th>Produkt-ID</th>
+                  <th>Rabatt</th>
+                  <th>Start Datum</th>
+                  <th>End Datum</th>
+                  <th>Aktionen</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="offer in offers.slice(0, 5)" :key="offer.id">
+                  <td><code>{{ offer.id.substring(0, 8) }}</code></td>
+                  <td>{{ offer.productId || 'N/A' }}</td>
+                  <td>{{ offer.discount || 0 }}%</td>
+                  <td>{{ formatDate(offer.startDate) }}</td>
+                  <td>{{ formatDate(offer.endDate) }}</td>
+                  <td>
+                    <OrderStatusSelect
+                      :status="offer.status"
+                      @change="(newStatus) => updateStatus(offer, newStatus)"
+                    />
+                  </td>
+                  <td>{{ formatDate(offer.createdAt) }}</td>
+                  <td>
+                    <div class="action-buttons">
+                      <button
+                        @click="viewOfferDetails(offer)"
+                        class="btn-action btn-view"
+                        title="Details anzeigen"
+                      >
+                        <Eye :size="16" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <p v-else class="empty-state">Keine Bestellungen gefunden</p>
+          </div>
+          <div v-if="stats.totalOrders > 5" class="card-footer">
+            <router-link to="/admin/orders" class="btn-view-all">
+              Alle {{ stats.totalOrders }} Bestellungen anzeigen
+              <ChevronRight :size="16" />
+            </router-link>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -447,11 +508,13 @@ const users = ref([])
 const categories = ref([])
 const products = ref([])
 const orders = ref([])
+const offers = ref([])
 
 // Modal states
 const productModal = ref({ isOpen: false, mode: 'create', product: null })
 const categoryModal = ref({ isOpen: false, mode: 'create', category: null })
 const orderDetailsModal = ref({ isOpen: false, order: null })
+const offerDetailsModal = ref({ isOpen: false, offer: null })
 
 // Statistics
 const stats = ref({
