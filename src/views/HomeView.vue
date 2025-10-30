@@ -21,7 +21,7 @@
                 <main class="main-content">
                     <!-- Offers Section -->
                     <section v-if="productsWithOffers.length > 0" class="products-section offers-section">
-                        <h2 class="section-title">🔥 Aktuelle Angebote</h2>
+                        <h2 class="section-title">Aktuelle Angebote</h2>
                         <div class="products-grid">
                             <ProductCard
                                 v-for="product in productsWithOffers"

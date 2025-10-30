@@ -376,6 +376,7 @@
                   <th>Neuer Preis</th>
                   <th>Start Datum</th>
                   <th>End Datum</th>
+                  <th>Aktionen</th>
                 </tr>
               </thead>
               <tbody>
@@ -392,6 +393,31 @@
                   <td class="price new-price">{{ formatPrice(calculateDiscountedPrice(offer)) }}</td>
                   <td>{{ formatDate(offer.startDate) }}</td>
                   <td>{{ formatDate(offer.endDate) }}</td>
+                  <td>
+                    <div class="action-buttons">
+                      <button
+                        @click="viewOfferDetails(offer)"
+                        class="btn-action btn-view"
+                        title="Details anzeigen"
+                      >
+                        <Eye :size="16" />
+                      </button>
+                      <button 
+                        @click="openEditProductModal(product)" 
+                        class="btn-action btn-edit"
+                        title="Bearbeiten"
+                      >
+                        <Edit2 :size="16" />
+                      </button>
+                      <button 
+                        @click="confirmDeleteCategory(category)" 
+                        class="btn-action btn-delete"
+                        title="Löschen"
+                      >
+                        <Trash2 :size="16" />
+                      </button>
+                    </div>
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -1371,7 +1397,7 @@ onMounted(() => {
 .stat-icon.categories { background: linear-gradient(135deg, #059669 0%, #047857 100%); }
 .stat-icon.products { background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%); }
 .stat-icon.orders { background: linear-gradient(135deg, #34D399 0%, #10B981 100%); }
-.stat-icon.offers { background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); }
+.stat-icon.offers { background: linear-gradient(135deg, #059669 0%, #047857 100%); }
 
 .stat-info h3 {
   font-size: 2rem;
@@ -1583,14 +1609,14 @@ onMounted(() => {
 }
 
 .btn-view {
-  color: #6366F1;
-  background: #EEF2FF;
+  color: #D97706;
+  background: #FEF3C7;
 }
 
 .btn-view:hover {
-  background: #6366F1;
+  background: #D97706;
   color: white;
-  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+  box-shadow: 0 2px 8px rgba(217, 119, 6, 0.3);
 }
 
 .btn-edit {
