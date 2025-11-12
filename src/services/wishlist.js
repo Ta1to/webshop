@@ -1,5 +1,6 @@
 import { getCurrentUser } from "./auth";
 import { getDocument, getUserDocument, updateUserDocument } from "./db";
+import Cookies from 'js-cookie'
 
 const WISHLIST_COOKIE_NAME = 'webshop_wishlist';
 const WISHLIST_COOKIE_DAYS = 30;
@@ -20,44 +21,6 @@ export const registerWishlistUpdateCallback = (callback) => {
  * Wishlist items are stored as an array of product IDs
  */
 
-// ==================== COOKIE HELPERS ====================
-
-/**
- * Set a cookie
- */
-const setCookie = (name, value, days) => {
-  const date = new Date();
-  date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
-  const expires = `expires=${date.toUTCString()}`;
-  document.cookie = `${name}=${JSON.stringify(value)};${expires};path=/`;
-};
-
-/**
- * Get a cookie
- */
-const getCookie = (name) => {
-  const nameEQ = `${name}=`;
-  const cookies = document.cookie.split(';');
-  for (let i =  0; i < cookies.length; i++) {
-    let cookie = cookies[i].trim();
-    if (cookie.indexOf(nameEQ) === 0) {
-      try {
-        return JSON.parse(cookie.substring(nameEQ.length));
-      } catch (e) {
-        return null;
-      }
-    }
-  }
-  return null;
-};
-
-/**
- * Delete a cookie
- */
-const deleteCookie = (name) => {
-  document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/`;
-};
-
 // ==================== WISHLIST OPERATIONS ====================
 
 /**
@@ -74,7 +37,8 @@ const getRawWishlist = async () => {
         }
     return [];
     } else {
-    return getCookie(WISHLIST_COOKIE_NAME) || [];
+    const wishlistData = Cookies.get(WISHLIST_COOKIE_NAME)
+    return wishlistData ? JSON.parse(wishlistData) : []
     }
 };
 
@@ -120,7 +84,7 @@ const saveWishlist = async (wishlist) => {
     await updateUserDocument(user.uid, { wishlist })
   } else {
     // Save to cookies
-    setCookie(WISHLIST_COOKIE_NAME, wishlist, WISHLIST_COOKIE_DAYS)
+    Cookies.set(WISHLIST_COOKIE_NAME, JSON.stringify(wishlist), { expires: WISHLIST_COOKIE_DAYS })
   }
 
   // Notify store of wishlist update
@@ -213,7 +177,8 @@ export const mergeGuestWishlist = async () => {
   const user = getCurrentUser();
   if (!user) return;
   
-  const guestWishlist = getCookie(WISHLIST_COOKIE_NAME) || [];
+  const guestWishlistData = Cookies.get(WISHLIST_COOKIE_NAME)
+  const guestWishlist = guestWishlistData ? JSON.parse(guestWishlistData) : []
   if (guestWishlist.length === 0) return;
   
   const userResult = await getUserDocument(user.uid);
@@ -233,7 +198,7 @@ export const mergeGuestWishlist = async () => {
   await updateUserDocument(user.uid, { wishlist: userWishlist });
   
   // Clear guest wishlist cookie
-  deleteCookie(WISHLIST_COOKIE_NAME);
+  Cookies.remove(WISHLIST_COOKIE_NAME);
   
   // Notify store of wishlist update
   if (updateStoreCallback) {

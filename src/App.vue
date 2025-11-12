@@ -16,6 +16,8 @@
       :newsletter-loading="newsletterLoading"
       @newsletter-toggle="handleNewsletterToggle"
     />
+
+    <CookieConsent />
   </div>
 </template>
 
@@ -30,12 +32,14 @@ import { initCartStore, updateCartItems, useCartItemCount } from '@/stores/cartS
 import { initWishlistStore, updateWishlistItems } from '@/stores/wishlistStore'
 import AppHeader from '@/components/layout/AppHeader.vue'
 import AppFooter from '@/components/layout/AppFooter.vue'
+import CookieConsent from '@/components/dialog/CookieConsent.vue'
 
 export default {
   name: 'App',
   components: {
     AppHeader,
-    AppFooter
+    AppFooter,
+    CookieConsent
   },
   setup() {
     const currentUser = ref(null)

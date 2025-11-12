@@ -187,7 +187,7 @@ const routes = [
     {
         path: '/cookies',
         name: 'Cookies',
-        component: () => import('../views/PlaceholderView.vue')
+        component: () => import('../views/legal/CookiesView.vue')
     },
     {
         path: '/:pathMatch(.*)*',

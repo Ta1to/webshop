@@ -1,5 +1,6 @@
 import { updateUserDocument, getUserDocument, getDocument } from './db'
 import { getCurrentUser } from './auth'
+import Cookies from 'js-cookie'
 
 const CART_COOKIE_NAME = 'webshop_cart'
 const CART_COOKIE_DAYS = 30
@@ -21,44 +22,6 @@ export const registerCartUpdateCallback = (callback) => {
  * Product details are fetched separately when displaying the cart
  */
 
-// ==================== COOKIE HELPERS ====================
-
-/**
- * Set a cookie
- */
-const setCookie = (name, value, days) => {
-  const date = new Date()
-  date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000))
-  const expires = `expires=${date.toUTCString()}`
-  document.cookie = `${name}=${JSON.stringify(value)};${expires};path=/`
-}
-
-/**
- * Get a cookie
- */
-const getCookie = (name) => {
-  const nameEQ = `${name}=`
-  const cookies = document.cookie.split(';')
-  for (let i = 0; i < cookies.length; i++) {
-    let cookie = cookies[i].trim()
-    if (cookie.indexOf(nameEQ) === 0) {
-      try {
-        return JSON.parse(cookie.substring(nameEQ.length))
-      } catch (e) {
-        return null
-      }
-    }
-  }
-  return null
-}
-
-/**
- * Delete a cookie
- */
-const deleteCookie = (name) => {
-  document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/`
-}
-
 // ==================== CART OPERATIONS ====================
 
 /**
@@ -77,7 +40,8 @@ const getRawCart = async () => {
     return []
   } else {
     // Get cart from cookies
-    return getCookie(CART_COOKIE_NAME) || []
+    const cartData = Cookies.get(CART_COOKIE_NAME)
+    return cartData ? JSON.parse(cartData) : []
   }
 }
 
@@ -142,7 +106,7 @@ const saveCart = async (cart) => {
     await updateUserDocument(user.uid, { cart })
   } else {
     // Save to cookies
-    setCookie(CART_COOKIE_NAME, cart, CART_COOKIE_DAYS)
+    Cookies.set(CART_COOKIE_NAME, JSON.stringify(cart), { expires: CART_COOKIE_DAYS })
   }
   
   // Notify store of cart update
@@ -270,7 +234,8 @@ export const mergeGuestCart = async () => {
   const user = getCurrentUser()
   if (!user) return
   
-  const guestCart = getCookie(CART_COOKIE_NAME) || []
+  const guestCartData = Cookies.get(CART_COOKIE_NAME)
+  const guestCart = guestCartData ? JSON.parse(guestCartData) : []
   if (guestCart.length === 0) return
   
   const userResult = await getUserDocument(user.uid)
@@ -294,7 +259,7 @@ export const mergeGuestCart = async () => {
   await updateUserDocument(user.uid, { cart: userCart })
   
   // Clear guest cart cookie
-  deleteCookie(CART_COOKIE_NAME)
+  Cookies.remove(CART_COOKIE_NAME)
   
   // Notify store of cart update
   if (updateStoreCallback) {
