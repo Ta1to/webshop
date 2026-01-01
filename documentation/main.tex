@@ -1,0 +1,67 @@
+%!TEX root = ./main.tex
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%% Vorlage für Bachelor Arbeit und weitere Dokumentationen (T1000 - T3300)
+%%   von Maximilian Knopf
+%%   inspiriert von einer DHBW Heidenheim Vorlage, https://github.com/programonaut/latex-template
+%%
+%% Erstellen mitteles Kommandozeile:
+%%   pdflatex main.tex
+%%   biber main
+%%   pdflatex main.tex
+%%   pdflatex main.tex
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\input{config/config}
+\input{config/header}
+\usepackage{tabularx}
+\usepackage{booktabs}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[table]{xcolor}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{geometry}
+
+%% Start des Dokuments
+\begin{document}
+
+    %% Titelblatt
+    \input{resources/cover}
+
+    \pagestyle{scrheadings}
+    \pagenumbering{Roman}
+
+    %% Inhaltsverzeichnis
+    \begin{spacing}{1.2}
+        \begingroup
+            \setcounter{tocdepth}{2} % subchapter Anzeigetiefe
+            \tableofcontents
+        \endgroup
+    \end{spacing}
+
+    %% Abbildungsverzeichnis
+    \clearpage
+    \listoffigures
+
+    %% Skriptverzeichnis
+    \clearpage
+    \lstlistoflistings
+
+    \clearpage
+    \pagenumbering{arabic}
+
+    %% ABkürzungsverezeichnis
+    \input{resources/acronyms}
+
+    \acresetall
+
+    %% Inhalt
+    \input{content/chapters}
+
+    %% Literaturverzeichnis
+    \clearpage
+    \printbibliography
+\end{document}
