@@ -19,6 +19,18 @@
 
                 <!-- Products -->
                 <main class="main-content">
+                    <!-- Offers Section -->
+                    <section v-if="productsWithOffers.length > 0" class="products-section offers-section">
+                        <h2 class="section-title">Aktuelle Angebote</h2>
+                        <div class="products-grid">
+                            <ProductCard
+                                v-for="product in productsWithOffers"
+                                :key="product.id"
+                                :product="product"
+                            />
+                        </div>
+                    </section>
+
                     <!-- Featured Products -->
                     <section v-if="filteredFeaturedProducts.length > 0" class="products-section">
                         <h2 class="section-title">Beliebte Produkte</h2>
@@ -44,7 +56,7 @@
                     </section>
 
                     <!-- Empty State -->
-                    <div v-if="filteredFeaturedProducts.length === 0 && filteredRecentProducts.length === 0" class="empty-state">
+                    <div v-if="filteredFeaturedProducts.length === 0 && filteredRecentProducts.length === 0 && productsWithOffers.length === 0" class="empty-state">
                         <p>Keine Produkte entsprechen den Filterkriterien</p>
                         <button @click="clearFilters" class="btn-clear">Filter zurücksetzen</button>
                     </div>
@@ -137,13 +149,18 @@ export default {
         }
 
         const filteredFeaturedProducts = computed(() => {
-            const featured = products.value.filter(p => p.featured)
+            const featured = products.value.filter(p => p.featured && !p.offer)
             return applyFilters(featured).slice(0, 6)
         })
 
         const filteredRecentProducts = computed(() => {
-            const recent = products.value.filter(p => !p.featured)
+            const recent = products.value.filter(p => !p.featured && !p.offer)
             return applyFilters(recent).slice(0, 6)
+        })
+        
+        const productsWithOffers = computed(() => {
+            const withOffers = products.value.filter(p => p.offer)
+            return applyFilters(withOffers).slice(0, 6)
         })
 
         const handleFilterChange = (newFilters) => {
@@ -164,7 +181,9 @@ export default {
             loading.value = true
             const result = await getAllProducts()
             if (result.success) {
-                products.value = result.data
+                // Import offers service and apply offers to products
+                const { getProductsWithOffers } = await import('../services/offers')
+                products.value = await getProductsWithOffers(result.data)
             }
             loading.value = false
         }
@@ -178,6 +197,7 @@ export default {
             categories,
             filteredFeaturedProducts,
             filteredRecentProducts,
+            productsWithOffers,
             handleFilterChange,
             clearFilters
         }
@@ -261,6 +281,15 @@ export default {
     margin-bottom: 1.5rem;
     padding-bottom: 0.75rem;
     border-bottom: 2px solid #10b981;
+}
+
+.offers-section .section-title {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    border-bottom-color: #ef4444;
+    font-size: 2rem;
 }
 
 .products-grid {

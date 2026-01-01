@@ -94,7 +94,9 @@ export default {
           categories.value = categoriesResult.data
         }
         if (productsResult.success) {
-          products.value = productsResult.data
+          // Import offers service and apply offers to products
+          const { getProductsWithOffers } = await import('../../services/offers')
+          products.value = await getProductsWithOffers(productsResult.data)
         }
       } catch (error) {
         console.error('Error loading data:', error)

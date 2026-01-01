@@ -82,6 +82,16 @@
             <p>Bestellungen</p>
           </div>
         </router-link>
+
+        <router-link to="/admin/offers" class="stat-card stat-card-link">
+          <div class="stat-icon offers">
+            <Package :size="28" />
+          </div>
+          <div class="stat-info">
+            <h3>{{ stats.totalOffers }}</h3>
+            <p>Angebote</p>
+          </div>
+        </router-link>
       </div>
 
       <!-- Data Tables -->
@@ -344,6 +354,82 @@
             </router-link>
           </div>
         </div>
+
+        <div class="data-card">
+          <div class="card-header">
+            <h2>Letzte Angebote</h2>
+            <div class="header-actions">
+              <span class="badge">{{ offers.length }}</span>
+              <button @click="openCreateOfferModal" class="btn-add">
+                <Plus :size="18" />
+                Neu
+              </button>
+            </div>
+          </div>
+          <div class="table-container">
+            <table v-if="offers.length > 0" class="data-table">
+              <thead>
+                <tr>
+                  <th>Produkt</th>
+                  <th>Rabatt</th>
+                  <th>Alter Preis</th>
+                  <th>Neuer Preis</th>
+                  <th>Start Datum</th>
+                  <th>End Datum</th>
+                  <th>Aktionen</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="offer in offers.slice(0, 5)" :key="offer.id">
+                  <td>
+                    <div class="product-cell">
+                      <span>{{ getProductById(offer.productId)?.name || 'Unbekannt' }}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="discount-badge">-{{ offer.discountPercentage }}%</span>
+                  </td>
+                  <td class="price old-price">{{ formatPrice(getProductById(offer.productId)?.price || 0) }}</td>
+                  <td class="price new-price">{{ formatPrice(calculateDiscountedPrice(offer)) }}</td>
+                  <td>{{ formatDate(offer.startDate) }}</td>
+                  <td>{{ formatDate(offer.endDate) }}</td>
+                  <td>
+                    <div class="action-buttons">
+                      <button
+                        @click="viewOfferDetails(offer)"
+                        class="btn-action btn-view"
+                        title="Details anzeigen"
+                      >
+                        <Eye :size="16" />
+                      </button>
+                      <button 
+                        @click="openEditProductModal(product)" 
+                        class="btn-action btn-edit"
+                        title="Bearbeiten"
+                      >
+                        <Edit2 :size="16" />
+                      </button>
+                      <button 
+                        @click="confirmDeleteCategory(category)" 
+                        class="btn-action btn-delete"
+                        title="Löschen"
+                      >
+                        <Trash2 :size="16" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <p v-else class="empty-state">Keine Angebote gefunden</p>
+          </div>
+          <div v-if="stats.totalOffers > 5" class="card-footer">
+            <router-link to="/admin/offers" class="btn-view-all">
+              Alle {{ stats.totalOffers }} Angebote anzeigen
+              <ChevronRight :size="16" />
+            </router-link>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -401,16 +487,29 @@
     :order="orderDetailsModal.order"
     @close="closeOrderDetailsModal"
   />
+
+  <!-- Offer Modal -->
+  <OfferModal
+    :is-open="offerModal.isOpen"
+    :mode="offerModal.mode"
+    :offer="offerModal.offer"
+    :products="products"
+    @close="closeOfferModal"
+    @submit="handleOfferSubmit"
+    @open-product-modal="openProductModalFromOffer"
+  />
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
 import { getAllDocuments, updateDocument, deleteDocument, createDocument } from '../../services/db'
 import { getAllOrders, updateOrderStatus } from '../../services/orders'
+import { getAllOffers } from '../../services/offers'
 import AlertDialog from '../../components/dialog/AlertDialog.vue'
 import ProductModal from '../../components/modal/ProductModal.vue'
 import CategoryModal from '../../components/modal/CategoryModal.vue'
 import OrderDetailsModal from '../../components/modal/OrderDetailsModal.vue'
+import OfferModal from '../../components/modal/OfferModal.vue'
 import OrderStatusSelect from '../../components/admin/OrderStatusSelect.vue'
 import { Users, LayoutGrid, Package, ShoppingCart, Shield, Trash2, Plus, Edit2, ChevronRight, Eye } from 'lucide-vue-next'
 import { mockCategories, mockProducts } from '../../data'
@@ -447,18 +546,21 @@ const users = ref([])
 const categories = ref([])
 const products = ref([])
 const orders = ref([])
+const offers = ref([])
 
 // Modal states
 const productModal = ref({ isOpen: false, mode: 'create', product: null })
 const categoryModal = ref({ isOpen: false, mode: 'create', category: null })
 const orderDetailsModal = ref({ isOpen: false, order: null })
+const offerModal = ref({ isOpen: false, mode: 'create', offer: null })
 
 // Statistics
 const stats = ref({
   totalUsers: 0,
   totalCategories: 0,
   totalProducts: 0,
-  totalOrders: 0
+  totalOrders: 0,
+  totalOffers: 0
 })
 
 // Load all dashboard data
@@ -494,6 +596,11 @@ const loadDashboardData = async () => {
       orders.value = ordersResult.orders.slice(0, 10) // Show only last 10 orders
       stats.value.totalOrders = ordersResult.orders.length
     }
+
+    // Load offers from Firestore
+    const offersResult = await getAllOffers()
+    offers.value = offersResult.slice(0, 10) // Show only last 10 offers
+    stats.value.totalOffers = offersResult.length
 
   } catch (err) {
     console.error('Error loading dashboard data:', err)
@@ -763,6 +870,61 @@ const closeOrderDetailsModal = () => {
     order: null
   }
 }
+
+// ==================== OFFER CRUD ====================
+
+const openCreateOfferModal = () => {
+  offerModal.value = { isOpen: true, mode: 'create', offer: null }
+}
+
+const closeOfferModal = () => {
+  offerModal.value = { isOpen: false, mode: 'create', offer: null }
+}
+
+const openProductModalFromOffer = () => {
+  productModal.value = { isOpen: true, mode: 'create', product: null }
+}
+
+const handleOfferSubmit = async (offerData) => {
+  try {
+    const result = await createDocument('offers', offerData)
+    
+    if (result.success) {
+      await loadDashboardData()
+      closeOfferModal()
+      successConfig.value = {
+        title: 'Erfolg',
+        message: 'Angebot erfolgreich erstellt!'
+      }
+      successDialog.value.open()
+    } else {
+      throw new Error(result.error)
+    }
+  } catch (err) {
+    console.error('Error saving offer:', err)
+    errorConfig.value = {
+      title: 'Fehler',
+      message: `Fehler beim Speichern des Angebots:\n${err.message}`
+    }
+    errorDialog.value.open()
+  }
+}
+
+// Get product by ID
+const getProductById = (productId) => {
+  return products.value.find(p => p.id === productId)
+}
+
+// Calculate discounted price
+const calculateDiscountedPrice = (offer) => {
+  const product = getProductById(offer.productId)
+  if (!product) return 0
+  
+  const discount = (product.price * offer.discountPercentage) / 100
+  return Math.max(0, product.price - discount)
+}
+
+// ==================== USER CRUD ====================
 
 const toggleUserRole = async (user) => {
   const newRole = user.role === 'admin' ? 'user' : 'admin'
@@ -1235,6 +1397,7 @@ onMounted(() => {
 .stat-icon.categories { background: linear-gradient(135deg, #059669 0%, #047857 100%); }
 .stat-icon.products { background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%); }
 .stat-icon.orders { background: linear-gradient(135deg, #34D399 0%, #10B981 100%); }
+.stat-icon.offers { background: linear-gradient(135deg, #059669 0%, #047857 100%); }
 
 .stat-info h3 {
   font-size: 2rem;
@@ -1446,14 +1609,14 @@ onMounted(() => {
 }
 
 .btn-view {
-  color: #6366F1;
-  background: #EEF2FF;
+  color: #D97706;
+  background: #FEF3C7;
 }
 
 .btn-view:hover {
-  background: #6366F1;
+  background: #D97706;
   color: white;
-  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+  box-shadow: 0 2px 8px rgba(217, 119, 6, 0.3);
 }
 
 .btn-edit {
@@ -1538,6 +1701,27 @@ onMounted(() => {
 .status-badge.cancelled {
   background: var(--error-light);
   color: var(--error);
+}
+
+.discount-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  background: var(--error);
+  color: white;
+}
+
+.old-price {
+  text-decoration: line-through;
+  color: #999;
+  font-weight: normal;
+}
+
+.new-price {
+  font-weight: 700;
+  color: var(--primary-green);
 }
 
 /* Misc */

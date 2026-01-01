@@ -6,12 +6,16 @@
     <div class="product-image">
       <img :src="product.imageUrl" :alt="product.name" />
       <span v-if="isNew" class="new-badge">Neu</span>
+      <span v-if="product.offer" class="offer-badge">-{{ product.offer.discountPercentage }}%</span>
     </div>
     <div class="product-info">
       <h3 class="product-name">{{ product.name }}</h3>
       <p class="product-description">{{ truncateText(product.description, 80) }}</p>
       <div class="product-footer">
-        <span class="product-price">{{ formatPrice(product.price) }}</span>
+        <div class="price-container">
+          <span v-if="product.offer" class="original-price">{{ formatPrice(product.originalPrice) }}</span>
+          <span class="product-price" :class="{ 'offer-price': product.offer }">{{ formatPrice(product.price) }}</span>
+        </div>
         <span class="product-stock" :class="{ 'low-stock': product.stock < 10 }">
           {{ product.stock }} auf Lager
         </span>
@@ -151,10 +155,42 @@ export default {
   border-top: 1px solid #e5e7eb;
 }
 
+.price-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.original-price {
+  font-size: 0.875rem;
+  color: #9ca3af;
+  text-decoration: line-through;
+}
+
 .product-price {
   font-size: 1.25rem;
   font-weight: 700;
   color: #10b981;
+}
+
+.product-price.offer-price {
+  color: #ef4444;
+}
+
+.offer-badge {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  padding: 0.375rem 0.875rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+  z-index: 10;
+  letter-spacing: 0.5px;
 }
 
 .product-stock {
