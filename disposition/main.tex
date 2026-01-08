@@ -1,8 +1,10 @@
 \documentclass{scrartcl}
 \usepackage{fontenc}
+\usepackage{graphicx}
 
-\title{Dispositionspapier zur Studienarbeit\\Titel der Arbeit}
-\author{ Ihr Name }
+
+\title{Dispositionspapier zur Studienarbeit\\Entwicklung eines E-Commerce-Webshops}
+\author{Luis Geiger und Simon Hertweck}
 \date{xx.01.2025}
 
 \begin{document}
@@ -10,19 +12,86 @@
 \maketitle
 
 \section{Kurzbeschreibung der Arbeit}
-Die vorliegende Studienarbeit befasst sich mit der Konzeption und Entwicklung eines funktionsfähigen E-Commerce-Webshops. Ziel ist es, einen prototypischen Online-Shop zu erstellen, der alle wesentlichen Funktionen eines modernen Webshops abbildet. Als thematische Ausrichtung wurde ein Shop für nachhaltige Produkte gewählt, wobei der Fokus der Arbeit auf der technischen Umsetzung und nicht auf der Branche liegt.\newline
-Im Rahmen der Digitalisierung gewinnt der elektronische Handel zunehmend an Bedeutung. Diese Arbeit setzt sich mit den grundlegenden Anforderungen und der technischen Realisierung eines solchen Systems auseinander. Nach einer Recherche zu geeigneten Technologien fiel die Wahl auf das JavaScript-Framework Vue.js für das Frontend in Kombination mit Firebase als Backend as a Service. Firebase stellt dabei die Authentifizierung, die Firestore-Datenbank für Produkt-, Benutzer- und Bestelldaten sowie den Storage für Produktbilder bereit.\newline
-Der Webshop umfasst ein Benutzerkontensystem mit Registrierung und Profilverwaltung, das den Zugriff auf die persönliche Bestellhistorie ermöglicht. Das Produktsortiment kann über Such- und Filterfunktionen nach Kategorien durchsucht werden, wobei die Verfügbarkeit der Artikel angezeigt wird. Ausgewählte Produkte lassen sich im Warenkorb sammeln und über einen Checkout-Prozess bestellen. Ergänzend wurde ein Administrationsbereich implementiert, der die Artikelverwaltung, Anpassung des Warenbestands sowie das Löschen von Benutzerkonten ermöglicht.\newline
-Die methodische Vorgehensweise gliedert sich in vier Phasen: Recherche der zu verwendenden Technologien, Literaturrecherche, Entwicklung des Webshops sowie abschließendes Testen und Präsentieren der Anwendung.
+Die vorliegende Studienarbeit befasst sich mit der Konzeption und Entwicklung eines funktionsfähigen E-Commerce-Webshops. Ziel ist es, einen prototypischen Online-Shop zu erstellen, der alle wesentlichen Funktionen eines modernen Webshops abbildet. Als thematische Ausrichtung wurde ein Shop für nachhaltige Produkte gewählt, wobei der Fokus der Arbeit auf der technischen Umsetzung und nicht auf der Branche liegt.
+\newline
+\newline
+Im Rahmen der Digitalisierung gewinnt der elektronische Handel zunehmend an Bedeutung. Diese Arbeit setzt sich mit den grundlegenden Anforderungen und der technischen Realisierung eines solchen Systems auseinander. Nach einer Recherche zu geeigneten Technologien fiel die Wahl auf das JavaScript-Framework Vue.js für das Frontend in Kombination mit Firebase als Backend-as-a-Service. Firebase stellt dabei die Authentifizierung, die Firestore-Datenbank für Produkt-, Benutzer- und Bestelldaten sowie den Storage für Produktbilder bereit.
+\newline
+\newline
+Der Webshop umfasst ein Benutzerkontensystem mit Registrierung und Profilverwaltung, das den Zugriff auf die persönliche Bestellhistorie ermöglicht. Das Produktsortiment kann über Such- und Filterfunktionen nach Kategorien durchsucht werden, wobei die Verfügbarkeit der Artikel angezeigt wird. Ausgewählte Produkte lassen sich im Warenkorb sammeln und über einen Checkout-Prozess bestellen. Ergänzend wurde ein Administrationsbereich implementiert, der die Artikelverwaltung, Anpassung des Warenbestands sowie das Löschen von Benutzerkonten ermöglicht.
+\newline
+\newline
+Die methodische Vorgehensweise gliedert sich in vier Phasen: Recherche der zu verwendenden Technologien, Literaturrecherche, Entwicklung des Webshops sowie abschließendes Testen und Dokumentieren der Anwendung.
 
 
+\newpage
 \section{Gliederung und Zeitplan}
-<Identifikation der wesentlichen Arbeitsschritte. Meilensteinplan. Konsequenzen
-und Möglichkeiten der Meilensteine. Zeitplan bis zur Beendigung des praktischen
-Teils sowie der Dokumentation.> \emph{Das gehört nicht in die endgültige Ausarbeitung!\/}
 
-<Eine erste Gliederung der Arbeit. Benennung von
-Kapiteln und Unterkapiteln. Dies gilt als Leitfaden und ist noch nicht als abschließend.>
+Die Arbeit erstreckt sich über einen Zeitraum von 36 Wochen und gliedert sich in folgende Meilensteine:
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1\textwidth]{meilenstein.png}
+    \caption{Meilensteine und Zeitplan der Studienarbeit}
+    \label{fig:mein-bild}
+\end{figure}
+
+\newpage
+\subsection*{Vorübergehende Gliederung}
+Die folgende Gliederung dient als Leitfaden für die schriftliche Ausarbeitung und ist noch nicht als abschließend zu betrachten.
+
+\begin{enumerate}
+    \setlength{\itemsep}{0pt}
+    \setlength{\parskip}{0pt}
+    \item \textbf{Einleitung}
+    \begin{enumerate}
+        \setlength{\itemsep}{0pt}
+        \setlength{\parskip}{0pt}
+        \item[1.1] Motivation und Problemstellung
+        \item[1.2] Zielsetzung der Arbeit
+        \item[1.3] Aufbau der Arbeit
+    \end{enumerate}
+    
+    \item \textbf{Theoretische Grundlagen}
+    \begin{enumerate}
+        \setlength{\itemsep}{0pt}
+        \setlength{\parskip}{0pt}
+        \item[2.1] E-Commerce Grundlagen
+        \item[2.2] Frontend-Technologien
+        \item[2.3] Backend-as-a-Service mit Firebase
+        \item[2.4] Serverless Architecture
+    \end{enumerate}
+    
+    \item \textbf{Methodik}
+    \begin{enumerate}
+        \setlength{\itemsep}{0pt}
+        \setlength{\parskip}{0pt}
+        \item[3.1] Vorgehensmodell
+        \item[3.2] Anforderungsanalyse
+        \item[3.3] Konzeption \& Architektur
+    \end{enumerate}
+    
+    \item \textbf{Implementierung}
+    \begin{enumerate}
+        \setlength{\itemsep}{0pt}
+        \setlength{\parskip}{0pt}
+        \item[4.1] Projektstruktur und Frontendgerüst
+        \item[4.2] Integration von Firebase-Diensten
+        \item[4.3] Benutzerkonten- und Authentifizierungssystem
+        \item[4.4] Produktkatalog und Such-/Filterfunktion
+        \item[4.5] Warenkorb und Bestellprozess
+        \item[4.6] Angebots- und Rabattsystem
+        \item[4.7] Administrationsoberfläche
+    \end{enumerate}
+    
+    \item \textbf{Deployment und CI/CD}
+    
+    \item \textbf{Testing und Qualitätssicherung}
+    
+    \item \textbf{Evaluation und Diskussion}
+    
+    \item \textbf{Zusammenfassung und Ausblick}
+\end{enumerate}
 
 \section{Grundlegende Literatur}
 <Belegen der Ausgangssituation. Wer hat auf ähnlichem Themenfeld bereits
