@@ -1,31 +1,31 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.7.25)  8 JAN 2026 14:29
+This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex 2025.2.18)  8 JAN 2026 14:40
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
  %&-line parsing enabled.
-**/Users/ta1to/Github/webshop/disposition/main.tex
-(/Users/ta1to/Github/webshop/disposition/main.tex
+**c:/Users/geige/Desktop/DHBW/webshop/disposition/main.tex
+(c:/Users/geige/Desktop/DHBW/webshop/disposition/main.tex
 LaTeX2e <2024-11-01> patch level 2
 L3 programming layer <2025-01-18>
-(/usr/local/texlive/2025/texmf-dist/tex/latex/koma-script/scrartcl.cls
+(c:/texlive/2024/texmf-dist/tex/latex/koma-script/scrartcl.cls
 Document Class: scrartcl 2024/10/24 v3.43 KOMA-Script document class (article)
-(/usr/local/texlive/2025/texmf-dist/tex/latex/koma-script/scrkbase.sty
+(c:/texlive/2024/texmf-dist/tex/latex/koma-script/scrkbase.sty
 Package: scrkbase 2024/10/24 v3.43 KOMA-Script package (KOMA-Script-dependent basics and keyval usage)
- (/usr/local/texlive/2025/texmf-dist/tex/latex/koma-script/scrbase.sty
+ (c:/texlive/2024/texmf-dist/tex/latex/koma-script/scrbase.sty
 Package: scrbase 2024/10/24 v3.43 KOMA-Script package (KOMA-Script-independent basics and keyval usage)
- (/usr/local/texlive/2025/texmf-dist/tex/latex/koma-script/scrlfile.sty
+ (c:/texlive/2024/texmf-dist/tex/latex/koma-script/scrlfile.sty
 Package: scrlfile 2024/10/24 v3.43 KOMA-Script package (file load hooks)
- (/usr/local/texlive/2025/texmf-dist/tex/latex/koma-script/scrlfile-hook.sty
+ (c:/texlive/2024/texmf-dist/tex/latex/koma-script/scrlfile-hook.sty
 Package: scrlfile-hook 2024/10/24 v3.43 KOMA-Script package (using LaTeX hooks)
- (/usr/local/texlive/2025/texmf-dist/tex/latex/koma-script/scrlogo.sty
+ (c:/texlive/2024/texmf-dist/tex/latex/koma-script/scrlogo.sty
 Package: scrlogo 2024/10/24 v3.43 KOMA-Script package (logo)
-))) (/usr/local/texlive/2025/texmf-dist/tex/latex/graphics/keyval.sty
+))) (c:/texlive/2024/texmf-dist/tex/latex/graphics/keyval.sty
 Package: keyval 2022/05/29 v1.15 key=value parser (DPC)
 \KV@toks@=\toks17
 )
 Applying: [2021/05/01] Usage of raw or classic option list on input line 254.
 Already applied: [0000/00/00] Usage of raw or classic option list on input line 370.
-)) (/usr/local/texlive/2025/texmf-dist/tex/latex/koma-script/tocbasic.sty
+)) (c:/texlive/2024/texmf-dist/tex/latex/koma-script/tocbasic.sty
 Package: tocbasic 2024/10/24 v3.43 KOMA-Script package (handling toc-files)
 \scr@dte@tocline@numberwidth=\skip49
 \scr@dte@tocline@numbox=\box52
@@ -35,9 +35,9 @@ Package tocbasic Info: omitting babel extension for `toc'
 (tocbasic)             for `toc' on input line 135.
 Class scrartcl Info: File `scrsize11pt.clo' used instead of
 (scrartcl)           file `scrsize11.clo' to setup font sizes on input line 2466.
- (/usr/local/texlive/2025/texmf-dist/tex/latex/koma-script/scrsize11pt.clo
+ (c:/texlive/2024/texmf-dist/tex/latex/koma-script/scrsize11pt.clo
 File: scrsize11pt.clo 2024/10/24 v3.43 KOMA-Script font size class option (11pt)
-) (/usr/local/texlive/2025/texmf-dist/tex/latex/koma-script/typearea.sty
+) (c:/texlive/2024/texmf-dist/tex/latex/koma-script/typearea.sty
 Package: typearea 2024/10/24 v3.43 KOMA-Script package (type area)
 \ta@bcor=\skip50
 \ta@div=\count196
@@ -112,24 +112,24 @@ Package tocbasic Info: omitting babel extension for `lot'
 \c@table=\count270
 Class scrartcl Info: Redefining `\numberline' on input line 6523.
 \bibindent=\dimen141
-) (/usr/local/texlive/2025/texmf-dist/tex/latex/base/fontenc.sty
+) (c:/texlive/2024/texmf-dist/tex/latex/base/fontenc.sty
 Package: fontenc 2021/04/29 v2.0v Standard LaTeX package
-) (/usr/local/texlive/2025/texmf-dist/tex/latex/graphics/graphicx.sty
+) (c:/texlive/2024/texmf-dist/tex/latex/graphics/graphicx.sty
 Package: graphicx 2021/09/16 v1.2d Enhanced LaTeX Graphics (DPC,SPQR)
- (/usr/local/texlive/2025/texmf-dist/tex/latex/graphics/graphics.sty
+ (c:/texlive/2024/texmf-dist/tex/latex/graphics/graphics.sty
 Package: graphics 2024/08/06 v1.4g Standard LaTeX Graphics (DPC,SPQR)
- (/usr/local/texlive/2025/texmf-dist/tex/latex/graphics/trig.sty
+ (c:/texlive/2024/texmf-dist/tex/latex/graphics/trig.sty
 Package: trig 2023/12/02 v1.11 sin cos tan (DPC)
-) (/usr/local/texlive/2025/texmf-dist/tex/latex/graphics-cfg/graphics.cfg
+) (c:/texlive/2024/texmf-dist/tex/latex/graphics-cfg/graphics.cfg
 File: graphics.cfg 2016/06/04 v1.11 sample graphics configuration
 )
 Package graphics Info: Driver file: pdftex.def on input line 106.
- (/usr/local/texlive/2025/texmf-dist/tex/latex/graphics-def/pdftex.def
+ (c:/texlive/2024/texmf-dist/tex/latex/graphics-def/pdftex.def
 File: pdftex.def 2024/04/13 v1.2c Graphics/color driver for pdftex
 ))
 \Gin@req@height=\dimen142
 \Gin@req@width=\dimen143
-) (/usr/local/texlive/2025/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def
+) (c:/texlive/2024/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def
 File: l3backend-pdftex.def 2024-05-08 L3 backend support: PDF output (pdfTeX)
 \l__color_backend_stack_int=\count271
 \l__pdf_internal_box=\box54
@@ -159,7 +159,7 @@ Package scrbase Info: activating english \listfigurename on input line 10.
 Package scrbase Info: activating english \listtablename on input line 10.
 Package scrbase Info: activating english \refname on input line 10.
 Package scrbase Info: activating english \indexname on input line 10.
- (/usr/local/texlive/2025/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
+ (c:/texlive/2024/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
 \scratchcounter=\count272
 \scratchdimen=\dimen144
@@ -172,10 +172,10 @@ Package scrbase Info: activating english \indexname on input line 10.
 \MPnumerator=\count276
 \makeMPintoPDFobject=\count277
 \everyMPtoPDFconversion=\toks19
-) (/usr/local/texlive/2025/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
+) (c:/texlive/2024/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
 Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
 Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 485.
- (/usr/local/texlive/2025/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
+ (c:/texlive/2024/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Live
 ))
 LaTeX Font Info:    External font `cmex10' loaded for size
@@ -202,12 +202,32 @@ Underfull \hbox (badness 10000) in paragraph at lines 15--25
 [1
 
 
-{/usr/local/texlive/2025/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
+{c:/texlive/2024/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
 <meilenstein.png, id=9, 1786.675pt x 511.9125pt>
 File: meilenstein.png Graphic file (type png)
 <use meilenstein.png>
 Package pdftex.def Info: meilenstein.png  used on input line 34.
 (pdftex.def)             Requested size: 418.25555pt x 119.83078pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 38--46
+
+ []
+
+
+Overfull \hbox (5.226pt too wide) in paragraph at lines 38--46
+\OT1/cmr/m/n/10.95 Teil der En-twick-lungszeit in Anspruch. Dabei bauen die einzel-nen Kom-po-nen-ten aufeinan-
+ []
+
+
+Overfull \hbox (5.10439pt too wide) in paragraph at lines 38--46
+\OT1/cmr/m/n/10.95 isiert. Falls einzelne Meilen-steine mehr Zeit beanspruchen als ge-plant, k^^?onnen Pufferzeiten
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 38--46
+
+ []
+
 
 
 [2 <./meilenstein.png>]
@@ -219,15 +239,15 @@ L3 programming layer <2025-01-18>
  ***********
  ) 
 Here is how much of TeX's memory you used:
- 4473 strings out of 473190
- 96331 string characters out of 5715800
- 624110 words of memory out of 5000000
+ 4475 strings out of 473201
+ 95987 string characters out of 5720299
+ 624117 words of memory out of 5000000
  27743 multiletter control sequences out of 15000+600000
  561839 words of font info for 46 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 108i,7n,107p,10959b,271s stack positions out of 10000i,1000n,20000p,200000b,200000s
-</usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmssbx10.pfb>
-Output written on main.pdf (3 pages, 122128 bytes).
+ 108i,7n,107p,10967b,271s stack positions out of 10000i,1000n,20000p,200000b,200000s
+<c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmssbx10.pfb>
+Output written on main.pdf (3 pages, 123979 bytes).
 PDF statistics:
  37 PDF objects out of 1000 (max. 8388607)
  21 compressed objects within 1 object stream
