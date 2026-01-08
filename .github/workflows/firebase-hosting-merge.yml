@@ -33,3 +33,4 @@ jobs:
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_WEBSHOP_37AC2 }}
           channelId: live
           projectId: webshop-37ac2
+          entryPoint: ./code
