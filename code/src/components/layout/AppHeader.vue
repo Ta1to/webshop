@@ -138,9 +138,9 @@
           Alle Kategorien
         </router-link>
 
-        <!-- Individual Categories -->
+        <!-- Individual Categories (limited) -->
         <router-link 
-          v-for="category in categories" 
+          v-for="category in displayedCategories" 
           :key="category.id"
           :to="`/category/${category.slug}`" 
           class="nav-tab"
@@ -210,6 +210,14 @@ export default {
     })
     const searchContainerRef = ref(null)
     let searchDebounceTimer = null
+
+    // Maximum number of categories to display in header
+    const MAX_CATEGORIES_IN_HEADER = 6
+
+    // Computed properties for category display
+    const displayedCategories = computed(() => {
+      return categories.value.slice(0, MAX_CATEGORIES_IN_HEADER)
+    })
 
     // Load categories from Firestore
     onMounted(async () => {
@@ -350,6 +358,7 @@ export default {
 
     return {
       categories,
+      displayedCategories,
       isMobileMenuOpen,
       searchQuery,
       isSearchDropdownOpen,

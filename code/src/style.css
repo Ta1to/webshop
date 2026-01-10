@@ -139,3 +139,12 @@ input:focus, textarea:focus {
   padding: 0;
   min-height: 100vh;
 }
+
+/* DEBUG: Temporär - Zeigt Elemente die horizontal overflow verursachen */
+/** {
+  outline: 1px solid rgba(255, 0, 0, 0.2) !important;
+}
+*/
+body {
+  overflow-x: hidden !important;
+}
