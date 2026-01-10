@@ -25,11 +25,15 @@
           <div v-for="item in cart" :key="item.productId" class="cart-item">
             <div class="item-image">
               <img :src="item.imageUrl" :alt="item.name" />
+              <span v-if="item.offer" class="cart-offer-badge">-{{ item.offer.discountPercentage }}%</span>
             </div>
             
             <div class="item-details">
               <h3 class="item-name">{{ item.name }}</h3>
-              <div class="item-price">{{ formatPrice(item.price) }}</div>
+              <div class="item-price-section">
+                <div v-if="item.offer" class="original-price-strike">{{ formatPrice(item.price) }}</div>
+                <div class="item-price" :class="{ 'offer-price': item.offer }">{{ formatPrice(item.finalPrice || item.price) }}</div>
+              </div>
             </div>
 
             <div class="item-actions">
@@ -41,7 +45,8 @@
               />
 
               <div class="item-total">
-                {{ formatPrice(item.price * item.quantity) }}
+                <span v-if="item.offer" class="total-original-price">{{ formatPrice(item.price * item.quantity) }}</span>
+                <span :class="{ 'total-offer-price': item.offer }">{{ formatPrice((item.finalPrice || item.price) * item.quantity) }}</span>
               </div>
 
               <button 
@@ -172,7 +177,7 @@ export default {
 
     // Computed values
     const subtotal = computed(() => {
-      return cart.value.reduce((total, item) => total + (item.price * item.quantity), 0)
+      return cart.value.reduce((total, item) => total + ((item.finalPrice || item.price) * item.quantity), 0)
     })
 
     const shippingCost = computed(() => {
@@ -393,6 +398,7 @@ export default {
   border-radius: 8px;
   overflow: hidden;
   background: var(--gray-100);
+  position: relative;
 }
 
 .item-image img {
@@ -404,6 +410,20 @@ export default {
 
 .cart-item:hover .item-image img {
   transform: scale(1.05);
+}
+
+.cart-offer-badge {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  padding: 0.375rem 0.625rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.4);
+  z-index: 10;
 }
 
 .item-details {
@@ -420,10 +440,29 @@ export default {
   line-height: 1.4;
 }
 
+.item-price-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.original-price-strike {
+  font-size: 0.875rem;
+  color: #999;
+  text-decoration: line-through;
+  font-weight: 400;
+}
+
 .item-price {
   font-size: 1rem;
   color: var(--gray-600);
   font-weight: 500;
+}
+
+.item-price.offer-price {
+  color: #ef4444;
+  font-weight: 700;
+  font-size: 1.125rem;
 }
 
 .item-actions {
@@ -436,9 +475,27 @@ export default {
 }
 
 .item-total {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+}
+
+.total-original-price {
+  font-size: 0.875rem;
+  color: #999;
+  text-decoration: line-through;
+  font-weight: 500;
+}
+
+.item-total > span {
   font-size: 1.375rem;
   font-weight: 700;
   color: var(--gray-900);
+}
+
+.total-offer-price {
+  color: #ef4444 !important;
 }
 
 .remove-btn {

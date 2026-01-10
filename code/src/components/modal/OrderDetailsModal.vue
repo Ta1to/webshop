@@ -63,14 +63,24 @@
           <h3>Bestellte Artikel</h3>
           <div class="order-items">
             <div v-for="item in order.items" :key="item.productId || item.id" class="order-item">
-              <img :src="item.image || item.imageUrl" :alt="item.name" class="item-image">
+              <div class="item-image-wrapper">
+                <img :src="item.image || item.imageUrl" :alt="item.name" class="item-image">
+                <span v-if="item.offer" class="modal-offer-badge">-{{ item.offer.discountPercentage }}%</span>
+              </div>
               <div class="item-details">
                 <h4>{{ item.name }}</h4>
                 <p v-if="item.size">Größe: {{ item.size }}</p>
                 <p>Menge: {{ item.quantity }}</p>
+                <div v-if="item.offer" class="offer-info">
+                  <span class="original-strike">{{ formatPrice(item.price) }} Stk.</span>
+                  <span class="offer-price-badge">{{ formatPrice(item.finalPrice || item.price) }} Stk.</span>
+                </div>
               </div>
-              <div class="item-price">
-                {{ formatPrice(item.price * item.quantity) }}
+              <div class="item-price-section">
+                <span v-if="item.offer" class="price-original">{{ formatPrice(item.price * item.quantity) }}</span>
+                <div class="item-price" :class="{ 'price-offer': item.offer }">
+                  {{ formatPrice((item.finalPrice || item.price) * item.quantity) }}
+                </div>
               </div>
             </div>
           </div>
@@ -302,11 +312,30 @@ const formatPrice = (price) => {
   align-items: center;
 }
 
+.item-image-wrapper {
+  position: relative;
+  flex-shrink: 0;
+}
+
 .item-image {
   width: 60px;
   height: 60px;
   object-fit: cover;
   border-radius: 6px;
+}
+
+.modal-offer-badge {
+  position: absolute;
+  top: 0.25rem;
+  right: 0.25rem;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  padding: 0.125rem 0.375rem;
+  border-radius: 8px;
+  font-size: 0.625rem;
+  font-weight: 700;
+  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.4);
+  z-index: 10;
 }
 
 .item-details {
@@ -325,10 +354,46 @@ const formatPrice = (price) => {
   color: var(--gray-600);
 }
 
+.offer-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.original-strike {
+  font-size: 0.75rem;
+  color: #999;
+  text-decoration: line-through;
+}
+
+.offer-price-badge {
+  font-size: 0.875rem;
+  color: #ef4444;
+  font-weight: 600;
+}
+
+.item-price-section {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.125rem;
+}
+
+.price-original {
+  font-size: 0.875rem;
+  color: #999;
+  text-decoration: line-through;
+}
+
 .item-price {
   font-weight: 600;
   color: var(--primary-green);
   font-size: 1.125rem;
+}
+
+.price-offer {
+  color: #ef4444;
 }
 
 .modal-footer {

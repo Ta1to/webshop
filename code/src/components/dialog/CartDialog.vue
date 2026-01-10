@@ -12,11 +12,15 @@
         <div class="product-info">
           <div class="product-image">
             <img :src="product.imageUrl" :alt="product.name" />
+            <span v-if="activeOffer" class="discount-badge">-{{ activeOffer.discountPercentage }}%</span>
           </div>
           <div class="product-details">
             <h3>{{ product.name }}</h3>
             <p class="product-quantity">Menge: {{ quantity }}</p>
-            <p class="product-price">{{ formatPrice(product.price * quantity) }}</p>
+            <div class="price-info">
+              <p v-if="activeOffer" class="original-price">{{ formatPrice(product.price * quantity) }}</p>
+              <p class="product-price" :class="{ 'offer-price': activeOffer }">{{ formatPrice((finalPrice || product.price) * quantity) }}</p>
+            </div>
           </div>
         </div>
 
@@ -78,6 +82,14 @@ export default {
     cartTotal: {
       type: Number,
       default: 0
+    },
+    finalPrice: {
+      type: Number,
+      default: null
+    },
+    activeOffer: {
+      type: Object,
+      default: null
     }
   },
   emits: ['close'],
@@ -223,6 +235,7 @@ export default {
   overflow: hidden;
   background: #f5f5f5;
   flex-shrink: 0;
+  position: relative;
 }
 
 .product-image img {
@@ -248,11 +261,43 @@ export default {
   margin: 0.25rem 0;
 }
 
+.price-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-top: 0.5rem;
+}
+
+.original-price {
+  color: #999;
+  text-decoration: line-through;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.discount-badge {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.4);
+  z-index: 10;
+}
+
 .product-price {
   font-size: 1.125rem;
   font-weight: 700;
   color: var(--primary-green);
-  margin: 0.5rem 0 0 0;
+  margin: 0;
+}
+
+.product-price.offer-price {
+  color: #ef4444;
 }
 
 .cart-summary {

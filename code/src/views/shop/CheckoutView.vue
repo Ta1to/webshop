@@ -299,13 +299,15 @@
               <div v-for="item in cart" :key="item.productId" class="summary-item">
                 <div class="item-image">
                   <img :src="item.imageUrl" :alt="item.name" />
+                  <span v-if="item.offer" class="item-offer-badge">-{{ item.offer.discountPercentage }}%</span>
                 </div>
                 <div class="item-info">
                   <p class="item-name">{{ item.name }}</p>
                   <p class="item-quantity">Menge: {{ item.quantity }}</p>
                 </div>
                 <div class="item-price">
-                  {{ formatPrice(item.price * item.quantity) }}
+                  <span v-if="item.offer" class="original-price-small">{{ formatPrice(item.price * item.quantity) }}</span>
+                  <span :class="{ 'offer-price': item.offer }">{{ formatPrice((item.finalPrice || item.price) * item.quantity) }}</span>
                 </div>
               </div>
             </div>
@@ -526,7 +528,7 @@ export default {
     })
 
     const subtotal = computed(() => {
-      return cart.value.reduce((total, item) => total + (item.price * item.quantity), 0)
+      return cart.value.reduce((total, item) => total + ((item.finalPrice || item.price) * item.quantity), 0)
     })
 
     const selectedShippingMethod = computed(() => {
@@ -591,9 +593,14 @@ export default {
             productId: item.id,
             name: item.name,
             price: item.price,
+            finalPrice: item.finalPrice || item.price,
             quantity: item.quantity,
             image: item.image || null,
-            category: item.category || null
+            category: item.category || null,
+            offer: item.offer ? {
+              discountPercentage: item.offer.discountPercentage,
+              offerId: item.offer.id
+            } : null
           })),
           shippingAddress: {
             firstName: shippingAddress.value.firstName,
@@ -1111,12 +1118,27 @@ export default {
   border-radius: 8px;
   overflow: hidden;
   background: var(--gray-100);
+  position: relative;
 }
 
 .item-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.item-offer-badge {
+  position: absolute;
+  top: 0.25rem;
+  right: 0.25rem;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  padding: 0.125rem 0.375rem;
+  border-radius: 8px;
+  font-size: 0.625rem;
+  font-weight: 700;
+  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.4);
+  z-index: 10;
 }
 
 .item-info {
@@ -1143,6 +1165,21 @@ export default {
   font-weight: 700;
   color: var(--gray-900);
   font-size: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.125rem;
+}
+
+.original-price-small {
+  font-size: 0.75rem;
+  color: #999;
+  text-decoration: line-through;
+  font-weight: 500;
+}
+
+.item-price .offer-price {
+  color: #ef4444;
 }
 
 .summary-divider {

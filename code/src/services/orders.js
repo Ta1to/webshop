@@ -51,6 +51,8 @@ export const createOrder = async (orderData) => {
       
       if (item.image) cleanItem.image = item.image
       if (item.category) cleanItem.category = item.category
+      if (item.finalPrice) cleanItem.finalPrice = Number(item.finalPrice)
+      if (item.offer) cleanItem.offer = item.offer
       
       return cleanItem
     })

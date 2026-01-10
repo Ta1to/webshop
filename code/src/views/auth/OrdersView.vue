@@ -57,8 +57,9 @@
                     <div v-else class="item-placeholder">
                       <Package :size="18" />
                     </div>
+                    <span v-if="item.offer" class="order-item-badge">-{{ item.offer.discountPercentage }}%</span>
                   </router-link>
-                  <div v-else>
+                  <div v-else class="item-image-container">
                     <img 
                       v-if="item.image" 
                       :src="item.image" 
@@ -68,6 +69,7 @@
                     <div v-else class="item-placeholder">
                       <Package :size="18" />
                     </div>
+                    <span v-if="item.offer" class="order-item-badge">-{{ item.offer.discountPercentage }}%</span>
                   </div>
                   <div class="item-details">
                     <router-link 
@@ -78,10 +80,16 @@
                       <p class="item-name">{{ item.name }}</p>
                     </router-link>
                     <p v-else class="item-name">{{ item.name }}</p>
-                    <p class="item-quantity">{{ item.quantity }}x {{ formatPrice(item.price) }}</p>
+                    <div class="item-price-info">
+                      <span v-if="item.offer" class="original-price-small">{{ item.quantity }}x {{ formatPrice(item.price) }}</span>
+                      <p class="item-quantity" :class="{ 'offer-price-text': item.offer }">{{ item.quantity }}x {{ formatPrice(item.finalPrice || item.price) }}</p>
+                    </div>
                   </div>
-                  <div class="item-total">
-                    {{ formatPrice(item.price * item.quantity) }}
+                  <div class="item-total-section">
+                    <span v-if="item.offer" class="total-original-small">{{ formatPrice(item.price * item.quantity) }}</span>
+                    <div class="item-total" :class="{ 'item-total-offer': item.offer }">
+                      {{ formatPrice((item.finalPrice || item.price) * item.quantity) }}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -492,6 +500,25 @@ export default {
   border-radius: 8px;
 }
 
+.item-image-link {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.order-item-badge {
+  position: absolute;
+  top: 0.25rem;
+  right: 0.25rem;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  padding: 0.125rem 0.375rem;
+  border-radius: 8px;
+  font-size: 0.625rem;
+  font-weight: 700;
+  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.4);
+  z-index: 10;
+}
+
 .item-image {
   width: 60px;
   height: 60px;
@@ -503,6 +530,26 @@ export default {
 .item-image-link {
   display: block;
   flex-shrink: 0;
+  position: relative;
+}
+
+.item-image-container {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.order-item-badge {
+  position: absolute;
+  top: 0.25rem;
+  right: 0.25rem;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  padding: 0.125rem 0.375rem;
+  border-radius: 8px;
+  font-size: 0.625rem;
+  font-weight: 700;
+  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.4);
+  z-index: 10;
 }
 
 .item-image-link:hover .item-image {
@@ -541,15 +588,50 @@ export default {
   color: var(--primary-green);
 }
 
+.item-price-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.original-price-small {
+  font-size: 0.75rem;
+  color: #999;
+  text-decoration: line-through;
+  margin: 0;
+}
+
 .item-quantity {
   color: var(--gray-600);
   font-size: 0.875rem;
   margin: 0;
 }
 
+.offer-price-text {
+  color: #ef4444;
+  font-weight: 600;
+}
+
+.item-total-section {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.125rem;
+}
+
+.total-original-small {
+  font-size: 0.75rem;
+  color: #999;
+  text-decoration: line-through;
+}
+
 .item-total {
   font-weight: 600;
   color: var(--primary-green);
+}
+
+.item-total-offer {
+  color: #ef4444;
 }
 
 .order-details {

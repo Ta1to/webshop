@@ -13,6 +13,7 @@
         <div class="product-image-section">
           <div class="product-image-main">
             <img :src="product.imageUrl || product.image" :alt="product.name" />
+            <span v-if="activeOffer" class="offer-badge">-{{ activeOffer.discountPercentage }}%</span>
           </div>
         </div>
 
@@ -29,10 +30,20 @@
           <h1 class="product-title">{{ product.name }}</h1>
           
           <div class="product-meta">
-            <div class="product-price-large">{{ formatPrice(product.price) }}</div>
+            <div class="price-section">
+              <div v-if="activeOffer" class="original-price-large">{{ formatPrice(product.price) }}</div>
+              <div class="product-price-large" :class="{ 'offer-price': activeOffer }">{{ formatPrice(finalPrice) }}</div>
+            </div>
             <div class="product-stock" :class="stockClass">
               <Package :size="18" />
               {{ stockText }}
+            </div>
+          </div>
+
+          <!-- Offer Info -->
+          <div v-if="activeOffer && offerEndDate" class="offer-info">
+            <div class="offer-validity">
+              Angebot gültig bis {{ formatDate(offerEndDate) }}
             </div>
           </div>
 
@@ -127,6 +138,8 @@
       :quantity="quantity"
       :cart-item-count="cartItemCount"
       :cart-total="cartTotal"
+      :final-price="finalPrice"
+      :active-offer="activeOffer"
       @close="closeCartDialog"
     />
   </div>
@@ -138,6 +151,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { getAllDocuments } from '../../services/db'
 import { addToCart as addToCartService, getCartItemCount, getCartTotal } from '../../services/cart'
 import { addToWishlist, removeFromWishlist, isInWishlist } from '../../services/wishlist'
+import { getOfferByProductId } from '../../services/offers'
 import CartDialog from '../../components/dialog/CartDialog.vue'
 import QuantityControl from '../../components/utility/QuantityControl.vue'
 import { 
@@ -174,11 +188,25 @@ export default {
     const cartItemCount = ref(0)
     const cartTotal = ref(0)
     const isProductInWishlist = ref(false)
+    const activeOffer = ref(null)
 
     // Check if product is in wishlist
     const checkWishlistStatus = async () => {
       if (product.value) {
         isProductInWishlist.value = await isInWishlist(product.value.id)
+      }
+    }
+
+    // Load offer for product
+    const loadProductOffer = async () => {
+      if (product.value) {
+        try {
+          const offer = await getOfferByProductId(product.value.id)
+          activeOffer.value = offer
+        } catch (error) {
+          console.error('Error loading product offer:', error)
+          activeOffer.value = null
+        }
       }
     }
 
@@ -202,6 +230,7 @@ export default {
       } finally {
         loading.value = false
         await checkWishlistStatus()
+        await loadProductOffer()
       }
     })
 
@@ -244,11 +273,37 @@ export default {
         .slice(0, 4)
     })
 
+    const finalPrice = computed(() => {
+      if (!product.value) return 0
+      if (!activeOffer.value) return product.value.price
+      
+      const discount = product.value.price * (activeOffer.value.discountPercentage / 100)
+      return product.value.price - discount
+    })
+
+    const savings = computed(() => {
+      if (!product.value || !activeOffer.value) return 0
+      return product.value.price - finalPrice.value
+    })
+
+    const offerEndDate = computed(() => {
+      if (!activeOffer.value || !activeOffer.value.endDate) return null
+      return new Date(activeOffer.value.endDate)
+    })
+
     const formatPrice = (price) => {
       return new Intl.NumberFormat('de-DE', {
         style: 'currency',
         currency: 'EUR'
       }).format(price)
+    }
+
+    const formatDate = (date) => {
+      return new Intl.DateTimeFormat('de-DE', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      }).format(date)
     }
 
     const addToCart = async () => {
@@ -302,6 +357,7 @@ export default {
     watch(() => route.params.id, async () => {
       quantity.value = 1
       await checkWishlistStatus()
+      await loadProductOffer()
     })
 
     return {
@@ -318,7 +374,12 @@ export default {
       cartItemCount,
       cartTotal,
       isProductInWishlist,
+      activeOffer,
+      finalPrice,
+      savings,
+      offerEndDate,
       formatPrice,
+      formatDate,
       addToCart,
       closeCartDialog,
       goToProduct,
@@ -395,6 +456,21 @@ export default {
   object-fit: cover;
 }
 
+.offer-badge {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 25px;
+  font-size: 1rem;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+  z-index: 10;
+  letter-spacing: 0.5px;
+}
+
 .product-details-section {
   display: flex;
   flex-direction: column;
@@ -428,14 +504,63 @@ export default {
 
 .product-meta {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 2rem;
+}
+
+.price-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.original-price-large {
+  font-size: 1.25rem;
+  color: #999;
+  text-decoration: line-through;
+  font-weight: 500;
 }
 
 .product-price-large {
   font-size: 2rem;
   font-weight: 700;
   color: #10b981;
+}
+
+.product-price-large.offer-price {
+  color: #ef4444;
+}
+
+.savings-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+  align-self: flex-start;
+}
+
+.offer-info {
+  padding: 1rem 1.25rem;
+  background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+  border-left: 4px solid #ef4444;
+  border-radius: 8px;
+}
+
+.offer-validity {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: #991b1b;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.offer-icon {
+  font-size: 1.25rem;
 }
 
 .product-stock {

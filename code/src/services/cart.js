@@ -1,5 +1,6 @@
 import { updateUserDocument, getUserDocument, getDocument } from './db'
 import { getCurrentUser } from './auth'
+import { getOfferByProductId } from './offers'
 
 const CART_COOKIE_NAME = 'webshop_cart'
 const CART_COOKIE_DAYS = 30
@@ -96,6 +97,20 @@ export const getCart = async () => {
         const productResult = await getDocument('products', item.productId)
         
         if (productResult.success && productResult.data) {
+          // Check for active offer
+          let offer = null
+          let finalPrice = productResult.data.price
+          
+          try {
+            offer = await getOfferByProductId(item.productId)
+            if (offer) {
+              const discount = productResult.data.price * (offer.discountPercentage / 100)
+              finalPrice = productResult.data.price - discount
+            }
+          } catch (error) {
+            console.warn(`Error loading offer for product ${item.productId}:`, error)
+          }
+          
           cartWithDetails.push({
             id: item.productId,
             productId: item.productId,
@@ -104,6 +119,8 @@ export const getCart = async () => {
             updatedAt: item.updatedAt,
             name: productResult.data.name,
             price: productResult.data.price,
+            finalPrice: finalPrice,
+            offer: offer,
             image: productResult.data.imageUrl || productResult.data.image,
             imageUrl: productResult.data.imageUrl || productResult.data.image,
             category: productResult.data.category,
@@ -259,7 +276,7 @@ export const getCartItemCount = async () => {
  */
 export const getCartTotal = async () => {
   const cart = await getCart()
-  return cart.reduce((total, item) => total + (item.price * item.quantity), 0)
+  return cart.reduce((total, item) => total + ((item.finalPrice || item.price) * item.quantity), 0)
 }
 
 /**
