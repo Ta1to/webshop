@@ -5,7 +5,7 @@
 
 \title{Dispositionspapier zur Studienarbeit\\Entwicklung eines E-Commerce-Webshops}
 \author{Luis Geiger und Simon Hertweck}
-\date{xx.01.2025}
+\date{12.01.2025}
 
 \begin{document}
 
@@ -48,8 +48,6 @@ Die abschließenden Meilensteine 7 und 8 umfassen Deployment, Testing und Dokume
 Die folgende Gliederung dient als Leitfaden für die schriftliche Ausarbeitung und ist noch nicht als abschließend zu betrachten.
 
 \begin{enumerate}
-    \setlength{\itemsep}{0pt}
-    \setlength{\parskip}{0pt}
     \item \textbf{Einleitung}
     \begin{enumerate}
         \setlength{\itemsep}{0pt}
@@ -100,10 +98,46 @@ Die folgende Gliederung dient als Leitfaden für die schriftliche Ausarbeitung u
     \item \textbf{Zusammenfassung und Ausblick}
 \end{enumerate}
 
+\newpage
 \section{Grundlegende Literatur}
-<Belegen der Ausgangssituation. Wer hat auf ähnlichem Themenfeld bereits
-gearbeitet? Wie passt die Studienarbeit in die aktuelle wissenschaftliche
-Landschaft und was ist neu (dies wird oben dargelegt und hier belegt). Was wird
-durch die erstellte Lösung verbessert und wie wird dies nachgewiesen?>
+\textbf{Vue.js und Frontend-Entwicklung:}
+\begin{itemize}
+    \item Flanagan, D. (2020). \textit{JavaScript The Definitive Guide}. O'Reilly Media.
+    \item Freeman, A. (2022). \textit{Pro Vue.js 3}. Apress.
+\end{itemize}
+
+\textbf{Firebase und Backend-as-a-Service:}
+\begin{itemize}
+    \item Moroney, L. (2017). \textit{The Definitive Guide to Firebase}. Apress.
+\end{itemize}
+
+\textbf{E-Commerce und Web-Architektur:}
+\begin{itemize}
+    \item Heinemann, G. (2025). \textit{Der neue Online-Handel: Geschäftsmodelle, Geschäftssysteme und Benchmarks im E-Commerce} (16. Auflage). SpringerGabler.
+    \item Newman, S. (2021). Building Microservices (2nd Edition). O'Reilly Media.
+\end{itemize}
+
+\noindent
+\textbf{Relevante wissenschaftliche Arbeiten und Einordnung:}
+
+\noindent
+Die Arbeit ordnet sich in den Bereich der webbasierten E-Commerce-Systeme ein. Heinemann (2025) beschreibt aktuelle Geschäftsmodelle und Anforderungen im Online-Handel, die als Grundlage für die funktionalen Anforderungen dienen. Die technische Umsetzung basiert auf modernen JavaScript-Technologien, die sich in den letzten Jahren als Standard für Webanwendungen etabliert haben (Flanagan, 2020).
+\newline\newline
+Die Verwendung von Firebase als Backend-Dienst ermöglicht die Entwicklung ohne eigene Server-Infrastruktur. Dies reduziert die Komplexität der Implementierung und erlaubt den Fokus auf die Geschäftslogik der Anwendung. Newman (2021) beschreibt die Vorteile verteilter Systeme und Cloud-basierter Architekturen, die auch für diesen Ansatz relevant sind.\newline
+
+\noindent
+\textbf{Verbesserungen gegenüber bestehenden Ansätzen:}
+
+\noindent
+Die entwickelte Lösung adressiert spezifische Schwächen etablierter Ansätze: Im Vergleich zu fertigen Shop-Systemen wie Shopify wird vollständige Kontrolle über Datenstruktur und Geschäftslogik ermöglicht, ohne auf vordefinierte Templates beschränkt zu sein. Gegenüber traditionellen Eigenentwicklungen mit eigenem Backend entfällt die Server-Administration und Skalierung, da diese von Firebase übernommen wird. Dies reduziert den Wartungsaufwand und ermöglicht automatische Skalierung bei steigender Nutzerzahl.
+\newline\newline
+Ein weiterer Vorteil ist die integrierte Sicherheitsarchitektur: Statt Zugriffsrechte im Backend-Code zu implementieren, werden diese direkt in der Datenbank durch Firebase Security Rules definiert. Dies verhindert unbefugte Zugriffe bereits auf Datenbankebene und nicht erst in der Anwendungslogik.
+
+\newpage
+\noindent
+\textbf{Nachweis der Verbesserungen:}
+
+\noindent
+Die Überlegenheit des Ansatzes wird durch Vergleich nachgewiesen: Der Entwicklungsaufwand wird dokumentiert und mit typischen Aufwänden für vergleichbare Shop-Implementierungen verglichen. Die Funktionsfähigkeit wird durch systematische Tests aller Komponenten belegt. Die Skalierbarkeit wird durch Lasttests unter verschiedenen Nutzerzahlen demonstriert. Die Wartbarkeit zeigt sich in der modularen Architektur und dokumentierten Code-Struktur. Abschließend wird die produktive Deployment der Anwendung als Beleg für die Praxistauglichkeit des Gesamtansatzes herangezogen.
 
 \end{document}
