@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.7.25)  10 JAN 2026 11:09
+This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.7.25)  12 JAN 2026 17:42
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -232,46 +232,49 @@ Underfull \hbox (badness 10000) in paragraph at lines 38--46
 
 [2 <./meilenstein.png>]
 
-[3]
-Overfull \hbox (13.7787pt too wide) in paragraph at lines 116--117
+[3{/usr/local/texlive/2025/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc}]
+Overfull \hbox (13.7787pt too wide) in paragraph at lines 115--116
 []\OT1/cmr/m/n/10.95 Heinemann, G. (2025). \OT1/cmr/m/it/10.95 Der neue Online-Handel: Gesch^^?aftsmodelle, Gesch^^?aftssysteme
  []
 
 
-Overfull \hbox (0.9323pt too wide) in paragraph at lines 123--127
+Overfull \hbox (0.9323pt too wide) in paragraph at lines 122--126
 \OT1/cmr/m/n/10.95 mann (2025) beschreibt ak-tuelle Gesch^^?aftsmodelle und An-forderun-gen im Online-Handel,
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 123--127
+Underfull \hbox (badness 10000) in paragraph at lines 122--126
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 123--127
+Underfull \hbox (badness 10000) in paragraph at lines 122--126
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 131--135
+Underfull \hbox (badness 10000) in paragraph at lines 130--133
 
  []
 
 
+Underfull \hbox (badness 10000) in paragraph at lines 130--133
 
-[4{/usr/local/texlive/2025/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc}]
-Overfull \hbox (25.524pt too wide) in paragraph at lines 140--142
+ []
+
+
+Overfull \hbox (25.524pt too wide) in paragraph at lines 137--139
 \OT1/cmr/m/n/10.95 Die []Uberlegenheit des Ansatzes wird durch Ver-gle-ich nachgewiesen: Der En-twick-lungsaufwand
  []
 
 
-Overfull \hbox (15.12163pt too wide) in paragraph at lines 140--142
+Overfull \hbox (15.12163pt too wide) in paragraph at lines 137--139
 \OT1/cmr/m/n/10.95 wird doku-men-tiert und mit typ-is-chen Aufw^^?anden f^^?ur ver-gle-ich-bare Shop-Implementierungen
  []
 
 
 
-[5] (./main.aux)
+[4] (./main.aux)
  ***********
 LaTeX2e <2024-11-01> patch level 2
 L3 programming layer <2025-01-18>
@@ -280,16 +283,16 @@ L3 programming layer <2025-01-18>
 Here is how much of TeX's memory you used:
  4483 strings out of 473190
  96484 string characters out of 5715800
- 623110 words of memory out of 5000000
+ 624110 words of memory out of 5000000
  27750 multiletter control sequences out of 15000+600000
  562526 words of font info for 48 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  108i,7n,107p,10959b,271s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmssbx10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfrm1095.pfb>
-Output written on main.pdf (5 pages, 154852 bytes).
+Output written on main.pdf (4 pages, 154350 bytes).
 PDF statistics:
- 54 PDF objects out of 1000 (max. 8388607)
- 32 compressed objects within 1 object stream
+ 51 PDF objects out of 1000 (max. 8388607)
+ 30 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  6 words of extra memory for PDF output out of 10000 (max. 10000000)
 
