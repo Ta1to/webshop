@@ -334,6 +334,29 @@
                   </template>
                 </div>
               </div>
+
+              <div class="details-row newsletter-row">
+                <div class="details-label">Newsletter</div>
+                <div class="details-value">
+                  <label class="toggle-switch">
+                    <input
+                      type="checkbox"
+                      v-model="form.newsletter"
+                      @change="handleNewsletterToggle"
+                      :disabled="savingNewsletter"
+                    />
+                    <span class="toggle-slider"></span>
+                  </label>
+                  <span class="newsletter-status">
+                    {{ form.newsletter ? 'Aktiviert' : 'Deaktiviert' }}
+                  </span>
+                </div>
+                <div class="details-actions">
+                  <span v-if="savingNewsletter" class="saving-indicator">
+                    Speichert...
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -402,6 +425,7 @@ export default {
     const savingField = ref('')
     const sendingVerification = ref(false)
     const refreshingVerification = ref(false)
+    const savingNewsletter = ref(false)
 
     const form = reactive({
       displayName: '',
@@ -410,7 +434,8 @@ export default {
       postalCode: '',
       city: '',
       country: '',
-      phone: ''
+      phone: '',
+      newsletter: false
     })
 
     const editBuffer = reactive({
@@ -495,6 +520,7 @@ export default {
       const resolvedCity = data?.city || ''
       const resolvedCountry = data?.country || ''
       const resolvedPhone = data?.phone || ''
+      const resolvedNewsletter = data?.newsletter ?? false
 
       form.displayName = resolvedDisplayName
       form.email = resolvedEmail
@@ -503,6 +529,7 @@ export default {
       form.city = resolvedCity
       form.country = resolvedCountry
       form.phone = resolvedPhone
+      form.newsletter = resolvedNewsletter
 
       if (editingField.value !== 'displayName') {
         editBuffer.displayName = resolvedDisplayName
@@ -800,6 +827,53 @@ export default {
       refreshingVerification.value = false
     }
 
+    const handleNewsletterToggle = async () => {
+      if (savingNewsletter.value || !user.value) {
+        return
+      }
+
+      savingNewsletter.value = true
+      successMessage.value = ''
+      errorMessage.value = ''
+
+      const newValue = form.newsletter
+
+      try {
+        const { updateUserDocument } = await import('../../services/db')
+        const result = await updateUserDocument(user.value.uid, {
+          newsletter: newValue
+        })
+
+        if (result.success) {
+          successMessage.value = newValue 
+            ? 'Du hast den Newsletter abonniert.' 
+            : 'Du hast den Newsletter abgemeldet.'
+          
+          // Clear success message after 5 seconds
+          setTimeout(() => {
+            successMessage.value = ''
+          }, 5000)
+        } else {
+          // Revert the toggle if save failed
+          form.newsletter = !newValue
+          errorMessage.value = 'Newsletter-Einstellungen konnten nicht gespeichert werden.'
+          setTimeout(() => {
+            errorMessage.value = ''
+          }, 5000)
+        }
+      } catch (error) {
+        console.error('Error updating newsletter preference:', error)
+        // Revert the toggle on error
+        form.newsletter = !newValue
+        errorMessage.value = 'Ein Fehler ist aufgetreten. Bitte versuche es später erneut.'
+        setTimeout(() => {
+          errorMessage.value = ''
+        }, 5000)
+      } finally {
+        savingNewsletter.value = false
+      }
+    }
+
     onMounted(() => {
       unsubscribeAuth = observeAuthState(async (authUser) => {
         if (!authUser) {
@@ -849,11 +923,13 @@ export default {
       savingField,
       sendingVerification,
       refreshingVerification,
+      savingNewsletter,
       startEditing,
       cancelEditing,
       handleSaveField,
       handleSendVerificationEmail,
-      handleRefreshVerificationStatus
+      handleRefreshVerificationStatus,
+      handleNewsletterToggle
     }
   }
 }
@@ -1172,6 +1248,75 @@ export default {
 
 .badge-verified {
   background-color: var(--primary-green-lighter);
+.newsletter-row .details-value {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 52px;
+  height: 28px;
+  flex-shrink: 0;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--gray-300);
+  transition: 0.3s;
+  border-radius: 34px;
+}
+
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: 0.3s;
+  border-radius: 50%;
+}
+
+.toggle-switch input:checked + .toggle-slider {
+  background: linear-gradient(135deg, var(--primary-green) 0%, var(--primary-green-dark) 100%);
+}
+
+.toggle-switch input:checked + .toggle-slider:before {
+  transform: translateX(24px);
+}
+
+.toggle-switch input:disabled + .toggle-slider {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.newsletter-status {
+  font-size: 0.95rem;
+  color: var(--gray-700);
+  font-weight: 500;
+}
+
+.saving-indicator {
+  font-size: 0.9rem;
+  color: var(--gray-500);
+  font-style: italic;
+}
+
   color: var(--primary-green-dark);
 }
 
