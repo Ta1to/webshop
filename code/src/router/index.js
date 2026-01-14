@@ -28,6 +28,8 @@ import ImprintView from '../views/legal/ImprintView.vue'
 import { getUserDocument } from '../services/db'
 import WishlistView from '../views/auth/WishlistView.vue'
 import NotFoundView from '../views/NotFoundView.vue'
+import { auth } from '../services/config'
+import { onAuthStateChanged } from 'firebase/auth'
 
 const routes = [
     {
@@ -209,11 +211,23 @@ const router = createRouter({
     routes
 })
 
+// Helper function to wait for Firebase Auth to initialize
+const waitForAuthInit = () => {
+    return new Promise((resolve) => {
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            unsubscribe()
+            resolve(user)
+        })
+    })
+}
+
 // Navigation guard for protected routes
 router.beforeEach(async (to, from, next) => {
     const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
     const requiresAdmin = to.matched.some(record => record.meta.requiresAdmin)
-    const currentUser = getCurrentUser()
+    
+    // Wait for Firebase Auth to initialize
+    const currentUser = await waitForAuthInit()
 
     if (requiresAuth && !currentUser) {
         next('/login')
