@@ -62,6 +62,7 @@
             <li><router-link to="/orders" class="footer-link">Bestellungen</router-link></li>
             <li><router-link to="/wishlist" class="footer-link">Wunschliste</router-link></li>
             <li><router-link to="/privacy" class="footer-link">Datenschutz</router-link></li>
+            <li><router-link to="/cookies" class="footer-link">Cookies</router-link></li>
             <li><router-link to="/terms" class="footer-link">AGB</router-link></li>
             <li><router-link to="/imprint" class="footer-link">Impressum</router-link></li>
           </ul>
@@ -109,7 +110,6 @@
           </p>
           <div class="footer-bottom-links">
             <router-link to="/sitemap" class="bottom-link">Sitemap</router-link>
-            <router-link to="/cookies" class="bottom-link">Cookie-Einstellungen</router-link>
             <a href="#top" class="bottom-link back-to-top" @click="scrollToTop">
               <span>Nach oben</span>
               <ArrowUp :size="16" />

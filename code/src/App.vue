@@ -16,11 +16,23 @@
       :newsletter-loading="newsletterLoading"
       @newsletter-toggle="handleNewsletterToggle"
     />
+
+    <!-- Cookie Banner & Settings -->
+    <CookieBanner 
+      ref="cookieBannerRef"
+      @customize="showCookieSettings = true"
+      @accepted="handleCookieAccepted"
+    />
+    
+    <CookieSettingsModal 
+      v-model="showCookieSettings"
+      @saved="handleCookieSaved"
+    />
   </div>
 </template>
 
 <script>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { observeAuthState, logoutUser } from '@/services/auth'
 import { getUserDocument, updateUserDocument, createUserDocument } from '@/services/db'
@@ -30,12 +42,17 @@ import { initCartStore, updateCartItems, useCartItemCount } from '@/stores/cartS
 import { initWishlistStore, updateWishlistItems } from '@/stores/wishlistStore'
 import AppHeader from '@/components/layout/AppHeader.vue'
 import AppFooter from '@/components/layout/AppFooter.vue'
+import CookieBanner from '@/components/utility/CookieBanner.vue'
+import CookieSettingsModal from '@/components/modal/CookieSettingsModal.vue'
+import { cookieEventBus, COOKIE_EVENTS } from '@/services/cookieEvents'
 
 export default {
   name: 'App',
   components: {
     AppHeader,
-    AppFooter
+    AppFooter,
+    CookieBanner,
+    CookieSettingsModal
   },
   setup() {
     const currentUser = ref(null)
@@ -44,6 +61,8 @@ export default {
     const newsletterLoading = ref(false)
     const isAdmin = ref(false)
     const router = useRouter()
+    const showCookieSettings = ref(false)
+    const cookieBannerRef = ref(null)
 
     const loadUserProfile = async (uid) => {
       const result = await getUserDocument(uid)
@@ -110,6 +129,11 @@ export default {
       // Register callback for wishlist updates
       registerWishlistUpdateCallback(updateWishlistItems)
 
+      // Listen for cookie settings open event
+      cookieEventBus.on(COOKIE_EVENTS.OPEN_SETTINGS, () => {
+        showCookieSettings.value = true
+      })
+
       observeAuthState(async (user) => {
         currentUser.value = user
         if (user) {
@@ -133,6 +157,11 @@ export default {
           await updateWishlistItems()
         }
       })
+    })
+
+    onUnmounted(() => {
+      // Clean up event listeners
+      cookieEventBus.off(COOKIE_EVENTS.OPEN_SETTINGS)
     })
 
     const handleLogout = async () => {
@@ -170,14 +199,31 @@ export default {
       newsletterLoading.value = false
     }
 
+    const handleCookieAccepted = (preferences) => {
+      console.log('Cookie preferences accepted:', preferences)
+      // Here you could initialize analytics or marketing scripts based on preferences
+    }
+
+    const handleCookieSaved = (preferences) => {
+      console.log('Cookie preferences saved:', preferences)
+      if (cookieBannerRef.value) {
+        cookieBannerRef.value.hide()
+      }
+      // Here you could initialize/disable analytics or marketing scripts based on preferences
+    }
+
     return {
       currentUser,
       cartItemCount,
       userProfile,
       newsletterLoading,
       isAdmin,
+      showCookieSettings,
+      cookieBannerRef,
       handleLogout,
-      handleNewsletterToggle
+      handleNewsletterToggle,
+      handleCookieAccepted,
+      handleCookieSaved
     }
   }
 }

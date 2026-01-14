@@ -88,6 +88,54 @@
         rechtliche Wirkung entfalten.
       </p>
     </section>
+
+    <section class="legal-section">
+      <h2>8. Einsatz von Cookies und Tracking-Technologien</h2>
+      <p>
+        Unsere Website verwendet Cookies und ähnliche Technologien, um die Funktionalität zu gewährleisten, 
+        das Nutzererlebnis zu verbessern und Marketingmaßnahmen zu optimieren.
+      </p>
+      
+      <div class="cookie-info-grid">
+        <div class="cookie-info-card">
+          <h3>Notwendige Cookies</h3>
+          <p>
+            Diese Cookies sind für die Grundfunktionen der Website erforderlich. Sie ermöglichen die Navigation, 
+            Speicherung Ihrer Warenkorbinhalte und die sichere Anmeldung. Diese Cookies können nicht deaktiviert werden.
+          </p>
+        </div>
+        
+        <div class="cookie-info-card">
+          <h3>Funktionale Cookies</h3>
+          <p>
+            Mit Ihrer Zustimmung speichern wir Ihre Präferenzen wie Spracheinstellungen und Favoritenlisten, 
+            um Ihnen ein personalisiertes Einkaufserlebnis zu bieten.
+          </p>
+        </div>
+        
+        <div class="cookie-info-card">
+          <h3>Analyse Cookies</h3>
+          <p>
+            Nach Ihrer Einwilligung nutzen wir Analyse-Tools (z.B. Google Analytics), um anonymisierte Statistiken 
+            über die Nutzung unserer Website zu erstellen und diese kontinuierlich zu verbessern.
+          </p>
+        </div>
+        
+        <div class="cookie-info-card">
+          <h3>Marketing Cookies</h3>
+          <p>
+            Mit Ihrer Zustimmung setzen wir Marketing-Cookies ein, um Ihnen relevante Werbung zu zeigen und 
+            die Effektivität unserer Werbekampagnen zu messen.
+          </p>
+        </div>
+      </div>
+      
+      <div class="legal-highlight cookie-settings-highlight">
+        <strong>Cookie-Verwaltung:</strong> Sie können Ihre Cookie-Einstellungen jederzeit anpassen. 
+        Weitere Informationen finden Sie in unserer 
+        <router-link to="/cookies" class="highlight-link">Cookie-Richtlinie</router-link>.
+      </div>
+    </section>
   </div>
 </template>
 
@@ -189,6 +237,50 @@
   line-height: 1.6;
 }
 
+.cookie-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.cookie-info-card {
+  background-color: var(--gray-50);
+  border-left: 4px solid var(--primary-green);
+  border-radius: 10px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.cookie-info-card h3 {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--gray-900);
+}
+
+.cookie-info-card p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--gray-700);
+}
+
+.cookie-settings-highlight {
+  background: linear-gradient(135deg, var(--primary-green-lighter), var(--gray-50));
+  border: 1px solid var(--primary-green-light);
+}
+
+.highlight-link {
+  color: var(--primary-green-dark);
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.highlight-link:hover {
+  color: var(--primary-green);
+}
+
 @media (max-width: 768px) {
   .legal-page {
     padding: 3rem 1.25rem 4rem;
@@ -201,6 +293,10 @@
 
   .legal-section {
     padding: 1.5rem;
+  }
+  
+  .cookie-info-grid {
+    grid-template-columns: 1fr;
   }
 }
 </style>

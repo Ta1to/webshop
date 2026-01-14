@@ -25,6 +25,7 @@ import SizeGuideView from '../views/legal/SizeGuideView.vue'
 import PrivacyView from '../views/legal/PrivacyView.vue'
 import TermsView from '../views/legal/TermsView.vue'
 import ImprintView from '../views/legal/ImprintView.vue'
+import CookiesView from '../views/legal/CookiesView.vue'
 import { getUserDocument } from '../services/db'
 import WishlistView from '../views/auth/WishlistView.vue'
 import NotFoundView from '../views/NotFoundView.vue'
@@ -179,6 +180,11 @@ const routes = [
         component: PrivacyView
     },
     {
+        path: '/cookies',
+        name: 'Cookies',
+        component: CookiesView
+    },
+    {
         path: '/terms',
         name: 'Terms',
         component: TermsView
@@ -191,11 +197,6 @@ const routes = [
     {
         path: '/sitemap',
         name: 'Sitemap',
-        component: () => import('../views/PlaceholderView.vue')
-    },
-    {
-        path: '/cookies',
-        name: 'Cookies',
         component: () => import('../views/PlaceholderView.vue')
     },
     {
