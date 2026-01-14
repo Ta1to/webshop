@@ -54,21 +54,6 @@
           </ul>
         </div>
 
-        <div class="footer-newsletter">
-          <div class="newsletter-cta">
-            <button
-              type="button"
-              class="newsletter-button"
-              :disabled="newsletterLoading"
-              @click="handleNewsletterClick"
-            >
-              <BellRing :size="18" />
-              <span>{{ newsletterLabel }}</span>
-            </button>
-            <p class="newsletter-message">{{ newsletterDescription }}</p>
-          </div>
-        </div>
-
         <!-- Legal & Account -->
         <div class="footer-section">
           <h3 class="section-title">Rechtliches</h3>
@@ -169,30 +154,11 @@ export default {
       type: Object,
       default: null
     },
-    newsletterLoading: {
-      type: Boolean,
-      default: false
-    }
   },
-  emits: ['newsletter-toggle'],
   setup(props, { emit }) {
     const router = useRouter()
     const currentYear = computed(() => new Date().getFullYear())
 
-    const newsletterSubscribed = computed(() => props.user?.newsletter === true)
-
-    const newsletterLabel = computed(() =>
-      newsletterSubscribed.value ? 'Newsletter abbestellen' : 'Newsletter abonnieren'
-    )
-
-    const newsletterDescription = computed(() => {
-      if (!props.user) {
-        return 'Melden Sie sich an, um Neuigkeiten und Rabatte per E-Mail zu erhalten.'
-      }
-      return newsletterSubscribed.value
-        ? 'Vielen Dank, Sie erhalten bereits unseren Newsletter.'
-        : 'Erhalten Sie Produktneuigkeiten und Angebote direkt in Ihr Postfach.'
-    })
 
     const scrollToTop = () => {
       window.scrollTo({
@@ -201,35 +167,9 @@ export default {
       })
     }
 
-    const handleNewsletterClick = () => {
-      if (props.newsletterLoading) {
-        return
-      }
-
-      if (!props.user) {
-        router.push('/register')
-        return
-      }
-
-      const nextValue = !newsletterSubscribed.value
-      const confirmationMessage = nextValue
-        ? 'Möchten Sie unseren Newsletter abonnieren und regelmäßig Neuigkeiten erhalten?'
-        : 'Möchten Sie den Newsletter wirklich abbestellen?'
-
-      if (!window.confirm(confirmationMessage)) {
-        return
-      }
-
-      emit('newsletter-toggle', nextValue)
-    }
-
     return {
       currentYear,
-      scrollToTop,
-      newsletterSubscribed,
-      newsletterLabel,
-      newsletterDescription,
-      handleNewsletterClick
+      scrollToTop
     }
   }
 }
@@ -302,65 +242,6 @@ export default {
   color: var(--gray-700);
   line-height: 1.6;
   font-size: 0.95rem;
-}
-
-.newsletter-cta {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.newsletter-button {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  border-radius: 999px;
-  background-color: var(--primary-green);
-  color: var(--white);
-  border: none;
-  font-weight: 600;
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
-  box-shadow: 0 8px 15px rgba(16, 185, 129, 0.25);
-}
-
-.newsletter-button:not(:disabled):hover {
-  transform: translateY(-1px);
-  box-shadow: 0 12px 20px rgba(16, 185, 129, 0.3);
-}
-
-.newsletter-button:disabled {
-  cursor: not-allowed;
-  opacity: 0.7;
-  box-shadow: none;
-}
-
-.newsletter-message {
-  margin: 0;
-  color: var(--gray-600);
-  font-size: 0.92rem;
-  max-width: 320px;
-}
-
-.footer-newsletter {
-  grid-column: 2 / span 2;
-  grid-row: 2;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  justify-content: flex-start;
-  margin-top: -1rem;
-}
-
-.footer-newsletter .newsletter-cta {
-  margin: 0;
-}
-
-@media (max-width: 1024px) {
-  .footer-newsletter {
-    grid-column: 1 / -1;
-  }
 }
 
 .social-links {
@@ -541,11 +422,6 @@ export default {
   }
 
   .contact-info {
-
-  .footer-newsletter {
-    grid-column: 1 / -1;
-    grid-row: auto;
-  }
     grid-column: 1 / -1;
   }
 

@@ -6,404 +6,357 @@
     </div>
 
     <div v-else-if="!user" class="guest-card">
+      <div class="guest-icon">
+        <User :size="64" />
+      </div>
       <h2>Bitte melde dich an</h2>
       <p>Um dein Profil zu bearbeiten, melde dich mit deinem Konto an.</p>
       <router-link to="/login" class="btn-primary">Zur Anmeldung</router-link>
     </div>
 
     <div v-else class="profile-content">
-      <section class="profile-card">
-        <div class="card-header">
-          <div class="profile-avatar">{{ initials }}</div>
-          <div class="header-info">
-            <h1>{{ form.displayName || fallbackName }}</h1>
-            <p>{{ form.email }}</p>
+      <!-- Messages -->
+      <transition name="slide-down">
+        <div v-if="errorMessage" class="alert alert-error">
+          <AlertCircle :size="22" class="alert-icon" />
+          {{ errorMessage }}
+        </div>
+      </transition>
+      <transition name="slide-down">
+        <div v-if="successMessage" class="alert alert-success">
+          <CheckCircle2 :size="22" class="alert-icon" />
+          {{ successMessage }}
+        </div>
+      </transition>
+
+      <!-- Profile Header -->
+      <section class="profile-header">
+        <div class="profile-avatar">{{ initials }}</div>
+        <div class="profile-info">
+          <h1>{{ form.displayName || fallbackName }}</h1>
+          <p class="profile-email">{{ form.email }}</p>
+          <div class="profile-badges">
+            <span class="badge" :class="roleLabel === 'admin' ? 'badge-admin' : 'badge-role'">{{ roleLabel }}</span>
+            <span class="badge" :class="{ 'badge-verified': isEmailVerified, 'badge-unverified': !isEmailVerified }">
+              <CheckCircle2 v-if="isEmailVerified" :size="16" class="badge-icon" />
+              <XCircle v-else :size="16" class="badge-icon" />
+              {{ emailVerifiedLabel }}
+            </span>
           </div>
         </div>
+      </section>
 
-        <div class="card-body">
-          <div class="editable-section">
+      <!-- Main Content Grid -->
+      <div class="content-grid">
+        <!-- Personal Data Section -->
+        <section class="card">
+          <div class="card-title">
+            <User :size="24" class="title-icon" />
             <h2>Persönliche Daten</h2>
+          </div>
 
-            <div v-if="errorMessage" class="alert alert-error">
-              {{ errorMessage }}
+          <div class="field-group">
+            <div class="field-item" @click="editingField !== 'displayName' && startEditing('displayName')">
+              <div class="field-header">
+                <label>Name</label>
+                <button 
+                  v-if="editingField !== 'displayName'" 
+                  class="edit-icon-btn"
+                  @click.stop="startEditing('displayName')"
+                >
+                  <Pencil :size="16" />
+                </button>
+              </div>
+              <div class="field-content">
+                <input
+                  v-if="editingField === 'displayName'"
+                  type="text"
+                  v-model="editBuffer.displayName"
+                  maxlength="64"
+                  placeholder="Dein Name"
+                  class="field-input"
+                  @keyup.enter="handleSaveField('displayName')"
+                  @keyup.esc="cancelEditing"
+                  autofocus
+                />
+                <span v-else class="field-value">{{ form.displayName || 'Nicht angegeben' }}</span>
+              </div>
+              <div v-if="editingField === 'displayName'" class="field-actions">
+                <button class="btn-cancel" @click.stop="cancelEditing" :disabled="savingField === 'displayName'">
+                  Abbrechen
+                </button>
+                <button class="btn-save" @click.stop="handleSaveField('displayName')" :disabled="savingField === 'displayName'">
+                  <span v-if="savingField === 'displayName'">Speichert...</span>
+                  <span v-else>Speichern</span>
+                </button>
+              </div>
             </div>
-            <div v-if="successMessage" class="alert alert-success">
-              {{ successMessage }}
+
+            <div class="field-item" @click="editingField !== 'email' && startEditing('email')">
+              <div class="field-header">
+                <label>E-Mail</label>
+                <button 
+                  v-if="editingField !== 'email'" 
+                  class="edit-icon-btn"
+                  @click.stop="startEditing('email')"
+                >
+                  <Pencil :size="16" />
+                </button>
+              </div>
+              <div class="field-content">
+                <input
+                  v-if="editingField === 'email'"
+                  type="email"
+                  v-model="editBuffer.email"
+                  placeholder="deine@email.com"
+                  class="field-input"
+                  @keyup.enter="handleSaveField('email')"
+                  @keyup.esc="cancelEditing"
+                  autofocus
+                />
+                <span v-else class="field-value">{{ form.email }}</span>
+              </div>
+              <div v-if="editingField === 'email'" class="field-actions">
+                <button class="btn-cancel" @click.stop="cancelEditing" :disabled="savingField === 'email'">
+                  Abbrechen
+                </button>
+                <button class="btn-save" @click.stop="handleSaveField('email')" :disabled="savingField === 'email'">
+                  <span v-if="savingField === 'email'">Speichert...</span>
+                  <span v-else>Speichern</span>
+                </button>
+              </div>
             </div>
 
-            <div class="details-list">
-              <div class="details-row">
-                <div class="details-label">Name</div>
-                <div class="details-value">
-                  <template v-if="editingField === 'displayName'">
-                    <input
-                      id="displayName"
-                      type="text"
-                      v-model="editBuffer.displayName"
-                      maxlength="64"
-                      placeholder="Dein Name"
-                      autofocus
-                    />
-                  </template>
-                  <template v-else>
-                    {{ form.displayName || 'Nicht angegeben' }}
-                  </template>
-                </div>
-                <div class="details-actions">
-                  <template v-if="editingField === 'displayName'">
-                    <button
-                      type="button"
-                      class="action-button cancel"
-                      @click="cancelEditing"
-                      :disabled="savingField === 'displayName'"
-                    >
-                      Abbrechen
-                    </button>
-                    <button
-                      type="button"
-                      class="action-button save"
-                      @click="handleSaveField('displayName')"
-                      :disabled="savingField === 'displayName'"
-                    >
-                      <span v-if="savingField === 'displayName'">Speichere...</span>
-                      <span v-else>Speichern</span>
-                    </button>
-                  </template>
-                  <template v-else>
-                    <button
-                      type="button"
-                      class="action-button edit"
-                      @click="startEditing('displayName')"
-                    >
-                      Bearbeiten
-                    </button>
-                  </template>
-                </div>
+            <div class="field-item" @click="editingField !== 'phone' && startEditing('phone')">
+              <div class="field-header">
+                <label>Telefon</label>
+                <button 
+                  v-if="editingField !== 'phone'" 
+                  class="edit-icon-btn"
+                  @click.stop="startEditing('phone')"
+                >
+                  <Pencil :size="16" />
+                </button>
               </div>
-
-              <div class="details-row">
-                <div class="details-label">E-Mail</div>
-                <div class="details-value">
-                  <template v-if="editingField === 'email'">
-                    <input
-                      id="email"
-                      type="email"
-                      v-model="editBuffer.email"
-                      placeholder="deine@email.com"
-                    />
-                  </template>
-                  <template v-else>
-                    {{ form.email }}
-                  </template>
-                </div>
-                <div class="details-actions">
-                  <template v-if="editingField === 'email'">
-                    <button
-                      type="button"
-                      class="action-button cancel"
-                      @click="cancelEditing"
-                      :disabled="savingField === 'email'"
-                    >
-                      Abbrechen
-                    </button>
-                    <button
-                      type="button"
-                      class="action-button save"
-                      @click="handleSaveField('email')"
-                      :disabled="savingField === 'email'"
-                    >
-                      <span v-if="savingField === 'email'">Speichere...</span>
-                      <span v-else>Speichern</span>
-                    </button>
-                  </template>
-                  <template v-else>
-                    <button
-                      type="button"
-                      class="action-button edit"
-                      @click="startEditing('email')"
-                    >
-                      Bearbeiten
-                    </button>
-                  </template>
-                </div>
+              <div class="field-content">
+                <input
+                  v-if="editingField === 'phone'"
+                  type="tel"
+                  v-model="editBuffer.phone"
+                  maxlength="20"
+                  placeholder="z.B. +49 123 456789"
+                  class="field-input"
+                  @keyup.enter="handleSaveField('phone')"
+                  @keyup.esc="cancelEditing"
+                  autofocus
+                />
+                <span v-else class="field-value">{{ form.phone || 'Nicht angegeben' }}</span>
               </div>
-
-              <div class="details-row">
-                <div class="details-label">Straße & Hausnr.</div>
-                <div class="details-value">
-                  <template v-if="editingField === 'street'">
-                    <input
-                      id="street"
-                      type="text"
-                      v-model="editBuffer.street"
-                      maxlength="100"
-                      placeholder="z.B. Musterstraße 123"
-                      autofocus
-                    />
-                  </template>
-                  <template v-else>
-                    {{ form.street || 'Nicht angegeben' }}
-                  </template>
-                </div>
-                <div class="details-actions">
-                  <template v-if="editingField === 'street'">
-                    <button
-                      type="button"
-                      class="action-button cancel"
-                      @click="cancelEditing"
-                      :disabled="savingField === 'street'"
-                    >
-                      Abbrechen
-                    </button>
-                    <button
-                      type="button"
-                      class="action-button save"
-                      @click="handleSaveField('street')"
-                      :disabled="savingField === 'street'"
-                    >
-                      <span v-if="savingField === 'street'">Speichere...</span>
-                      <span v-else>Speichern</span>
-                    </button>
-                  </template>
-                  <template v-else>
-                    <button
-                      type="button"
-                      class="action-button edit"
-                      @click="startEditing('street')"
-                    >
-                      Bearbeiten
-                    </button>
-                  </template>
-                </div>
-              </div>
-
-              <div class="details-row">
-                <div class="details-label">PLZ & Ort</div>
-                <div class="details-value">
-                  <template v-if="editingField === 'city'">
-                    <div class="city-input-group">
-                      <input
-                        id="postalCode"
-                        type="text"
-                        v-model="editBuffer.postalCode"
-                        maxlength="10"
-                        placeholder="PLZ"
-                        class="postal-code-input"
-                      />
-                      <input
-                        id="city"
-                        type="text"
-                        v-model="editBuffer.city"
-                        maxlength="100"
-                        placeholder="Stadt"
-                        class="city-input"
-                      />
-                    </div>
-                  </template>
-                  <template v-else>
-                    {{ cityLabel }}
-                  </template>
-                </div>
-                <div class="details-actions">
-                  <template v-if="editingField === 'city'">
-                    <button
-                      type="button"
-                      class="action-button cancel"
-                      @click="cancelEditing"
-                      :disabled="savingField === 'city'"
-                    >
-                      Abbrechen
-                    </button>
-                    <button
-                      type="button"
-                      class="action-button save"
-                      @click="handleSaveField('city')"
-                      :disabled="savingField === 'city'"
-                    >
-                      <span v-if="savingField === 'city'">Speichere...</span>
-                      <span v-else>Speichern</span>
-                    </button>
-                  </template>
-                  <template v-else>
-                    <button
-                      type="button"
-                      class="action-button edit"
-                      @click="startEditing('city')"
-                    >
-                      Bearbeiten
-                    </button>
-                  </template>
-                </div>
-              </div>
-
-              <div class="details-row">
-                <div class="details-label">Land</div>
-                <div class="details-value">
-                  <template v-if="editingField === 'country'">
-                    <input
-                      id="country"
-                      type="text"
-                      v-model="editBuffer.country"
-                      maxlength="100"
-                      placeholder="z.B. Deutschland"
-                      autofocus
-                    />
-                  </template>
-                  <template v-else>
-                    {{ form.country || 'Nicht angegeben' }}
-                  </template>
-                </div>
-                <div class="details-actions">
-                  <template v-if="editingField === 'country'">
-                    <button
-                      type="button"
-                      class="action-button cancel"
-                      @click="cancelEditing"
-                      :disabled="savingField === 'country'"
-                    >
-                      Abbrechen
-                    </button>
-                    <button
-                      type="button"
-                      class="action-button save"
-                      @click="handleSaveField('country')"
-                      :disabled="savingField === 'country'"
-                    >
-                      <span v-if="savingField === 'country'">Speichere...</span>
-                      <span v-else>Speichern</span>
-                    </button>
-                  </template>
-                  <template v-else>
-                    <button
-                      type="button"
-                      class="action-button edit"
-                      @click="startEditing('country')"
-                    >
-                      Bearbeiten
-                    </button>
-                  </template>
-                </div>
-              </div>
-
-              <div class="details-row">
-                <div class="details-label">Telefon</div>
-                <div class="details-value">
-                  <template v-if="editingField === 'phone'">
-                    <input
-                      id="phone"
-                      type="tel"
-                      v-model="editBuffer.phone"
-                      maxlength="20"
-                      placeholder="z.B. +49 123 456789"
-                      autofocus
-                    />
-                  </template>
-                  <template v-else>
-                    {{ form.phone || 'Nicht angegeben' }}
-                  </template>
-                </div>
-                <div class="details-actions">
-                  <template v-if="editingField === 'phone'">
-                    <button
-                      type="button"
-                      class="action-button cancel"
-                      @click="cancelEditing"
-                      :disabled="savingField === 'phone'"
-                    >
-                      Abbrechen
-                    </button>
-                    <button
-                      type="button"
-                      class="action-button save"
-                      @click="handleSaveField('phone')"
-                      :disabled="savingField === 'phone'"
-                    >
-                      <span v-if="savingField === 'phone'">Speichere...</span>
-                      <span v-else>Speichern</span>
-                    </button>
-                  </template>
-                  <template v-else>
-                    <button
-                      type="button"
-                      class="action-button edit"
-                      @click="startEditing('phone')"
-                    >
-                      Bearbeiten
-                    </button>
-                  </template>
-                </div>
-              </div>
-
-              <div class="details-row newsletter-row">
-                <div class="details-label">Newsletter</div>
-                <div class="details-value">
-                  <label class="toggle-switch">
-                    <input
-                      type="checkbox"
-                      v-model="form.newsletter"
-                      @change="handleNewsletterToggle"
-                      :disabled="savingNewsletter"
-                    />
-                    <span class="toggle-slider"></span>
-                  </label>
-                  <span class="newsletter-status">
-                    {{ form.newsletter ? 'Aktiviert' : 'Deaktiviert' }}
-                  </span>
-                </div>
-                <div class="details-actions">
-                  <span v-if="savingNewsletter" class="saving-indicator">
-                    Speichert...
-                  </span>
-                </div>
+              <div v-if="editingField === 'phone'" class="field-actions">
+                <button class="btn-cancel" @click.stop="cancelEditing" :disabled="savingField === 'phone'">
+                  Abbrechen
+                </button>
+                <button class="btn-save" @click.stop="handleSaveField('phone')" :disabled="savingField === 'phone'">
+                  <span v-if="savingField === 'phone'">Speichert...</span>
+                  <span v-else>Speichern</span>
+                </button>
               </div>
             </div>
           </div>
+        </section>
 
-          <div class="meta-section">
-            <h2>Kontoübersicht</h2>
-            <ul class="meta-list">
-              <li>
-                <span class="meta-label">Rolle</span>
-                <span class="badge">{{ roleLabel }}</span>
-              </li>
-              <li>
-                <span class="meta-label">Mitglied seit</span>
-                <span class="meta-value">{{ createdAtLabel }}</span>
-              </li>
-              <li>
-                <span class="meta-label">E-Mail-Status</span>
-                <span class="badge" :class="{ 'badge-verified': isEmailVerified, 'badge-unverified': !isEmailVerified }">
-                  {{ emailVerifiedLabel }}
-                </span>
-              </li>
-            </ul>
+        <!-- Address Section -->
+        <section class="card">
+          <div class="card-title">
+            <MapPin :size="24" class="title-icon" />
+            <h2>Adresse</h2>
+          </div>
 
-            <!-- Email Verification Actions -->
-            <div v-if="!isEmailVerified" class="verification-actions">
-              <p class="verification-note">
-                Bitte verifiziere deine E-Mail-Adresse für volle Funktionalität.
+          <div class="field-group">
+            <div class="field-item" @click="editingField !== 'street' && startEditing('street')">
+              <div class="field-header">
+                <label>Straße & Hausnummer</label>
+                <button 
+                  v-if="editingField !== 'street'" 
+                  class="edit-icon-btn"
+                  @click.stop="startEditing('street')"
+                >
+                  <Pencil :size="16" />
+                </button>
+              </div>
+              <div class="field-content">
+                <input
+                  v-if="editingField === 'street'"
+                  type="text"
+                  v-model="editBuffer.street"
+                  maxlength="100"
+                  placeholder="z.B. Musterstraße 123"
+                  class="field-input"
+                  @keyup.enter="handleSaveField('street')"
+                  @keyup.esc="cancelEditing"
+                  autofocus
+                />
+                <span v-else class="field-value">{{ form.street || 'Nicht angegeben' }}</span>
+              </div>
+              <div v-if="editingField === 'street'" class="field-actions">
+                <button class="btn-cancel" @click.stop="cancelEditing" :disabled="savingField === 'street'">
+                  Abbrechen
+                </button>
+                <button class="btn-save" @click.stop="handleSaveField('street')" :disabled="savingField === 'street'">
+                  <span v-if="savingField === 'street'">Speichert...</span>
+                  <span v-else>Speichern</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="field-item" @click="editingField !== 'city' && startEditing('city')">
+              <div class="field-header">
+                <label>PLZ & Ort</label>
+                <button 
+                  v-if="editingField !== 'city'" 
+                  class="edit-icon-btn"
+                  @click.stop="startEditing('city')"
+                >
+                  <Pencil :size="16" />
+                </button>
+              </div>
+              <div class="field-content">
+                <div v-if="editingField === 'city'" class="city-input-group">
+                  <input
+                    type="text"
+                    v-model="editBuffer.postalCode"
+                    maxlength="10"
+                    placeholder="PLZ"
+                    class="field-input postal-code-input"
+                    @keyup.enter="handleSaveField('city')"
+                    @keyup.esc="cancelEditing"
+                  />
+                  <input
+                    type="text"
+                    v-model="editBuffer.city"
+                    maxlength="100"
+                    placeholder="Stadt"
+                    class="field-input city-input"
+                    @keyup.enter="handleSaveField('city')"
+                    @keyup.esc="cancelEditing"
+                  />
+                </div>
+                <span v-else class="field-value">{{ cityLabel }}</span>
+              </div>
+              <div v-if="editingField === 'city'" class="field-actions">
+                <button class="btn-cancel" @click.stop="cancelEditing" :disabled="savingField === 'city'">
+                  Abbrechen
+                </button>
+                <button class="btn-save" @click.stop="handleSaveField('city')" :disabled="savingField === 'city'">
+                  <span v-if="savingField === 'city'">Speichert...</span>
+                  <span v-else>Speichern</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="field-item" @click="editingField !== 'country' && startEditing('country')">
+              <div class="field-header">
+                <label>Land</label>
+                <button 
+                  v-if="editingField !== 'country'" 
+                  class="edit-icon-btn"
+                  @click.stop="startEditing('country')"
+                >
+                  <Pencil :size="16" />
+                </button>
+              </div>
+              <div class="field-content">
+                <input
+                  v-if="editingField === 'country'"
+                  type="text"
+                  v-model="editBuffer.country"
+                  maxlength="100"
+                  placeholder="z.B. Deutschland"
+                  class="field-input"
+                  @keyup.enter="handleSaveField('country')"
+                  @keyup.esc="cancelEditing"
+                  autofocus
+                />
+                <span v-else class="field-value">{{ form.country || 'Nicht angegeben' }}</span>
+              </div>
+              <div v-if="editingField === 'country'" class="field-actions">
+                <button class="btn-cancel" @click.stop="cancelEditing" :disabled="savingField === 'country'">
+                  Abbrechen
+                </button>
+                <button class="btn-save" @click.stop="handleSaveField('country')" :disabled="savingField === 'country'">
+                  <span v-if="savingField === 'country'">Speichert...</span>
+                  <span v-else>Speichern</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Settings & Account Section -->
+        <section class="card">
+          <div class="card-title">
+            <Settings :size="24" class="title-icon" />
+            <h2>Einstellungen & Konto</h2>
+          </div>
+
+          <div class="field-group">
+            <div class="field-item toggle-field">
+              <div class="field-header">
+                <label>Newsletter</label>
+                <label class="toggle-switch">
+                  <input
+                    type="checkbox"
+                    v-model="form.newsletter"
+                    @change="handleNewsletterToggle"
+                    :disabled="savingNewsletter"
+                  />
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+              <p class="field-description">
+                {{ form.newsletter ? 'Du erhältst unsere wöchentlichen Angebote' : 'Aktiviere den Newsletter für exklusive Angebote' }}
               </p>
+            </div>
+          </div>
+
+          <div class="info-list">
+            <div class="info-item">
+              <span class="info-label">Mitglied seit</span>
+              <span class="info-value">{{ createdAtLabel }}</span>
+            </div>
+          </div>
+
+          <div v-if="!isEmailVerified" class="verification-box">
+            <div class="verification-header">
+              <AlertTriangle :size="28" class="verification-icon" />
+              <div>
+                <h3>E-Mail-Verifizierung ausstehend</h3>
+                <p>Bitte verifiziere deine E-Mail-Adresse für volle Funktionalität.</p>
+              </div>
+            </div>
+            <div class="verification-actions">
               <button
                 @click="handleSendVerificationEmail"
                 class="btn-verification"
                 :disabled="sendingVerification"
               >
+                <Mail :size="18" />
                 <span v-if="sendingVerification">Wird gesendet...</span>
-                <span v-else>Bestätigungs-E-Mail senden</span>
+                <span v-else>E-Mail senden</span>
               </button>
               <button
                 @click="handleRefreshVerificationStatus"
                 class="btn-verification btn-secondary"
                 :disabled="refreshingVerification"
               >
-                <span v-if="refreshingVerification">Aktualisiere...</span>
-                <span v-else>Status aktualisieren</span>
+                <RefreshCw :size="18" />
+                <span v-if="refreshingVerification">Aktualisiert...</span>
+                <span v-else>Status prüfen</span>
               </button>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </div>
     </div>
   </div>
 </template>
@@ -412,9 +365,33 @@
 import { reactive, ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { observeAuthState, updateUserProfile, sendVerificationEmail, refreshEmailVerificationStatus } from '../../services/auth'
 import { getUserDocument } from '../../services/db'
+import { 
+  User, 
+  MapPin, 
+  Settings, 
+  Pencil, 
+  CheckCircle2, 
+  XCircle, 
+  AlertCircle, 
+  AlertTriangle, 
+  Mail, 
+  RefreshCw 
+} from 'lucide-vue-next'
 
 export default {
   name: 'ProfileView',
+  components: {
+    User,
+    MapPin,
+    Settings,
+    Pencil,
+    CheckCircle2,
+    XCircle,
+    AlertCircle,
+    AlertTriangle,
+    Mail,
+    RefreshCw
+  },
   setup() {
     const user = ref(null)
     const userData = ref(null)
@@ -937,9 +914,9 @@ export default {
 
 <style scoped>
 .profile-page {
-  max-width: 960px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 3rem 1.5rem 4rem;
+  padding: 2rem 1.5rem 4rem;
 }
 
 .loading-state {
@@ -947,17 +924,17 @@ export default {
   flex-direction: column;
   align-items: center;
   gap: 1rem;
-  padding: 4rem 0;
+  padding: 6rem 0;
   color: var(--gray-600);
 }
 
 .spinner {
-  width: 50px;
-  height: 50px;
+  width: 56px;
+  height: 56px;
   border: 4px solid var(--gray-200);
   border-top-color: var(--primary-green);
   border-radius: 50%;
-  animation: spin 1s linear infinite;
+  animation: spin 0.8s linear infinite;
 }
 
 @keyframes spin {
@@ -966,65 +943,125 @@ export default {
   }
 }
 
+/* Guest Card */
 .guest-card {
   text-align: center;
   background: var(--white);
-  padding: 3rem 2rem;
-  border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(15, 118, 110, 0.1);
+  padding: 4rem 2rem;
+  border-radius: 24px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+  max-width: 500px;
+  margin: 4rem auto;
+}
+
+.guest-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 1.5rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary-green) 0%, var(--primary-green-dark) 100%);
+  color: white;
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.3);
 }
 
 .guest-card h2 {
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
+  font-size: 1.75rem;
+  color: var(--gray-900);
 }
 
 .guest-card p {
   color: var(--gray-600);
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
+  font-size: 1.05rem;
 }
 
 .btn-primary {
   display: inline-block;
-  padding: 0.875rem 2rem;
+  padding: 1rem 2.5rem;
   background: linear-gradient(135deg, var(--primary-green) 0%, var(--primary-green-dark) 100%);
   color: var(--white);
-  border-radius: 10px;
+  border-radius: 12px;
   font-weight: 600;
-  transition: all 0.2s ease;
+  font-size: 1rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
 }
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 16px rgba(16, 185, 129, 0.3);
+  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.35);
 }
 
+/* Alerts */
+.alert {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 1rem 1.25rem;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.alert-icon {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+}
+
+.alert-error {
+  background-color: #FEF2F2;
+  color: #DC2626;
+  border: 1px solid #FEE2E2;
+}
+
+.alert-success {
+  background-color: #ECFDF5;
+  color: #059669;
+  border: 1px solid #D1FAE5;
+}
+
+.slide-down-enter-active,
+.slide-down-leave-active {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.slide-down-enter-from {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.slide-down-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+/* Profile Content */
 .profile-content {
   display: flex;
   flex-direction: column;
-  gap: 2.5rem;
+  gap: 1.5rem;
 }
 
-.profile-card {
-  background: var(--white);
-  border-radius: 20px;
-  overflow: hidden;
-  box-shadow: 0 12px 30px rgba(15, 118, 110, 0.15);
-  display: flex;
-  flex-direction: column;
-}
-
-.card-header {
+/* Profile Header */
+.profile-header {
   display: flex;
   align-items: center;
-  gap: 1.75rem;
+  gap: 2rem;
   padding: 2.5rem;
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%);
-  border-bottom: 1px solid var(--gray-100);
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(16, 185, 129, 0.02) 100%);
+  border-radius: 24px;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.04);
 }
 
 .profile-avatar {
-  width: 96px;
-  height: 96px;
+  width: 110px;
+  height: 110px;
   border-radius: 50%;
   background: linear-gradient(135deg, var(--primary-green) 0%, var(--primary-green-dark) 100%);
   color: var(--white);
@@ -1032,233 +1069,313 @@ export default {
   align-items: center;
   justify-content: center;
   font-weight: 700;
-  font-size: 2.25rem;
+  font-size: 2.5rem;
   flex-shrink: 0;
-  box-shadow: 0 12px 24px rgba(16, 185, 129, 0.35);
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.3);
 }
 
-.header-info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
+.profile-info {
+  flex: 1;
 }
 
-.header-info h1 {
-  font-size: 2rem;
-  margin: 0;
+.profile-info h1 {
+  font-size: 2.25rem;
+  margin: 0 0 0.5rem 0;
   color: var(--gray-900);
+  font-weight: 700;
 }
 
-.header-info p {
+.profile-email {
   color: var(--gray-600);
   font-size: 1.05rem;
-  word-break: break-word;
+  margin-bottom: 1rem;
 }
 
-.card-body {
-  display: grid;
-  grid-template-columns: minmax(0, 1.7fr) minmax(280px, 0.9fr);
-  gap: 3rem;
-  padding: 2.5rem;
-}
-
-.editable-section,
-.meta-section {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.editable-section h2,
-.meta-section h2 {
-  font-size: 1.35rem;
-  margin: 0;
-}
-
-.meta-section {
-  background: var(--gray-50);
-  border: 1px solid var(--gray-100);
-  border-radius: 16px;
-  padding: 2rem;
-  align-self: flex-start;
-  justify-self: end;
-  width: clamp(240px, 90%, 320px);
-  margin-left: auto;
-}
-
-.meta-list {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-}
-
-.meta-list li {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  font-size: 0.95rem;
-  color: var(--gray-700);
-}
-
-.meta-label {
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  font-size: 0.75rem;
-  color: var(--gray-500);
-}
-
-.meta-value {
-  font-size: 1rem;
-  color: var(--gray-900);
-}
-
-.details-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.details-row {
-  display: grid;
-  grid-template-columns: minmax(140px, 1fr) minmax(260px, 2fr) minmax(150px, auto);
-  gap: 1rem 1.5rem;
-  align-items: center;
-}
-
-.details-label {
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: var(--gray-700);
-}
-
-.details-value {
-  font-size: 1rem;
-  color: var(--gray-800);
-}
-
-.details-value input {
-  width: 100%;
-}
-
-.details-actions {
-  display: flex;
-  justify-content: flex-start;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.action-button {
-  padding: 0.625rem 1.25rem;
-  font-size: 0.9rem;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-weight: 600;
-  min-width: 110px;
-  text-align: center;
-  white-space: nowrap;
-}
-
-.action-button.save {
-  background: linear-gradient(135deg, var(--primary-green) 0%, var(--primary-green-dark) 100%);
-  color: var(--white);
-  border: 1px solid transparent;
-}
-
-.action-button.save:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 14px rgba(16, 185, 129, 0.3);
-}
-
-.action-button.cancel {
-  background: var(--gray-100);
-  color: var(--gray-700);
-  border: 1px solid var(--gray-300);
-}
-
-.action-button.cancel:hover:not(:disabled) {
-  background: var(--gray-200);
-  border-color: var(--gray-400);
-}
-
-.action-button.edit {
-  background: transparent;
-  color: var(--primary-green);
-  border: 1.5px solid var(--primary-green);
-}
-
-.action-button.edit:hover:not(:disabled) {
-  background: var(--primary-green-lighter);
-  transform: translateY(-1px);
-}
-
-.action-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
-}
-
-.city-input-group {
+.profile-badges {
   display: flex;
   gap: 0.75rem;
-  width: 100%;
-}
-
-.postal-code-input {
-  flex: 0 0 120px;
-  width: 120px;
-}
-
-.city-input {
-  flex: 1;
-  min-width: 0;
-}
-
-.alert {
-  padding: 0.875rem 1rem;
-  border-radius: 10px;
-  font-size: 0.95rem;
-}
-
-.alert-error {
-  background-color: var(--error-light);
-  color: var(--error);
-}
-
-.alert-success {
-  background-color: var(--primary-green-lighter);
-  color: var(--primary-green-dark);
+  flex-wrap: wrap;
 }
 
 .badge {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  padding: 0.35rem 0.9rem;
+  gap: 0.4rem;
+  padding: 0.4rem 1rem;
   border-radius: 999px;
-  background-color: var(--primary-green-lighter);
-  color: var(--primary-green-dark);
   font-weight: 600;
+  font-size: 0.875rem;
   text-transform: capitalize;
-  font-size: 0.9rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+.badge-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.badge-role {
+  background: linear-gradient(135deg, var(--primary-green) 0%, var(--primary-green-dark) 100%);
+  color: white;
+}
+
+.badge-admin {
+  background: linear-gradient(135deg, #DC2626 0%, #991B1B 100%);
+  color: white;
+  font-weight: 700;
+  animation: pulse-subtle 2s ease-in-out infinite;
+}
+
+@keyframes pulse-subtle {
+  0%, 100% {
+    box-shadow: 0 2px 6px rgba(220, 38, 38, 0.3);
+  }
+  50% {
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.5);
+  }
 }
 
 .badge-verified {
-  background-color: var(--primary-green-lighter);
-.newsletter-row .details-value {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  color: white;
+  border: 2px solid #D1FAE5;
 }
 
+.badge-unverified {
+  background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+  color: white;
+  border: 2px solid #FEF3C7;
+  animation: pulse-warning 2s ease-in-out infinite;
+}
+
+@keyframes pulse-warning {
+  0%, 100% {
+    box-shadow: 0 2px 6px rgba(245, 158, 11, 0.3);
+  }
+  50% {
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.5);
+  }
+}
+
+/* Content Grid */
+.content-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Card */
+.card {
+  background: var(--white);
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.04);
+  border: 1px solid var(--gray-100);
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+}
+
+.card-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.75rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 2px solid var(--gray-100);
+}
+
+.title-icon {
+  width: 24px;
+  height: 24px;
+  color: var(--primary-green);
+  stroke-width: 2.5;
+}
+
+.card-title h2 {
+  font-size: 1.35rem;
+  margin: 0;
+  color: var(--gray-900);
+  font-weight: 700;
+}
+
+/* Field Group */
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.field-item {
+  padding: 1.25rem;
+  border-radius: 12px;
+  background: var(--gray-50);
+  border: 1.5px solid transparent;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+.field-item:hover {
+  background: var(--white);
+  border-color: var(--primary-green);
+  box-shadow: 0 2px 12px rgba(16, 185, 129, 0.1);
+}
+
+.field-item.toggle-field {
+  cursor: default;
+}
+
+.field-item.toggle-field:hover {
+  background: var(--gray-50);
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.field-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.625rem;
+}
+
+.field-header label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--gray-700);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.edit-icon-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: none;
+  background: linear-gradient(135deg, var(--primary-green) 0%, var(--primary-green-dark) 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);
+  flex-shrink: 0;
+}
+
+.edit-icon-btn svg {
+  stroke-width: 2;
+  flex-shrink: 0;
+}
+
+.edit-icon-btn:hover {
+  background: linear-gradient(135deg, var(--primary-green-dark) 0%, var(--primary-green) 100%);
+  transform: scale(1.08);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
+}
+
+.field-content {
+  margin-bottom: 0;
+}
+
+.field-value {
+  font-size: 1.05rem;
+  color: var(--gray-900);
+  font-weight: 500;
+}
+
+.field-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid var(--primary-green);
+  border-radius: 10px;
+  font-size: 1rem;
+  color: var(--gray-900);
+  background: var(--white);
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.field-input:focus {
+  outline: none;
+  border-color: var(--primary-green-dark);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+.city-input-group {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.postal-code-input {
+  flex: 0 0 120px;
+}
+
+.city-input {
+  flex: 1;
+}
+
+.field-description {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--gray-600);
+  font-style: italic;
+}
+
+.field-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  justify-content: flex-end;
+}
+
+.btn-cancel,
+.btn-save {
+  padding: 0.625rem 1.5rem;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-cancel {
+  background: var(--white);
+  color: var(--gray-700);
+  border: 1.5px solid var(--gray-300);
+}
+
+.btn-cancel:hover:not(:disabled) {
+  background: var(--gray-100);
+  border-color: var(--gray-400);
+}
+
+.btn-save {
+  background: linear-gradient(135deg, var(--primary-green) 0%, var(--primary-green-dark) 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+}
+
+.btn-save:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.35);
+}
+
+.btn-cancel:disabled,
+.btn-save:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Toggle Switch */
 .toggle-switch {
   position: relative;
   display: inline-block;
-  width: 52px;
-  height: 28px;
+  width: 56px;
+  height: 30px;
   flex-shrink: 0;
 }
 
@@ -1278,18 +1395,20 @@ export default {
   background-color: var(--gray-300);
   transition: 0.3s;
   border-radius: 34px;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .toggle-slider:before {
   position: absolute;
   content: "";
-  height: 20px;
-  width: 20px;
-  left: 4px;
-  bottom: 4px;
+  height: 24px;
+  width: 24px;
+  left: 3px;
+  bottom: 3px;
   background-color: white;
   transition: 0.3s;
   border-radius: 50%;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 
 .toggle-switch input:checked + .toggle-slider {
@@ -1297,7 +1416,7 @@ export default {
 }
 
 .toggle-switch input:checked + .toggle-slider:before {
-  transform: translateX(24px);
+  transform: translateX(26px);
 }
 
 .toggle-switch input:disabled + .toggle-slider {
@@ -1305,70 +1424,151 @@ export default {
   cursor: not-allowed;
 }
 
-.newsletter-status {
-  font-size: 0.95rem;
+/* Info List */
+.info-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 2px solid var(--gray-100);
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: var(--gray-50);
+  border-radius: 10px;
+}
+
+.info-label {
+  font-size: 0.875rem;
+  font-weight: 600;
   color: var(--gray-700);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.info-value {
+  font-size: 1rem;
+  color: var(--gray-900);
   font-weight: 500;
 }
 
-.saving-indicator {
+/* Verification Box */
+.verification-box {
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+  border-radius: 12px;
+  border: 2px solid #FEF3C7;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25);
+  animation: pulse-box 3s ease-in-out infinite;
+}
+
+@keyframes pulse-box {
+  0%, 100% {
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25);
+    border-color: #FEF3C7;
+  }
+  50% {
+    box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+    border-color: #FDE68A;
+  }
+}
+
+.verification-header {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.verification-icon {
+  flex-shrink: 0;
+  color: white;
+  stroke-width: 2.5;
+  animation: shake 3s ease-in-out infinite;
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  10%, 30%, 50%, 70%, 90% {
+    transform: rotate(-5deg);
+  }
+  20%, 40%, 60%, 80% {
+    transform: rotate(5deg);
+  }
+}
+
+.verification-header h3 {
+  font-size: 1.05rem;
+  margin: 0 0 0.375rem 0;
+  color: white;
+  font-weight: 700;
+}
+
+.verification-header p {
   font-size: 0.9rem;
-  color: var(--gray-500);
-  font-style: italic;
-}
-
-  color: var(--primary-green-dark);
-}
-
-.badge-unverified {
-  background-color: var(--error-light);
-  color: var(--error);
+  color: rgba(255, 255, 255, 0.95);
+  margin: 0;
+  line-height: 1.5;
+  font-weight: 500;
 }
 
 .verification-actions {
-  margin-top: 1.5rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid var(--gray-200);
   display: flex;
-  flex-direction: column;
   gap: 0.75rem;
-}
-
-.verification-note {
-  font-size: 0.875rem;
-  color: var(--gray-600);
-  margin: 0;
-  line-height: 1.4;
+  flex-wrap: wrap;
 }
 
 .btn-verification {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  background: linear-gradient(135deg, var(--primary-green) 0%, var(--primary-green-dark) 100%);
-  color: white;
-  border: none;
-  border-radius: 8px;
+  flex: 1;
+  min-width: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  border-radius: 10px;
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  border: none;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.btn-verification:hover:not(:disabled) {
+.btn-verification svg {
+  stroke-width: 2.5;
+}
+
+.btn-verification:not(.btn-secondary) {
+  background: white;
+  color: #D97706;
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.5);
+}
+
+.btn-verification:not(.btn-secondary):hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
+  box-shadow: 0 6px 16px rgba(255, 255, 255, 0.4);
+  background: #FEF3C7;
+  color: #92400E;
 }
 
 .btn-verification.btn-secondary {
-  background: var(--gray-100);
-  color: var(--gray-700);
-  border: 1px solid var(--gray-300);
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(10px);
 }
 
 .btn-verification.btn-secondary:hover:not(:disabled) {
-  background: var(--gray-200);
-  border-color: var(--gray-400);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.6);
 }
 
 .btn-verification:disabled {
@@ -1377,43 +1577,71 @@ export default {
   transform: none;
 }
 
-@media (max-width: 960px) {
-  .card-body {
-    grid-template-columns: 1fr;
+/* Responsive */
+@media (max-width: 768px) {
+  .profile-page {
+    padding: 1.5rem 1rem 3rem;
   }
 
-  .meta-section {
-    align-self: stretch;
-  }
-}
-
-@media (max-width: 640px) {
-  .profile-avatar {
-    width: 72px;
-    height: 72px;
-    font-size: 1.5rem;
-    box-shadow: 0 8px 18px rgba(16, 185, 129, 0.28);
-  }
-
-  .card-header {
+  .profile-header {
     flex-direction: column;
     align-items: flex-start;
     padding: 2rem;
-    gap: 1.25rem;
   }
 
-  .card-body {
-    padding: 2rem;
-    gap: 2rem;
+  .profile-avatar {
+    width: 90px;
+    height: 90px;
+    font-size: 2rem;
   }
 
-  .details-row {
+  .profile-info h1 {
+    font-size: 1.75rem;
+  }
+
+  .content-grid {
     grid-template-columns: 1fr;
-    align-items: flex-start;
   }
 
-  .details-actions {
-    justify-content: flex-start;
+  .card {
+    padding: 1.5rem;
+  }
+
+  .field-actions {
+    flex-direction: column;
+  }
+
+  .btn-cancel,
+  .btn-save {
+    width: 100%;
+  }
+
+  .verification-actions {
+    flex-direction: column;
+  }
+
+  .btn-verification {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .profile-header {
+    padding: 1.5rem;
+  }
+
+  .profile-avatar {
+    width: 75px;
+    height: 75px;
+    font-size: 1.75rem;
+  }
+
+  .profile-info h1 {
+    font-size: 1.5rem;
+  }
+
+  .card-title h2 {
+    font-size: 1.15rem;
   }
 }
 </style>
