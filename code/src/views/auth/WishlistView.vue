@@ -39,42 +39,34 @@
 
             <div class="wishlist-grid">
                 <div v-for="item in wishlistItems" :key="item.productId" class="wishlist-card">
-                    <button @click="handleRemoveFromWishlist(item.productId)" class="remove-btn" title="Entfernen">
-                        <XIcon :size="24" />
+                    <button @click="handleRemoveFromWishlist(item.productId)" class="btn-remove-icon" title="Entfernen">
+                        <XIcon :size="20" />
                     </button>
                     
-                    <div class="product-image">
-                        <img v-if="item.imageUrl" :src="item.imageUrl" :alt="item.name" />
-                        <div v-else class="image-placeholder">
-                            <ImageIcon :size="48" />
+                    <router-link :to="`/product/${item.productId}`" class="product-link">
+                        <div class="product-image">
+                            <img :src="item.imageUrl" :alt="item.name" />
+                            <span v-if="isNew(item)" class="new-badge">Neu</span>
                         </div>
-                    </div>
-
-                    <div class="product-info">
-                        <h3>{{ item.name }}</h3>
-                        <div class="product-price">{{ item.price.toFixed(2) }} €</div>
-                        
-                        <div v-if="item.stock > 0" class="stock-status in-stock">
-                            Auf Lager
+                        <div class="product-info">
+                            <h3 class="product-name">{{ item.name }}</h3>
+                            <p class="product-description">{{ truncateText(item.description, 80) }}</p>
                         </div>
-                        <div v-else class="stock-status out-of-stock">
-                            Nicht verfügbar
+                    </router-link>
+                    
+                    <div class="product-footer">
+                        <div class="price-stock">
+                            <div class="product-price">{{ formatPrice(item.price) }}</div>
+                            <StockIndicator :stock="item.stock" />
                         </div>
-                        
-                        <div class="product-actions">
-                            <router-link :to="`/product/${item.productId}`" class="btn-view">
-                                <EyeIcon :size="18" />
-                                Ansehen
-                            </router-link>
-                            <button 
-                                @click="handleAddToCart(item.productId)" 
-                                class="btn-add-cart"
-                                :disabled="item.stock <= 0"
-                            >
-                                <ShoppingCartIcon :size="18" />
-                                In den Warenkorb
-                            </button>
-                        </div>
+                        <button 
+                            @click="handleAddToCart(item.productId)" 
+                            class="btn-add-cart"
+                            :disabled="item.stock <= 0"
+                        >
+                            <ShoppingCartIcon :size="20" />
+                            In den Warenkorb
+                        </button>
                     </div>
                 </div>
             </div>
@@ -95,6 +87,7 @@ import {
     EyeIcon, 
     ShoppingCartIcon 
 } from 'lucide-vue-next'
+import StockIndicator from '../../components/utility/StockIndicator.vue'
 import { observeAuthState } from '../../services/auth'
 import { useWishlistItems, updateWishlistItems } from '../../stores/wishlistStore'
 import { removeFromWishlist as removeWishlistItem } from '../../services/wishlist'
@@ -112,7 +105,8 @@ export default {
         XIcon,
         ImageIcon,
         EyeIcon,
-        ShoppingCartIcon
+        ShoppingCartIcon,
+        StockIndicator
     },
     setup() {
         const wishlistItems = useWishlistItems()
@@ -162,6 +156,32 @@ export default {
             }
         }
 
+        const formatPrice = (price) => {
+            return new Intl.NumberFormat('de-DE', {
+                style: 'currency',
+                currency: 'EUR'
+            }).format(price)
+        }
+
+        const truncateText = (text, maxLength) => {
+            if (!text) return ''
+            if (text.length <= maxLength) return text
+            return text.substring(0, maxLength) + '...'
+        }
+
+        const isNew = (item) => {
+            if (!item.createdAt) return false
+            
+            const now = new Date()
+            const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
+            
+            const createdDate = item.createdAt.toDate 
+                ? item.createdAt.toDate() 
+                : new Date(item.createdAt)
+            
+            return createdDate >= sevenDaysAgo
+        }
+
         onMounted(() => {
             observeAuthState(async (authUser) => {
                 user.value = authUser
@@ -174,7 +194,10 @@ export default {
             loading,
             totalValue,
             handleRemoveFromWishlist,
-            handleAddToCart
+            handleAddToCart,
+            formatPrice,
+            truncateText,
+            isNew
         }
     }
 }
@@ -347,145 +370,166 @@ export default {
 }
 
 .wishlist-card {
-    background: var(--white);
+    background: white;
     border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
     position: relative;
 }
 
-.wishlist-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-}
-
-.remove-btn {
+.btn-remove-icon {
     position: absolute;
     top: 0.75rem;
     right: 0.75rem;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.95);
     border: none;
+    color: #ef4444;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    z-index: 10;
+    transition: all 0.2s ease;
+    z-index: 15;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+    padding: 0;
 }
 
+.btn-remove-icon:hover {
+    background: #ef4444;
+    color: white;
+    transform: scale(1.15);
+    box-shadow: 0 4px 16px rgba(239, 68, 68, 0.4);
+}
+
+.btn-remove-icon svg {
+    stroke-width: 2.5px;
+}
+
+.wishlist-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+.product-link {
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
 
 .product-image {
     width: 100%;
-    height: 200px;
+    height: 240px;
     overflow: hidden;
-    background: var(--gray-100);
+    background-color: #f3f4f6;
+    position: relative;
 }
 
 .product-image img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    transition: transform 0.3s ease;
 }
 
-.image-placeholder {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--gray-400);
+.wishlist-card:hover .product-image img {
+    transform: scale(1.05);
+}
+
+.new-badge {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    padding: 0.375rem 0.875rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);
+    z-index: 10;
+    letter-spacing: 0.5px;
 }
 
 .product-info {
     padding: 1.25rem;
-}
-
-.product-info h3 {
-    color: var(--gray-900);
-    margin-bottom: 0.5rem;
-    font-size: 1.125rem;
-}
-
-.product-category {
-    color: var(--gray-600);
-    font-size: 0.875rem;
-    margin-bottom: 0.75rem;
-}
-
-.product-price {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--primary-green);
-    margin-bottom: 0.75rem;
-}
-
-.stock-status {
-    display: inline-block;
-    padding: 0.25rem 0.75rem;
-    border-radius: 6px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    margin-bottom: 1rem;
-}
-
-.stock-status.in-stock {
-    background: var(--green-100);
-    color: var(--green-700);
-}
-
-.stock-status.out-of-stock {
-    background: var(--red-100);
-    color: var(--red-700);
-}
-
-.product-actions {
+    padding-bottom: 0.75rem;
     display: flex;
+    flex-direction: column;
+}
+
+.product-name {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+}
+
+.product-description {
+    color: #666;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin-bottom: 0;
+}
+
+.product-footer {
+    padding: 0 1.25rem 1.25rem 1.25rem;
+    display: flex;
+    flex-direction: column;
     gap: 0.75rem;
 }
 
-.btn-view, .btn-add-cart {
-    flex: 1;
+.price-stock {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 0.75rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+.product-price {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #10b981;
+}
+
+.btn-add-cart {
+    width: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    padding: 0.75rem;
+    padding: 1rem;
     border-radius: 8px;
     font-weight: 600;
-    font-size: 0.875rem;
-    text-decoration: none;
+    font-size: 1rem;
     cursor: pointer;
     transition: all 0.2s ease;
     border: none;
-}
-
-.btn-view {
-    background: var(--gray-100);
-    color: var(--gray-700);
-}
-
-.btn-view:hover {
-    background: var(--gray-200);
-}
-
-.btn-add-cart {
     background: linear-gradient(135deg, var(--primary-green) 0%, var(--primary-green-dark) 100%);
     color: var(--white);
 }
 
-.btn-add-cart:hover {
+.btn-add-cart:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(16, 185, 129, 0.3);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+}
+
+.btn-add-cart:active:not(:disabled) {
+    transform: scale(0.98);
 }
 
 .btn-add-cart:disabled {
     opacity: 0.5;
     cursor: not-allowed;
-    transform: none;
-}
-
-.btn-add-cart:disabled:hover {
-    transform: none;
-    box-shadow: none;
 }
 
 @media (max-width: 768px) {

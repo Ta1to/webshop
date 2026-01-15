@@ -16,9 +16,7 @@
           <span v-if="product.offer" class="original-price">{{ formatPrice(product.originalPrice) }}</span>
           <span class="product-price" :class="{ 'offer-price': product.offer }">{{ formatPrice(product.price) }}</span>
         </div>
-        <span class="product-stock" :class="{ 'low-stock': product.stock < 10 }">
-          {{ product.stock }} auf Lager
-        </span>
+        <StockIndicator :stock="product.stock" />
       </div>
     </div>
   </router-link>
@@ -26,9 +24,13 @@
 
 <script>
 import { computed } from 'vue'
+import StockIndicator from '../utility/StockIndicator.vue'
 
 export default {
   name: 'ProductCard',
+  components: {
+    StockIndicator
+  },
   props: {
     product: {
       type: Object,
@@ -191,16 +193,6 @@ export default {
   box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
   z-index: 10;
   letter-spacing: 0.5px;
-}
-
-.product-stock {
-  font-size: 0.85rem;
-  color: #10b981;
-  font-weight: 500;
-}
-
-.product-stock.low-stock {
-  color: #ef4444;
 }
 
 @media (max-width: 768px) {

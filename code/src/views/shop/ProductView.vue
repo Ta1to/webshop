@@ -34,10 +34,11 @@
               <div v-if="activeOffer" class="original-price-large">{{ formatPrice(product.price) }}</div>
               <div class="product-price-large" :class="{ 'offer-price': activeOffer }">{{ formatPrice(finalPrice) }}</div>
             </div>
-            <div class="product-stock" :class="stockClass">
-              <Package :size="18" />
-              {{ stockText }}
-            </div>
+            <StockIndicator :stock="product.stock">
+              <template #icon>
+                <Package :size="18" />
+              </template>
+            </StockIndicator>
           </div>
 
           <!-- Offer Info -->
@@ -154,6 +155,7 @@ import { addToWishlist, removeFromWishlist, isInWishlist } from '../../services/
 import { getOfferByProductId } from '../../services/offers'
 import CartDialog from '../../components/dialog/CartDialog.vue'
 import QuantityControl from '../../components/utility/QuantityControl.vue'
+import StockIndicator from '../../components/utility/StockIndicator.vue'
 import { 
   ShoppingCart, 
   Package, 
@@ -175,7 +177,8 @@ export default {
     AlertCircle,
     Heart,
     CartDialog,
-    QuantityControl
+    QuantityControl,
+    StockIndicator
   },
   setup() {
     const router = useRouter()
@@ -250,20 +253,6 @@ export default {
 
     const categorySlug = computed(() => {
       return category.value?.slug || ''
-    })
-
-    const stockClass = computed(() => {
-      if (!product.value) return ''
-      if (product.value.stock === 0) return 'out-of-stock'
-      if (product.value.stock < 10) return 'low-stock'
-      return 'in-stock'
-    })
-
-    const stockText = computed(() => {
-      if (!product.value) return ''
-      if (product.value.stock === 0) return 'Nicht auf Lager'
-      if (product.value.stock < 10) return `Nur noch ${product.value.stock} auf Lager`
-      return `${product.value.stock} auf Lager`
     })
 
     const relatedProducts = computed(() => {
@@ -366,8 +355,6 @@ export default {
       categoryName,
       categorySlug,
       quantity,
-      stockClass,
-      stockText,
       relatedProducts,
       loading,
       showCartDialog,
@@ -561,25 +548,6 @@ export default {
 
 .offer-icon {
   font-size: 1.25rem;
-}
-
-.product-stock {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-weight: 500;
-}
-
-.product-stock.in-stock {
-  color: #28a745;
-}
-
-.product-stock.low-stock {
-  color: #ff9800;
-}
-
-.product-stock.out-of-stock {
-  color: #dc3545;
 }
 
 .product-description-full {
