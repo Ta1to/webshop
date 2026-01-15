@@ -6,10 +6,12 @@ import {
   updateProfile,
   updateEmail,
   reload,
-  sendEmailVerification
+  sendEmailVerification,
+  GoogleAuthProvider,
+  signInWithPopup
 } from 'firebase/auth'
 import { auth } from './config'
-import { createUserDocument, updateUserDocument } from './db'
+import { createUserDocument, updateUserDocument, getUserDocument } from './db'
 
 // Register a new user
 export const registerUser = async (email, password, displayName) => {
@@ -32,7 +34,7 @@ export const registerUser = async (email, password, displayName) => {
       displayName: displayName || '',
       photoURL: userCredential.user.photoURL || '',
       role: 'user', // Default role
-      newsletter: false,
+      newsletter: true,
       emailVerified: false // Initial verification status
     })
     
@@ -54,6 +56,44 @@ export const loginUser = async (email, password) => {
     })
     
     return { success: true, user: userCredential.user }
+  } catch (error) {
+    return { success: false, error: error.message }
+  }
+}
+
+// Google Sign-In
+export const signInWithGoogle = async () => {
+  try {
+    const provider = new GoogleAuthProvider()
+    provider.setCustomParameters({
+      prompt: 'select_account'
+    })
+    
+    const userCredential = await signInWithPopup(auth, provider)
+    const user = userCredential.user
+    
+    // Check if user document exists in Firestore
+    const userDoc = await getUserDocument(user.uid)
+    
+    if (!userDoc) {
+      // Create user document for new Google users
+      await createUserDocument(user.uid, {
+        email: user.email,
+        displayName: user.displayName || '',
+        photoURL: user.photoURL || '',
+        role: 'user',
+        newsletter: true,
+        emailVerified: user.emailVerified
+      })
+    } else {
+      // Update existing user document
+      await updateUserDocument(user.uid, {
+        emailVerified: user.emailVerified,
+        photoURL: user.photoURL || userDoc.photoURL
+      })
+    }
+    
+    return { success: true, user: user }
   } catch (error) {
     return { success: false, error: error.message }
   }
