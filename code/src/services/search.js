@@ -1,14 +1,31 @@
 import { getAllDocuments } from './db'
+import { errorHandler } from './errorHandler'
+import { COLLECTIONS } from '../constants'
 
 /**
  * Search Service
  * Provides search functionality for products with suggestions and autocomplete
  */
 
+// Cache configuration
+const CACHE_DURATION = 5 * 60 * 1000 // 5 minutes
+
+// Relevance scoring weights
+const RELEVANCE_SCORES = {
+  EXACT_NAME_MATCH: 100,
+  NAME_STARTS_WITH: 50,
+  NAME_CONTAINS: 30,
+  EXACT_TAG_MATCH: 40,
+  EXACT_CATEGORY_MATCH: 25,
+  TAG_CONTAINS: 15,
+  CATEGORY_CONTAINS: 10,
+  DESCRIPTION_CONTAINS: 10,
+  FEATURED_BOOST: 5
+}
+
 let productsCache = null
 let categoriesCache = null
 let lastCacheUpdate = null
-const CACHE_DURATION = 5 * 60 * 1000 // 5 minutes
 
 /**
  * Load and cache products and categories from Firestore
@@ -22,8 +39,8 @@ const loadSearchData = async (forceRefresh = false) => {
 
   try {
     const [productsResult, categoriesResult] = await Promise.all([
-      getAllDocuments('products'),
-      getAllDocuments('categories')
+      getAllDocuments(COLLECTIONS.PRODUCTS),
+      getAllDocuments(COLLECTIONS.CATEGORIES)
     ])
 
     if (productsResult.success) {
@@ -41,7 +58,7 @@ const loadSearchData = async (forceRefresh = false) => {
     lastCacheUpdate = now
     return { products: productsCache, categories: categoriesCache }
   } catch (error) {
-    console.error('Error loading search data:', error)
+    errorHandler.error('Search data could not be loaded', error)
     return { products: [], categories: [] }
   }
 }
@@ -71,29 +88,29 @@ const calculateRelevance = (product, searchTerm) => {
   let score = 0
 
   // Exact match in name (highest priority)
-  if (name === term) score += 100
+  if (name === term) score += RELEVANCE_SCORES.EXACT_NAME_MATCH
 
   // Name starts with search term
-  if (name.startsWith(term)) score += 50
+  if (name.startsWith(term)) score += RELEVANCE_SCORES.NAME_STARTS_WITH
 
   // Name contains search term
-  if (name.includes(term)) score += 30
+  if (name.includes(term)) score += RELEVANCE_SCORES.NAME_CONTAINS
 
   // Description contains search term
-  if (description.includes(term)) score += 10
+  if (description.includes(term)) score += RELEVANCE_SCORES.DESCRIPTION_CONTAINS
 
   // Tag matches
   tags.forEach(tag => {
-    if (tag === term) score += 40
-    else if (tag.includes(term)) score += 15
+    if (tag === term) score += RELEVANCE_SCORES.EXACT_TAG_MATCH
+    else if (tag.includes(term)) score += RELEVANCE_SCORES.TAG_CONTAINS
   })
 
   // Category matches
-  if (category === term) score += 25
-  else if (category.includes(term)) score += 10
+  if (category === term) score += RELEVANCE_SCORES.EXACT_CATEGORY_MATCH
+  else if (category.includes(term)) score += RELEVANCE_SCORES.CATEGORY_CONTAINS
 
   // Boost featured products slightly
-  if (product.featured) score += 5
+  if (product.featured) score += RELEVANCE_SCORES.FEATURED_BOOST
 
   return score
 }

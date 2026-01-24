@@ -3,6 +3,9 @@
  * Handles cookie preferences and consent management
  */
 
+import { errorHandler } from './errorHandler'
+
+// Cookie consent constants
 const COOKIE_CONSENT_KEY = 'evaris_cookie_consent'
 const COOKIE_PREFERENCES_KEY = 'evaris_cookie_preferences'
 const CONSENT_VERSION = '1.0'
@@ -38,7 +41,7 @@ export const hasConsent = () => {
     const data = JSON.parse(consent)
     return data.version === CONSENT_VERSION && data.timestamp
   } catch (error) {
-    console.error('Error checking cookie consent:', error)
+    errorHandler.warn('Cookie consent could not be verified', error)
     return false
   }
 }
@@ -59,7 +62,7 @@ export const getPreferences = () => {
       [COOKIE_CATEGORIES.NECESSARY]: true
     }
   } catch (error) {
-    console.error('Error getting cookie preferences:', error)
+    errorHandler.warn('Cookie preferences could not be loaded', error)
     return { ...DEFAULT_PREFERENCES }
   }
 }
@@ -69,6 +72,11 @@ export const getPreferences = () => {
  */
 export const savePreferences = (preferences) => {
   try {
+    // Input validation
+    if (!preferences || typeof preferences !== 'object') {
+      throw new Error('Invalid cookie preferences')
+    }
+    
     // Ensure necessary cookies are always enabled
     const safePreferences = {
       ...preferences,
@@ -86,7 +94,7 @@ export const savePreferences = (preferences) => {
     
     return { success: true, preferences: safePreferences }
   } catch (error) {
-    console.error('Error saving cookie preferences:', error)
+    errorHandler.error('Cookie preferences could not be saved', error)
     return { success: false, error: error.message }
   }
 }
@@ -127,7 +135,7 @@ export const clearConsent = () => {
     localStorage.removeItem(COOKIE_PREFERENCES_KEY)
     return { success: true }
   } catch (error) {
-    console.error('Error clearing cookie consent:', error)
+    errorHandler.error('Cookie consent could not be cleared', error)
     return { success: false, error: error.message }
   }
 }
@@ -150,7 +158,7 @@ export const getConsentInfo = () => {
     
     return JSON.parse(consent)
   } catch (error) {
-    console.error('Error getting consent info:', error)
+    errorHandler.warn('Cookie consent information could not be loaded', error)
     return null
   }
 }

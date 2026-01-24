@@ -12,6 +12,9 @@ import {
 } from 'firebase/firestore'
 import { db } from './config'
 import { Order } from '../models/Order'
+import { errorHandler } from './errorHandler'
+import { COLLECTIONS, ORDER_STATUS, ERROR_MESSAGES } from '../constants'
+import { isValidEmail } from '../utils'
 
 /**
  * Create a new order
@@ -20,6 +23,11 @@ import { Order } from '../models/Order'
  */
 export const createOrder = async (orderData) => {
   try {
+    // Input validation
+    if (!orderData || typeof orderData !== 'object') {
+      throw new Error('Invalid order data')
+    }
+    
     if (!orderData.items || orderData.items.length === 0) {
       return { 
         success: false, 
@@ -27,18 +35,18 @@ export const createOrder = async (orderData) => {
       }
     }
 
-    if (!orderData.userEmail || !orderData.userEmail.includes('@')) {
+    if (!orderData.userEmail || !isValidEmail(orderData.userEmail)) {
       return { 
         success: false, 
-        error: 'Valid email address is required' 
+        error: ERROR_MESSAGES.INVALID_EMAIL 
       }
     }
 
-    const orderRef = collection(db, 'orders')
+    const orderRef = collection(db, COLLECTIONS.ORDERS)
     
     const cleanedItems = (orderData.items || []).map(item => {
       if (!item.productId && !item.id) {
-        throw new Error('Product ID is required for all items')
+        throw new Error('Invalid item in order: missing productId or id')
       }
 
       const cleanItem = {
@@ -81,7 +89,7 @@ export const createOrder = async (orderData) => {
       paymentMethod: orderData.paymentMethod || '',
       subtotal: Number(orderData.subtotal) || 0,
       total: Number(orderData.total) || 0,
-      status: orderData.status || 'pending',
+      status: orderData.status || ORDER_STATUS.PENDING,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
     }
@@ -94,10 +102,10 @@ export const createOrder = async (orderData) => {
       order: { ...cleanedData, id: docRef.id }
     }
   } catch (error) {
-    console.error('Error creating order:', error)
+    errorHandler.error('Order could not be created', error)
     return { 
       success: false, 
-      error: error.message || 'Unknown error occurred' 
+      error: error.message || ERROR_MESSAGES.ORDER_CREATION_FAILED 
     }
   }
 }
@@ -109,7 +117,12 @@ export const createOrder = async (orderData) => {
  */
 export const getOrder = async (orderId) => {
   try {
-    const orderRef = doc(db, 'orders', orderId)
+    // Input validation
+    if (!orderId || typeof orderId !== 'string') {
+      throw new Error('Invalid order ID')
+    }
+    
+    const orderRef = doc(db, COLLECTIONS.ORDERS, orderId)
     const orderSnap = await getDoc(orderRef)
     
     if (orderSnap.exists()) {
@@ -122,7 +135,7 @@ export const getOrder = async (orderId) => {
       return { success: false, error: 'Order not found' }
     }
   } catch (error) {
-    console.error('Error getting order:', error)
+    errorHandler.error('Order could not be loaded', error)
     return { success: false, error: error.message }
   }
 }
@@ -134,7 +147,12 @@ export const getOrder = async (orderId) => {
  */
 export const getUserOrders = async (userId) => {
   try {
-    const ordersRef = collection(db, 'orders')
+    // Input validation
+    if (!userId || typeof userId !== 'string') {
+      throw new Error('Invalid user ID')
+    }
+    
+    const ordersRef = collection(db, COLLECTIONS.ORDERS)
     const q = query(
       ordersRef, 
       where('userId', '==', userId)
@@ -156,7 +174,7 @@ export const getUserOrders = async (userId) => {
     
     return { success: true, orders }
   } catch (error) {
-    console.error('Error getting user orders:', error)
+    errorHandler.error('User orders could not be loaded', error)
     return { success: false, error: error.message }
   }
 }
@@ -167,7 +185,7 @@ export const getUserOrders = async (userId) => {
  */
 export const getAllOrders = async () => {
   try {
-    const ordersRef = collection(db, 'orders')
+    const ordersRef = collection(db, COLLECTIONS.ORDERS)
     const querySnapshot = await getDocs(ordersRef)
     const orders = []
     
@@ -184,7 +202,7 @@ export const getAllOrders = async () => {
     
     return { success: true, orders }
   } catch (error) {
-    console.error('Error getting all orders:', error)
+    errorHandler.error('All orders could not be loaded', error)
     return { success: false, error: error.message }
   }
 }
@@ -197,7 +215,16 @@ export const getAllOrders = async () => {
  */
 export const updateOrderStatus = async (orderId, newStatus) => {
   try {
-    const orderRef = doc(db, 'orders', orderId)
+    // Input validation
+    if (!orderId || typeof orderId !== 'string') {
+      throw new Error('Invalid order ID')
+    }
+    
+    if (!newStatus || typeof newStatus !== 'string') {
+      throw new Error('Invalid status')
+    }
+    
+    const orderRef = doc(db, COLLECTIONS.ORDERS, orderId)
     
     await updateDoc(orderRef, {
       status: newStatus,
@@ -206,7 +233,7 @@ export const updateOrderStatus = async (orderId, newStatus) => {
     
     return { success: true }
   } catch (error) {
-    console.error('Error updating order status:', error)
+    errorHandler.error('Order status could not be updated', error)
     return { success: false, error: error.message }
   }
 }
@@ -219,7 +246,16 @@ export const updateOrderStatus = async (orderId, newStatus) => {
  */
 export const updateOrder = async (orderId, updates) => {
   try {
-    const orderRef = doc(db, 'orders', orderId)
+    // Input validation
+    if (!orderId || typeof orderId !== 'string') {
+      throw new Error('Invalid order ID')
+    }
+    
+    if (!updates || typeof updates !== 'object') {
+      throw new Error('Invalid update data')
+    }
+    
+    const orderRef = doc(db, COLLECTIONS.ORDERS, orderId)
     
     await updateDoc(orderRef, {
       ...updates,
@@ -228,7 +264,7 @@ export const updateOrder = async (orderId, updates) => {
     
     return { success: true }
   } catch (error) {
-    console.error('Error updating order:', error)
+    errorHandler.error('Order could not be updated', error)
     return { success: false, error: error.message }
   }
 }
@@ -240,16 +276,21 @@ export const updateOrder = async (orderId, updates) => {
  */
 export const cancelOrder = async (orderId) => {
   try {
-    const orderRef = doc(db, 'orders', orderId)
+    // Input validation
+    if (!orderId || typeof orderId !== 'string') {
+      throw new Error('Invalid order ID')
+    }
+    
+    const orderRef = doc(db, COLLECTIONS.ORDERS, orderId)
     
     await updateDoc(orderRef, {
-      status: 'cancelled',
+      status: ORDER_STATUS.CANCELLED,
       updatedAt: serverTimestamp()
     })
     
     return { success: true }
   } catch (error) {
-    console.error('Error cancelling order:', error)
+    errorHandler.error('Order could not be cancelled', error)
     return { success: false, error: error.message }
   }
 }

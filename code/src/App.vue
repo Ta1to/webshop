@@ -14,7 +14,6 @@
     <AppFooter
       :user="userProfile"
       :newsletter-loading="newsletterLoading"
-      @newsletter-toggle="handleNewsletterToggle"
     />
 
     <!-- Cookie Banner & Settings -->
@@ -86,17 +85,12 @@ export default {
         }
       }
 
-      // ← DAS stand vorher versehentlich in checkAdminStatus
       userProfile.value = {
         id: uid,
         email: currentUser.value?.email || '',
         displayName: currentUser.value?.displayName || '',
         newsletter: false
       }
-    }
-
-    const updateCartCount = async () => {
-      cartItemCount.value = await getCartItemCount()
     }
 
     const checkAdminStatus = async (user) => {
@@ -137,24 +131,33 @@ export default {
       observeAuthState(async (user) => {
         currentUser.value = user
         if (user) {
-          await checkAdminStatus(user)
-          await loadUserProfile(user.uid)
-          // Merge guest cart into user cart after login
-          await mergeGuestCart()
-          // Merge guest wishlist into user wishlist after login
-          await mergeGuestWishlist()
-          // Update cart count
-          await updateCartItems()
-          // Update wishlist
-          await updateWishlistItems()
+          // Run parallel tasks
+          await Promise.all([
+            checkAdminStatus(user),
+            loadUserProfile(user.uid)
+          ])
+          
+          // Merge guest data
+          await Promise.all([
+            mergeGuestCart(),
+            mergeGuestWishlist()
+          ])
+          
+          // Update UI state
+          await Promise.all([
+            updateCartItems(),
+            updateWishlistItems()
+          ])
         } else {
           isAdmin.value = false
           userProfile.value = null
           newsletterLoading.value = false
-          // Update cart count for guest
-          await updateCartItems()
-          // Update wishlist for guest
-          await updateWishlistItems()
+          
+          // Update UI state for guest
+          await Promise.all([
+            updateCartItems(),
+            updateWishlistItems()
+          ])
         }
       })
     })
@@ -168,35 +171,18 @@ export default {
       const result = await logoutUser()
       if (result.success) {
         currentUser.value = null
-        await updateCartItems() // Update cart count for guest after logout
-        await updateWishlistItems() // Update wishlist for guest after logout
         isAdmin.value = false
         userProfile.value = null
         newsletterLoading.value = false
+        
+        // Update UI state for guest after logout
+        await Promise.all([
+          updateCartItems(),
+          updateWishlistItems()
+        ])
+        
         router.push('/login')
       }
-    }
-
-    const handleNewsletterToggle = async (nextValue) => {
-      if (!currentUser.value) {
-        router.push('/login')
-        return
-      }
-
-      if (newsletterLoading.value) {
-        return
-      }
-
-      newsletterLoading.value = true
-      const result = await updateUserDocument(currentUser.value.uid, { newsletter: nextValue })
-
-      if (result.success) {
-        await loadUserProfile(currentUser.value.uid)
-      } else {
-        window.alert('Newsletter konnte nicht aktualisiert werden. Bitte versuchen Sie es erneut.')
-      }
-
-      newsletterLoading.value = false
     }
 
     const handleCookieAccepted = (preferences) => {
@@ -221,7 +207,6 @@ export default {
       showCookieSettings,
       cookieBannerRef,
       handleLogout,
-      handleNewsletterToggle,
       handleCookieAccepted,
       handleCookieSaved
     }

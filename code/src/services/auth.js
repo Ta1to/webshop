@@ -12,10 +12,22 @@ import {
 } from 'firebase/auth'
 import { auth } from './config'
 import { createUserDocument, updateUserDocument, getUserDocument } from './db'
+import { errorHandler } from './errorHandler'
+import { USER_ROLES, ERROR_MESSAGES } from '../constants'
+import { isValidEmail } from '../utils'
 
 // Register a new user
 export const registerUser = async (email, password, displayName) => {
   try {
+    // Input validation
+    if (!email || !isValidEmail(email)) {
+      return { success: false, error: ERROR_MESSAGES.INVALID_EMAIL }
+    }
+    
+    if (!password || password.length < 6) {
+      return { success: false, error: ERROR_MESSAGES.INVALID_PASSWORD }
+    }
+    
     const userCredential = await createUserWithEmailAndPassword(auth, email, password)
     
     // Update user profile with display name
@@ -33,13 +45,14 @@ export const registerUser = async (email, password, displayName) => {
       email: email,
       displayName: displayName || '',
       photoURL: userCredential.user.photoURL || '',
-      role: 'user', // Default role
+      role: USER_ROLES.USER, // Default role
       newsletter: true,
       emailVerified: false // Initial verification status
     })
     
     return { success: true, user: userCredential.user }
   } catch (error) {
+    errorHandler.error('Registration failed', error)
     return { success: false, error: error.message }
   }
 }
@@ -47,6 +60,15 @@ export const registerUser = async (email, password, displayName) => {
 // Login a user
 export const loginUser = async (email, password) => {
   try {
+    // Input validation
+    if (!email || !isValidEmail(email)) {
+      return { success: false, error: ERROR_MESSAGES.INVALID_EMAIL }
+    }
+    
+    if (!password) {
+      return { success: false, error: 'Password is required' }
+    }
+    
     const userCredential = await signInWithEmailAndPassword(auth, email, password)
     
     // Update emailVerified status in Firestore after login
@@ -57,6 +79,7 @@ export const loginUser = async (email, password) => {
     
     return { success: true, user: userCredential.user }
   } catch (error) {
+    errorHandler.error('Login failed', error)
     return { success: false, error: error.message }
   }
 }
@@ -81,7 +104,7 @@ export const signInWithGoogle = async () => {
         email: user.email,
         displayName: user.displayName || '',
         photoURL: user.photoURL || '',
-        role: 'user',
+        role: USER_ROLES.USER,
         newsletter: true,
         emailVerified: user.emailVerified
       })
@@ -95,6 +118,7 @@ export const signInWithGoogle = async () => {
     
     return { success: true, user: user }
   } catch (error) {
+    errorHandler.error('Google sign-in failed', error)
     return { success: false, error: error.message }
   }
 }
@@ -105,6 +129,7 @@ export const logoutUser = async () => {
     await signOut(auth)
     return { success: true }
   } catch (error) {
+    errorHandler.error('Logout failed', error)
     return { success: false, error: error.message }
   }
 }
@@ -190,7 +215,7 @@ export const updateUserProfile = async (profileUpdates = {}) => {
 
     return { success: true, user: auth.currentUser }
   } catch (error) {
-    console.error('Error updating user profile:', error)
+    errorHandler.error('Profile could not be updated', error)
     return { success: false, error: error.code || error.message }
   }
 }
@@ -211,7 +236,7 @@ export const sendVerificationEmail = async () => {
     await sendEmailVerification(user)
     return { success: true }
   } catch (error) {
-    console.error('Error sending verification email:', error)
+    errorHandler.error('Verification email could not be sent', error)
     return { success: false, error: error.code || error.message }
   }
 }
@@ -235,7 +260,7 @@ export const refreshEmailVerificationStatus = async () => {
 
     return { success: true, emailVerified: isVerified }
   } catch (error) {
-    console.error('Error refreshing verification status:', error)
+    errorHandler.error('Verification status could not be updated', error)
     return { success: false, error: error.code || error.message }
   }
 }

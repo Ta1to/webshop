@@ -1,9 +1,9 @@
 import { updateUserDocument, getUserDocument, getDocument } from './db'
 import { getCurrentUser } from './auth'
 import { getOfferByProductId } from './offers'
-
-const CART_COOKIE_NAME = 'webshop_cart'
-const CART_COOKIE_DAYS = 30
+import { CookieManager } from './cookieHelper'
+import { errorHandler } from './errorHandler'
+import { STORAGE, PRODUCT, COLLECTIONS } from '../constants'
 
 // Import the store update function (will be set to avoid circular dependency)
 let updateStoreCallback = null
@@ -21,44 +21,6 @@ export const registerCartUpdateCallback = (callback) => {
  * Cart items are stored as: { productId: string, quantity: number, addedAt: timestamp }
  * Product details are fetched separately when displaying the cart
  */
-
-// ==================== COOKIE HELPERS ====================
-
-/**
- * Set a cookie
- */
-const setCookie = (name, value, days) => {
-  const date = new Date()
-  date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000))
-  const expires = `expires=${date.toUTCString()}`
-  document.cookie = `${name}=${JSON.stringify(value)};${expires};path=/`
-}
-
-/**
- * Get a cookie
- */
-const getCookie = (name) => {
-  const nameEQ = `${name}=`
-  const cookies = document.cookie.split(';')
-  for (let i = 0; i < cookies.length; i++) {
-    let cookie = cookies[i].trim()
-    if (cookie.indexOf(nameEQ) === 0) {
-      try {
-        return JSON.parse(cookie.substring(nameEQ.length))
-      } catch (e) {
-        return null
-      }
-    }
-  }
-  return null
-}
-
-/**
- * Delete a cookie
- */
-const deleteCookie = (name) => {
-  document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/`
-}
 
 // ==================== CART OPERATIONS ====================
 
@@ -78,7 +40,7 @@ const getRawCart = async () => {
     return []
   } else {
     // Get cart from cookies
-    return getCookie(CART_COOKIE_NAME) || []
+    return CookieManager.get(STORAGE.CART_COOKIE_NAME) || []
   }
 }
 
@@ -108,7 +70,7 @@ export const getCart = async () => {
               finalPrice = productResult.data.price - discount
             }
           } catch (error) {
-            console.warn(`Error loading offer for product ${item.productId}:`, error)
+            errorHandler.warn(`Error loading offer for product ${item.productId}:`, error)
           }
           
           cartWithDetails.push({
@@ -130,7 +92,7 @@ export const getCart = async () => {
           invalidProductIds.push(item.productId)
         }
       } catch (error) {
-        console.warn(`Product ${item.productId} not found, skipping...`)
+        errorHandler.warn(`Product ${item.productId} not found, skipping...`)
         invalidProductIds.push(item.productId)
       }
     }
@@ -143,7 +105,7 @@ export const getCart = async () => {
 
     return cartWithDetails
   } catch (error) {
-    console.error('Error getting cart:', error)
+    errorHandler.error('Error getting cart:', error)
     return []
   }
 }
@@ -159,7 +121,7 @@ const saveCart = async (cart) => {
     await updateUserDocument(user.uid, { cart })
   } else {
     // Save to cookies
-    setCookie(CART_COOKIE_NAME, cart, CART_COOKIE_DAYS)
+    CookieManager.set(STORAGE.CART_COOKIE_NAME, cart, STORAGE.COOKIE_EXPIRY_DAYS)
   }
   
   // Notify store of cart update
@@ -175,6 +137,15 @@ const saveCart = async (cart) => {
  */
 export const addToCart = async (productId, quantity = 1) => {
   try {
+    // Input validation
+    if (!productId || typeof productId !== 'string') {
+      throw new Error('Invalid product ID')
+    }
+    
+    if (quantity < PRODUCT.MIN_QUANTITY || quantity > PRODUCT.MAX_QUANTITY) {
+      throw new Error(`Quantity must be between ${PRODUCT.MIN_QUANTITY} and ${PRODUCT.MAX_QUANTITY}`)
+    }
+    
     const rawCart = await getRawCart()
     
     // Check if product already exists in cart
@@ -182,7 +153,11 @@ export const addToCart = async (productId, quantity = 1) => {
     
     if (existingItemIndex > -1) {
       // Update quantity
-      rawCart[existingItemIndex].quantity += quantity
+      const newQuantity = rawCart[existingItemIndex].quantity + quantity
+      if (newQuantity > PRODUCT.MAX_QUANTITY) {
+        throw new Error(`Maximum quantity (${PRODUCT.MAX_QUANTITY}) exceeded`)
+      }
+      rawCart[existingItemIndex].quantity = newQuantity
       rawCart[existingItemIndex].updatedAt = new Date().toISOString()
     } else {
       // Add new item (only ID and quantity)
@@ -197,7 +172,7 @@ export const addToCart = async (productId, quantity = 1) => {
     await saveCart(rawCart)
     return { success: true }
   } catch (error) {
-    console.error('Error adding to cart:', error)
+    errorHandler.error('Product could not be added to cart', error)
     return { success: false, error: error.message }
   }
 }
@@ -209,6 +184,15 @@ export const addToCart = async (productId, quantity = 1) => {
  */
 export const updateCartItem = async (productId, quantity) => {
   try {
+    // Input validation
+    if (!productId || typeof productId !== 'string') {
+      throw new Error('Invalid product ID')
+    }
+    
+    if (quantity > PRODUCT.MAX_QUANTITY) {
+      throw new Error(`Maximum quantity (${PRODUCT.MAX_QUANTITY}) exceeded`)
+    }
+    
     const rawCart = await getRawCart()
     const itemIndex = rawCart.findIndex(item => item.productId === productId)
     
@@ -228,7 +212,7 @@ export const updateCartItem = async (productId, quantity) => {
     await saveCart(rawCart)
     return { success: true }
   } catch (error) {
-    console.error('Error updating cart item:', error)
+    errorHandler.error('Cart item could not be updated', error)
     return { success: false, error: error.message }
   }
 }
@@ -239,13 +223,17 @@ export const updateCartItem = async (productId, quantity) => {
  */
 export const removeFromCart = async (productId) => {
   try {
+    if (!productId || typeof productId !== 'string') {
+      throw new Error('Invalid product ID')
+    }
+    
     const rawCart = await getRawCart()
     const filteredCart = rawCart.filter(item => item.productId !== productId)
     
     await saveCart(filteredCart)
     return { success: true }
   } catch (error) {
-    console.error('Error removing from cart:', error)
+    errorHandler.error('Item could not be removed from cart', error)
     return { success: false, error: error.message }
   }
 }
@@ -258,7 +246,7 @@ export const clearCart = async () => {
     await saveCart([])
     return { success: true }
   } catch (error) {
-    console.error('Error clearing cart:', error)
+    errorHandler.error('Cart could not be cleared', error)
     return { success: false, error: error.message }
   }
 }
@@ -287,7 +275,7 @@ export const mergeGuestCart = async () => {
   const user = getCurrentUser()
   if (!user) return
   
-  const guestCart = getCookie(CART_COOKIE_NAME) || []
+  const guestCart = CookieManager.get(STORAGE.CART_COOKIE_NAME) || []
   if (guestCart.length === 0) return
   
   const userResult = await getUserDocument(user.uid)
@@ -311,7 +299,7 @@ export const mergeGuestCart = async () => {
   await updateUserDocument(user.uid, { cart: userCart })
   
   // Clear guest cart cookie
-  deleteCookie(CART_COOKIE_NAME)
+  CookieManager.delete(STORAGE.CART_COOKIE_NAME)
   
   // Notify store of cart update
   if (updateStoreCallback) {

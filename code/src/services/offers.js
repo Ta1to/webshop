@@ -18,22 +18,23 @@ import {
 } from 'firebase/firestore'
 import { db } from './config'
 import { Offer } from '../models/Offers'
-
-const COLLECTION_NAME = 'offers'
+import { errorHandler } from './errorHandler'
+import { COLLECTIONS } from '../constants'
+import { calculateDiscountPrice } from '../utils'
 
 /**
  * Get all offers
  */
 export const getAllOffers = async () => {
   try {
-    const offersRef = collection(db, COLLECTION_NAME)
+    const offersRef = collection(db, COLLECTIONS.OFFERS)
     const q = query(offersRef, orderBy('createdAt', 'desc'))
     const snapshot = await getDocs(q)
     
     return snapshot.docs.map(doc => Offer.fromFirestore(doc))
   } catch (error) {
-    console.error('Error fetching offers:', error)
-    throw error
+    errorHandler.error('Offers could not be loaded', error)
+    return []
   }
 }
 
@@ -55,8 +56,8 @@ export const getActiveOffers = async () => {
       return isStarted && isNotEnded
     })
   } catch (error) {
-    console.error('Error fetching active offers:', error)
-    throw error
+    errorHandler.error('Active offers could not be loaded', error)
+    return []
   }
 }
 
@@ -65,17 +66,22 @@ export const getActiveOffers = async () => {
  */
 export const getOfferById = async (offerId) => {
   try {
-    const offerRef = doc(db, COLLECTION_NAME, offerId)
+    // Input validation
+    if (!offerId || typeof offerId !== 'string') {
+      throw new Error('Invalid offer ID')
+    }
+    
+    const offerRef = doc(db, COLLECTIONS.OFFERS, offerId)
     const offerDoc = await getDoc(offerRef)
     
     if (!offerDoc.exists()) {
-      throw new Error('Offer not found')
+      return null
     }
     
     return Offer.fromFirestore(offerDoc)
   } catch (error) {
-    console.error('Error fetching offer:', error)
-    throw error
+    errorHandler.error('Offer could not be loaded', error)
+    return null
   }
 }
 
@@ -84,7 +90,12 @@ export const getOfferById = async (offerId) => {
  */
 export const getOfferByProductId = async (productId) => {
   try {
-    const offersRef = collection(db, COLLECTION_NAME)
+    // Input validation
+    if (!productId || typeof productId !== 'string') {
+      return null
+    }
+    
+    const offersRef = collection(db, COLLECTIONS.OFFERS)
     const q = query(offersRef, where('productId', '==', productId))
     const snapshot = await getDocs(q)
     
@@ -106,8 +117,8 @@ export const getOfferByProductId = async (productId) => {
       return isStarted && isNotEnded
     }) || null
   } catch (error) {
-    console.error('Error fetching offer by product ID:', error)
-    throw error
+    errorHandler.warn('Offer for product could not be loaded', error, { productId })
+    return null
   }
 }
 
@@ -116,22 +127,32 @@ export const getOfferByProductId = async (productId) => {
  */
 export const createOffer = async (offerData) => {
   try {
+    // Input validation
+    if (!offerData || typeof offerData !== 'object') {
+      throw new Error('Invalid offer data')
+    }
+    
+    if (!offerData.productId) {
+      throw new Error('Product ID is required')
+    }
+    
     const offer = new Offer({
       ...offerData,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
     })
     
-    const offersRef = collection(db, COLLECTION_NAME)
+    const offersRef = collection(db, COLLECTIONS.OFFERS)
     const docRef = await addDoc(offersRef, offer.toFirestore())
     
     return {
+      success: true,
       id: docRef.id,
       ...offerData
     }
   } catch (error) {
-    console.error('Error creating offer:', error)
-    throw error
+    errorHandler.error('Offer could not be created', error)
+    return { success: false, error: error.message }
   }
 }
 
@@ -140,7 +161,16 @@ export const createOffer = async (offerData) => {
  */
 export const updateOffer = async (offerId, offerData) => {
   try {
-    const offerRef = doc(db, COLLECTION_NAME, offerId)
+    // Input validation
+    if (!offerId || typeof offerId !== 'string') {
+      throw new Error('Invalid offer ID')
+    }
+    
+    if (!offerData || typeof offerData !== 'object') {
+      throw new Error('Invalid offer data')
+    }
+    
+    const offerRef = doc(db, COLLECTIONS.OFFERS, offerId)
     
     const updateData = {
       ...offerData,
@@ -150,12 +180,13 @@ export const updateOffer = async (offerId, offerData) => {
     await updateDoc(offerRef, updateData)
     
     return {
+      success: true,
       id: offerId,
       ...offerData
     }
   } catch (error) {
-    console.error('Error updating offer:', error)
-    throw error
+    errorHandler.error('Offer could not be updated', error)
+    return { success: false, error: error.message }
   }
 }
 
@@ -164,24 +195,19 @@ export const updateOffer = async (offerId, offerData) => {
  */
 export const deleteOffer = async (offerId) => {
   try {
-    const offerRef = doc(db, COLLECTION_NAME, offerId)
+    // Input validation
+    if (!offerId || typeof offerId !== 'string') {
+      throw new Error('Invalid offer ID')
+    }
+    
+    const offerRef = doc(db, COLLECTIONS.OFFERS, offerId)
     await deleteDoc(offerRef)
+    
+    return { success: true }
   } catch (error) {
-    console.error('Error deleting offer:', error)
-    throw error
+    errorHandler.error('Offer could not be deleted', error)
+    return { success: false, error: error.message }
   }
-}
-
-/**
- * Calculate discounted price
- */
-export const calculateDiscountedPrice = (originalPrice, discountPercentage) => {
-  if (!discountPercentage || discountPercentage <= 0) {
-    return originalPrice
-  }
-  
-  const discount = (originalPrice * discountPercentage) / 100
-  return Math.max(0, originalPrice - discount)
 }
 
 /**
@@ -189,6 +215,10 @@ export const calculateDiscountedPrice = (originalPrice, discountPercentage) => {
  */
 export const getProductsWithOffers = async (products) => {
   try {
+    if (!Array.isArray(products)) {
+      return []
+    }
+    
     const offers = await getActiveOffers()
     
     return products.map(product => {
@@ -199,14 +229,14 @@ export const getProductsWithOffers = async (products) => {
           ...product,
           offer,
           originalPrice: product.price,
-          price: calculateDiscountedPrice(product.price, offer.discountPercentage)
+          price: calculateDiscountPrice(product.price, offer.discountPercentage)
         }
       }
       
       return product
     })
   } catch (error) {
-    console.error('Error getting products with offers:', error)
-    return products
+    errorHandler.error('Products with offers could not be loaded', error)
+    return products || []
   }
 }

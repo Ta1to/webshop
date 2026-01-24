@@ -1,5 +1,7 @@
 import { storage } from './config'
 import { ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage'
+import { errorHandler } from './errorHandler'
+import { VALIDATION, UI } from '../constants'
 
 /**
  * Uploads an image file to Firebase Storage
@@ -10,15 +12,13 @@ import { ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from 'fi
 export async function uploadImage(file, folder = 'products') {
   try {
     // Validate file type
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif']
-    if (!validTypes.includes(file.type)) {
-      throw new Error('Ungültiger Dateityp. Nur JPEG, PNG, WebP und GIF sind erlaubt.')
+    if (!VALIDATION.ALLOWED_IMAGE_TYPES.includes(file.type)) {
+      throw new Error('Invalid file type. Only JPEG, PNG, WebP, and GIF are allowed.')
     }
 
     // Validate file size (max 5MB)
-    const maxSize = 5 * 1024 * 1024 // 5MB
-    if (file.size > maxSize) {
-      throw new Error('Datei ist zu groß. Maximum: 5MB')
+    if (file.size > VALIDATION.MAX_IMAGE_SIZE_BYTES) {
+      throw new Error(`File is too large. Maximum: ${VALIDATION.MAX_IMAGE_SIZE_MB}MB`)
     }
 
     // Generate unique filename
@@ -46,7 +46,7 @@ export async function uploadImage(file, folder = 'products') {
     
     return downloadURL
   } catch (error) {
-    console.error('Error uploading image:', error)
+    errorHandler.error('Image could not be uploaded', error)
     throw error
   }
 }
@@ -67,7 +67,7 @@ export async function deleteImage(imageUrl) {
     const imageRef = storageRef(storage, path)
     await deleteObject(imageRef)
   } catch (error) {
-    console.error('Error deleting image:', error)
+    errorHandler.warn('Image could not be deleted', error)
     // Don't throw - deletion errors shouldn't prevent other operations
   }
 }
@@ -84,8 +84,8 @@ export async function validateImageUrl(url) {
     img.onerror = () => resolve(false)
     img.src = url
     
-    // Timeout after 5 seconds
-    setTimeout(() => resolve(false), 5000)
+    // Timeout after configured seconds
+    setTimeout(() => resolve(false), UI.IMAGE_VALIDATION_TIMEOUT)
   })
 }
 

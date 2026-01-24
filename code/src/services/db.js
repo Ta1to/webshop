@@ -17,6 +17,7 @@ import { db } from './config'
 import { User } from '../models/User'
 import { Product } from '../models/Product'
 import { Order } from '../models/Order'
+import { errorHandler } from './errorHandler'
 
 // ==================== GENERIC CRUD OPERATIONS ====================
 
@@ -46,7 +47,7 @@ export const createDocument = async (collectionName, data, docId = null) => {
       return { success: true, id: docRef.id }
     }
   } catch (error) {
-    console.error(`Error creating document in ${collectionName}:`, error)
+    errorHandler.error(`Document in ${collectionName} could not be created`, error)
     return { success: false, error: error.message }
   }
 }
@@ -67,7 +68,7 @@ export const getDocument = async (collectionName, docId) => {
       return { success: false, error: 'Document not found' }
     }
   } catch (error) {
-    console.error(`Error getting document from ${collectionName}:`, error)
+    errorHandler.error(`Document from ${collectionName} could not be loaded`, error)
     return { success: false, error: error.message }
   }
 }
@@ -88,7 +89,7 @@ export const getAllDocuments = async (collectionName) => {
     
     return { success: true, data: documents }
   } catch (error) {
-    console.error(`Error getting all documents from ${collectionName}:`, error)
+    errorHandler.error(`Documents from ${collectionName} could not be loaded`, error)
     return { success: false, error: error.message }
   }
 }
@@ -108,7 +109,7 @@ export const updateDocument = async (collectionName, docId, data) => {
     })
     return { success: true }
   } catch (error) {
-    console.error(`Error updating document in ${collectionName}:`, error)
+    errorHandler.error(`Document in ${collectionName} could not be updated`, error)
     return { success: false, error: error.message }
   }
 }
@@ -124,7 +125,7 @@ export const deleteDocument = async (collectionName, docId) => {
     await deleteDoc(docRef)
     return { success: true }
   } catch (error) {
-    console.error(`Error deleting document from ${collectionName}:`, error)
+    errorHandler.error(`Document from ${collectionName} could not be deleted`, error)
     return { success: false, error: error.message }
   }
 }
@@ -168,7 +169,7 @@ export const queryDocuments = async (collectionName, conditions = [], orderByFie
     
     return { success: true, data: documents }
   } catch (error) {
-    console.error(`Error querying documents from ${collectionName}:`, error)
+    errorHandler.error(`Documents from ${collectionName} could not be queried`, error)
     return { success: false, error: error.message }
   }
 }
