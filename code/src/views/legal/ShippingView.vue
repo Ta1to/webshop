@@ -96,12 +96,12 @@
         </div>
       </section>
 
-      <section class="card highlight">
+      <section class="card highlight tracking-card">
         <h2>Tracking & Benachrichtigungen</h2>
         <div class="benefits">
           <div class="benefit">
             <Bell :size="18" />
-            <p>Live-Status per Mail oder Push in der App mit jeder Statusänderung.</p>
+            <p>Live-Status per Mail mit jeder Statusänderung.</p>
           </div>
           <div class="benefit">
             <MapPin :size="18" />
@@ -113,7 +113,7 @@
           </div>
         </div>
         <p class="note">
-          Tipp: Aktivieren Sie im Kundenkonto die SMS-Benachrichtigung. So informieren wir Sie auch unterwegs über Abweichungen.
+          Tipp: Aktivieren Sie im Profile die Benachrichtigung. So informieren wir Sie auch unterwegs über Abweichungen.
         </p>
       </section>
     </div>
@@ -207,18 +207,24 @@ export default {
 
 .shipping-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: 2rem;
+}
+
+@media (max-width: 900px) {
+  .shipping-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .card {
   background: var(--white);
   border: 1px solid var(--gray-200);
   border-radius: 18px;
-  padding: 2rem;
+  padding: 1.75rem;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.25rem;
   box-shadow: 0 10px 20px rgba(15, 23, 42, 0.04);
 }
 
@@ -274,7 +280,8 @@ export default {
 
 .shipping-table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   border: 1px solid var(--gray-200);
   border-radius: 14px;
   overflow: hidden;
@@ -283,19 +290,39 @@ export default {
 
 .shipping-table th,
 .shipping-table td {
-  padding: 0.85rem 1rem;
+  padding: 0.75rem 0.85rem;
   text-align: left;
   border-bottom: 1px solid var(--gray-200);
+  font-size: 0.9rem;
 }
 
-.shipping-table th {
+.shipping-table thead th {
   background: var(--gray-100);
   font-weight: 600;
   color: var(--gray-800);
+  white-space: nowrap;
 }
 
-.shipping-table tr:last-child td {
+.shipping-table tbody tr:hover {
+  background: var(--gray-50);
+}
+
+.shipping-table tbody tr:last-child td {
   border-bottom: none;
+}
+
+.shipping-table td:nth-child(2),
+.shipping-table td:nth-child(3),
+.shipping-table td:nth-child(4),
+.shipping-table th:nth-child(2),
+.shipping-table th:nth-child(3),
+.shipping-table th:nth-child(4) {
+  text-align: right;
+}
+
+.shipping-table td:first-child,
+.shipping-table th:first-child {
+  font-weight: 500;
 }
 
 .table-note {
@@ -346,6 +373,10 @@ export default {
 .highlight {
   background: var(--primary-green-lighter);
   border: 1px solid var(--primary-green);
+}
+
+.tracking-card {
+  align-self: start;
 }
 
 .benefits {

@@ -35,10 +35,9 @@
           <h3 class="section-title">Schnelllinks</h3>
           <ul class="footer-links">
             <li><router-link to="/" class="footer-link">Home</router-link></li>
-            <li><router-link to="/products" class="footer-link">Alle Produkte</router-link></li>
             <li><router-link to="/categories" class="footer-link">Kategorien</router-link></li>
-            <li><router-link to="/deals" class="footer-link">Angebote</router-link></li>
-            <li><router-link to="/new-arrivals" class="footer-link">Neuheiten</router-link></li>
+            <li><router-link to="/cart" class="footer-link">Warenkorb</router-link></li>
+            <li><router-link to="/wishlist" class="footer-link">Wunschliste</router-link></li>
           </ul>
         </div>
 
@@ -54,13 +53,10 @@
           </ul>
         </div>
 
-        <!-- Legal & Account -->
+        <!-- Legal -->
         <div class="footer-section">
           <h3 class="section-title">Rechtliches</h3>
           <ul class="footer-links">
-            <li><router-link to="/profile" class="footer-link">Mein Konto</router-link></li>
-            <li><router-link to="/orders" class="footer-link">Bestellungen</router-link></li>
-            <li><router-link to="/wishlist" class="footer-link">Wunschliste</router-link></li>
             <li><router-link to="/privacy" class="footer-link">Datenschutz</router-link></li>
             <li><router-link to="/cookies" class="footer-link">Cookies</router-link></li>
             <li><router-link to="/terms" class="footer-link">AGB</router-link></li>
@@ -109,7 +105,6 @@
             © {{ currentYear }} evaris. Alle Rechte vorbehalten.
           </p>
           <div class="footer-bottom-links">
-            <router-link to="/sitemap" class="bottom-link">Sitemap</router-link>
             <a href="#top" class="bottom-link back-to-top" @click="scrollToTop">
               <span>Nach oben</span>
               <ArrowUp :size="16" />
