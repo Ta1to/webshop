@@ -161,9 +161,9 @@ import {
     getAllOffers, 
     createOffer, 
     updateOffer, 
-    deleteOffer,
-    calculateDiscountedPrice as calcPrice
+    deleteOffer
 } from '../../services/offers'
+import { calculateDiscountPrice } from '../../utils'
 import { getAllProducts, createProduct } from '../../services/db'
 
 // State
@@ -237,7 +237,7 @@ const formatDate = (dateString) => {
 const calculateDiscountedPrice = (offer) => {
     const product = getProductById(offer.productId)
     if (!product) return 0
-    return calcPrice(product.price, offer.discountPercentage)
+    return calculateDiscountPrice(product.price, offer.discountPercentage)
 }
 
 // Get offer status
