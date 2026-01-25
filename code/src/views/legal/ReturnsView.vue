@@ -218,10 +218,13 @@ export default {
   justify-content: center;
   width: 36px;
   height: 36px;
+  min-width: 36px;
   border-radius: 50%;
   background: var(--primary-green);
   color: var(--white);
   font-weight: 600;
+  font-size: 0.85rem;
+  flex-shrink: 0;
 }
 
 .process-steps h3 {
