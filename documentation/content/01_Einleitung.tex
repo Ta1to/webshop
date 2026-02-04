@@ -1,4 +1,59 @@
 %!TEX root = ../main.tex
 \chapter{Einleitung}
+\label{ch:einleitung}
 
-Das ist die Einleitung.
+Der elektronische Handel hat sich in den vergangenen zwei Jahrzehnten von einer technologischen Nische zu einem zentralen Bestandteil der globalen Wirtschaft entwickelt. Mit einem weltweiten Umsatz von über fünf Billionen US-Dollar im Jahr 2024 und prognostizierten Wachstumsraten von jährlich acht bis zehn Prozent stellt der E-Commerce einen der dynamischsten Wirtschaftssektoren dar \cite{heinemann2024}. Diese Entwicklung wird durch veränderte Konsumgewohnheiten, die zunehmende Digitalisierung aller Lebensbereiche sowie technologische Innovationen im Bereich der Webentwicklung vorangetrieben.
+
+Für Unternehmen jeder Größenordnung ist eine professionelle Online-Präsenz mit integrierten Verkaufsfunktionen längst keine Option mehr, sondern eine strategische Notwendigkeit. Die Realisierung eines funktionsfähigen Webshops erfordert dabei ein tiefgreifendes Verständnis verschiedener Technologien, von der Frontend-Entwicklung über Backend-Systeme bis hin zu Zahlungsabwicklung und Sicherheitsaspekten.
+
+\section{Motivation und Problemstellung}
+\label{sec:motivation}
+
+Die Implementierung eines E-Commerce-Systems stellt Entwickler vor vielfältige Herausforderungen. Traditionell mussten Online-Shops mit komplexen Backend-Infrastrukturen realisiert werden, die einen erheblichen Entwicklungs- und Wartungsaufwand erforderten. Eigene Server mussten administriert, Datenbanken gepflegt und Skalierungsprobleme bei steigenden Nutzerzahlen bewältigt werden. Diese Komplexität führte dazu, dass insbesondere kleinere Unternehmen und Einzelentwickler häufig auf vorgefertigte Shop-Systeme wie Shopify, WooCommerce oder Magento zurückgriffen.
+
+Diese etablierten Lösungen bieten zwar einen schnellen Einstieg in den Online-Handel, bringen jedoch eigene Limitierungen mit sich. Die Abhängigkeit von proprietären Plattformen schränkt die Flexibilität bei der Anpassung von Geschäftslogik und Benutzeroberfläche ein. Monatliche Lizenzgebühren und Transaktionskosten summieren sich über die Zeit zu erheblichen Beträgen. Zudem ist der Zugriff auf die zugrundeliegenden Datenstrukturen oft eingeschränkt, was die Integration mit externen Systemen erschwert.
+
+In den letzten Jahren haben sich jedoch neue Ansätze etabliert, die einen Mittelweg zwischen vollständiger Eigenentwicklung und der Nutzung fertiger Shop-Systeme ermöglichen. Backend-as-a-Service (BaaS) Plattformen wie Firebase von Google bieten fertige Infrastrukturkomponenten für Authentifizierung, Datenhaltung und Dateispeicherung, die über standardisierte APIs angesprochen werden können. In Kombination mit modernen JavaScript-Frameworks für die Frontend-Entwicklung lassen sich so maßgeschneiderte E-Commerce-Lösungen realisieren, ohne die Last der Server-Administration tragen zu müssen.
+Diese Arbeit untersucht die Praktikabilität dieses Ansatzes anhand der konkreten Implementierung eines funktionsfähigen Webshops. Als thematische Ausrichtung wurde ein Shop für nachhaltige Produkte gewählt, wobei der inhaltliche Fokus der Arbeit auf der technischen Umsetzung liegt und nicht auf der spezifischen Branche oder dem Produktsortiment.
+
+\section{Zielsetzung der Arbeit}
+\label{sec:zielsetzung}
+
+Das primäre Ziel dieser Studienarbeit ist die Konzeption und Entwicklung eines voll funktionsfähigen E-Commerce-Webshops unter Verwendung moderner Webtechnologien. Der zu entwickelnde Prototyp soll alle wesentlichen Funktionen eines zeitgemäßen Online-Shops abbilden und die Eignung der gewählten Technologiekombination aus Vue.js und Firebase für derartige Anwendungen demonstrieren.
+
+Im Einzelnen werden folgende Teilziele verfolgt:
+
+\begin{itemize}
+    \item \textbf{Benutzerverwaltung:} Implementierung eines vollständigen Authentifizierungssystems mit Registrierung, Anmeldung und Profilverwaltung. Benutzer sollen ihre persönlichen Daten verwalten und ihre Bestellhistorie einsehen können.
+    
+    \item \textbf{Produktkatalog:} Entwicklung eines übersichtlichen Produktkatalogs mit Kategorisierung, Suchfunktion und Filtermöglichkeiten. Die Verfügbarkeit der Artikel soll in Echtzeit angezeigt werden.
+    
+    \item \textbf{Warenkorb und Bestellprozess:} Realisierung eines persistenten Warenkorbs, der auch nach Schließen des Browsers erhalten bleibt, sowie eines mehrstufigen Checkout-Prozesses zur Bestellabwicklung.
+    
+    \item \textbf{Angebots- und Rabattsystem:} Integration zeitlich begrenzter Sonderangebote und Rabattaktionen zur Verkaufsförderung.
+    
+    \item \textbf{Administrationsbereich:} Bereitstellung einer geschützten Administrationsoberfläche für die Verwaltung von Produkten, Kategorien, Bestellungen und Benutzerkonten.
+    
+    \item \textbf{Responsive Design:} Gewährleistung einer optimalen Darstellung und Bedienbarkeit auf verschiedenen Endgeräten, von Smartphones über Tablets bis hin zu Desktop-Computern.
+\end{itemize}
+
+Neben der reinen Implementierung verfolgt die Arbeit das Ziel, die getroffenen Architekturentscheidungen und technischen Lösungsansätze nachvollziehbar zu dokumentieren. Dies umfasst sowohl die Evaluierung der verwendeten Technologien als auch die kritische Reflexion des gewählten Vorgehens. Abschließend soll durch systematische Tests die Funktionsfähigkeit und Zuverlässigkeit der entwickelten Anwendung nachgewiesen werden.
+
+\section{Aufbau der Arbeit}
+\label{sec:aufbau}
+
+Die vorliegende Arbeit gliedert sich in acht Kapitel, die den gesamten Entwicklungsprozess von den theoretischen Grundlagen bis zur finalen Evaluation abdecken.
+
+\textbf{Kapitel 2} legt die theoretischen Grundlagen für die weitere Arbeit. Es werden zunächst grundlegende Konzepte des E-Commerce erläutert und die Anforderungen an moderne Online-Shop-Systeme dargestellt. Anschließend erfolgt eine Einführung in die verwendeten Frontend-Technologien mit Fokus auf das JavaScript-Framework Vue.js. Den Abschluss bildet eine Betrachtung von Backend-as-a-Service-Konzepten und der spezifischen Dienste, die Firebase für die Entwicklung von Webanwendungen bereitstellt.
+
+\textbf{Kapitel 3} beschreibt das methodische Vorgehen bei der Entwicklung des Webshops. Das gewählte Vorgehensmodell wird vorgestellt und begründet. Eine systematische Anforderungsanalyse erfasst sowohl funktionale als auch nicht-funktionale Anforderungen an das System. Darauf aufbauend wird die konzeptionelle Architektur der Anwendung entwickelt und dokumentiert.
+
+\textbf{Kapitel 4} bildet den Kern der Arbeit und dokumentiert die praktische Implementierung des Webshops. Ausgehend von der Projektstruktur und dem grundlegenden Frontend-Gerüst wird schrittweise die Integration der Firebase-Dienste beschrieben. Die einzelnen Abschnitte behandeln das Authentifizierungssystem, den Produktkatalog mit Such- und Filterfunktionen, den Warenkorb mit Bestellprozess, das Angebotssystem sowie den Administrationsbereich.
+
+\textbf{Kapitel 5} widmet sich dem Deployment der Anwendung und der Einrichtung einer CI/CD-Pipeline. Die Konfiguration des Firebase Hostings wird erläutert und der automatisierte Build- und Deployment-Prozess beschrieben.
+
+\textbf{Kapitel 6} behandelt das Testing und die Qualitätssicherung der entwickelten Anwendung. Das Testkonzept wird vorgestellt und die durchgeführten Tests dokumentiert. Dies umfasst sowohl funktionale Tests der einzelnen Komponenten als auch die Überprüfung auf verschiedenen Endgeräten und Browsern.
+
+\textbf{Kapitel 7} evaluiert die Ergebnisse der Arbeit und diskutiert diese kritisch. Der gewählte Ansatz wird mit alternativen Lösungsmöglichkeiten verglichen und die Stärken sowie Schwächen der Implementierung werden analysiert.
+
+\textbf{Kapitel 8} fasst die wesentlichen Erkenntnisse der Arbeit zusammen und gibt einen Ausblick auf mögliche Erweiterungen und Verbesserungen des entwickelten Systems.

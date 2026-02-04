@@ -1,0 +1,438 @@
+%!TEX root = ../main.tex
+\chapter{Methodik}
+\label{ch:methodik}
+
+Dieses Kapitel beschreibt das methodische Vorgehen bei der Entwicklung des Webshops. Es werden das gewählte Vorgehensmodell, die durchgeführte Anforderungsanalyse sowie die daraus resultierende Konzeption und Architektur der Anwendung vorgestellt.
+
+\section{Vorgehensmodell}
+\label{sec:vorgehensmodell}
+
+\subsection{Auswahl des Vorgehensmodells}
+\label{subsec:vorgehensmodell-auswahl}
+
+Für die Entwicklung des Webshops wurde ein iterativ-inkrementelles Vorgehensmodell gewählt, das Elemente aus agilen Methoden mit einer strukturierten Projektplanung kombiniert. Diese Entscheidung basiert auf mehreren Faktoren:
+
+\textbf{Projektcharakteristik:} Als Studienarbeit mit definiertem Zeitrahmen und bekanntem Funktionsumfang eignet sich ein hybrides Vorgehen, das Flexibilität bei gleichzeitiger Planbarkeit bietet.
+
+\textbf{Teamgröße:} Mit zwei Entwicklern ist ein schlankes Vorgehensmodell ohne übermäßigen Verwaltungsaufwand sinnvoll.
+
+\textbf{Technologische Unsicherheit:} Die Verwendung von Firebase als relativ neuer Technologie erfordert Raum für Experimente und iterative Verbesserungen.
+
+\textbf{Anforderungsstabilität:} Die grundlegenden Anforderungen an einen Webshop sind etabliert und stabil, was längerfristige Planung ermöglicht.
+
+\subsection{Projektphasen}
+\label{subsec:projektphasen}
+
+Das Projekt wurde in acht Meilensteine gegliedert, die über einen Zeitraum von 36 Wochen bearbeitet wurden:
+
+\begin{table}[H]
+\centering
+\begin{tabularx}{\textwidth}{|c|X|c|}
+\hline
+\textbf{Nr.} & \textbf{Meilenstein} & \textbf{Zeitraum} \\
+\hline
+1 & Konzeption und Technologieauswahl & Wochen 1--4 \\
+\hline
+2 & Frontend-Gerüst und Basisstruktur & Wochen 5--8 \\
+\hline
+3 & Authentifizierung und Benutzerverwaltung & Wochen 9--11 \\
+\hline
+4 & Produktkatalog und Suchfunktion & Wochen 12--15 \\
+\hline
+5 & Warenkorb und Checkout & Wochen 16--18 \\
+\hline
+6 & Administrationsbereich & Wochen 19--22 \\
+\hline
+7 & Deployment und CI/CD & Wochen 23--26 \\
+\hline
+8 & Testing und Dokumentation & Wochen 27--36 \\
+\hline
+\end{tabularx}
+\caption{Meilensteine und Zeitplanung}
+\label{tab:meilensteine}
+\end{table}
+
+Die Meilensteine wurden so strukturiert, dass aufeinander aufbauende Funktionalitäten sequentiell entwickelt werden. Beispielsweise setzt der Warenkorb eine funktionierende Produktansicht voraus, und der Checkout erfordert ein implementiertes Authentifizierungssystem.
+
+\subsection{Entwicklungspraktiken}
+\label{subsec:entwicklungspraktiken}
+
+Im Rahmen des Projekts wurden verschiedene Entwicklungspraktiken angewendet:
+
+\textbf{Versionskontrolle:} Der gesamte Quellcode wird in einem Git-Repository verwaltet. Dies ermöglicht die Nachverfolgung von Änderungen, parallele Entwicklung durch Branching und die Möglichkeit, auf frühere Versionen zurückzugreifen \cite{chacon2014}.
+
+\textbf{Kontinuierliche Integration:} Änderungen werden regelmäßig in den Hauptentwicklungszweig integriert und automatisch gebaut. Dies ermöglicht die frühzeitige Erkennung von Integrationsproblemen.
+
+\textbf{Code-Reviews:} Vor der Integration in den Hauptzweig werden Änderungen von beiden Teammitgliedern geprüft. Dies verbessert die Codequalität und fördert den Wissensaustausch.
+
+\textbf{Dokumentation:} Relevante Entscheidungen und Implementierungsdetails werden fortlaufend dokumentiert. Dies umfasst sowohl Inline-Kommentare im Code als auch separate Dokumentation für komplexere Konzepte.
+
+\section{Anforderungsanalyse}
+\label{sec:anforderungsanalyse}
+
+Die Anforderungsanalyse bildet die Grundlage für die Entwicklung des Webshops. Sie unterscheidet zwischen funktionalen Anforderungen, die beschreiben was das System tun soll, und nicht-funktionalen Anforderungen, die beschreiben wie das System seine Aufgaben erfüllen soll.
+
+\subsection{Funktionale Anforderungen}
+\label{subsec:funktionale-anforderungen}
+
+Die funktionalen Anforderungen wurden auf Basis einer Analyse typischer E-Commerce-Systeme sowie der in der Disposition definierten Projektziele erhoben.
+
+\subsubsection{Benutzerverwaltung}
+
+\begin{table}[H]
+\centering
+\begin{tabularx}{\textwidth}{|c|X|c|}
+\hline
+\textbf{ID} & \textbf{Anforderung} & \textbf{Priorität} \\
+\hline
+FA-01 & Benutzer können sich mit E-Mail und Passwort registrieren & Muss \\
+\hline
+FA-02 & Benutzer können sich anmelden und abmelden & Muss \\
+\hline
+FA-03 & Benutzer können ihr Passwort zurücksetzen & Muss \\
+\hline
+FA-04 & Benutzer können ihre Profildaten einsehen und bearbeiten & Muss \\
+\hline
+FA-05 & Benutzer können ihre Bestellhistorie einsehen & Muss \\
+\hline
+FA-06 & Benutzer können ihr Konto löschen & Soll \\
+\hline
+\end{tabularx}
+\caption{Funktionale Anforderungen: Benutzerverwaltung}
+\label{tab:fa-benutzer}
+\end{table}
+
+\subsubsection{Produktkatalog}
+
+\begin{table}[H]
+\centering
+\begin{tabularx}{\textwidth}{|c|X|c|}
+\hline
+\textbf{ID} & \textbf{Anforderung} & \textbf{Priorität} \\
+\hline
+FA-10 & Produkte werden mit Bild, Titel, Beschreibung und Preis angezeigt & Muss \\
+\hline
+FA-11 & Produkte sind in Kategorien organisiert & Muss \\
+\hline
+FA-12 & Benutzer können Produkte nach Kategorien filtern & Muss \\
+\hline
+FA-13 & Benutzer können Produkte über eine Suchfunktion finden & Muss \\
+\hline
+FA-14 & Die Verfügbarkeit von Produkten wird angezeigt & Muss \\
+\hline
+FA-15 & Benutzer können Produktdetails auf einer separaten Seite ansehen & Soll \\
+\hline
+FA-16 & Benutzer können Produkte auf eine Wunschliste setzen & Kann \\
+\hline
+\end{tabularx}
+\caption{Funktionale Anforderungen: Produktkatalog}
+\label{tab:fa-produkte}
+\end{table}
+
+\subsubsection{Warenkorb und Bestellung}
+
+\begin{table}[H]
+\centering
+\begin{tabularx}{\textwidth}{|c|X|c|}
+\hline
+\textbf{ID} & \textbf{Anforderung} & \textbf{Priorität} \\
+\hline
+FA-20 & Benutzer können Produkte zum Warenkorb hinzufügen & Muss \\
+\hline
+FA-21 & Benutzer können die Menge im Warenkorb ändern & Muss \\
+\hline
+FA-22 & Benutzer können Produkte aus dem Warenkorb entfernen & Muss \\
+\hline
+FA-23 & Der Warenkorb zeigt Zwischensumme und Gesamtpreis & Muss \\
+\hline
+FA-24 & Angemeldete Benutzer können den Checkout-Prozess starten & Muss \\
+\hline
+FA-25 & Im Checkout werden Lieferadresse und Zahlungsart erfasst & Muss \\
+\hline
+FA-26 & Nach Bestellabschluss erhält der Benutzer eine Bestätigung & Muss \\
+\hline
+FA-27 & Der Warenkorb bleibt auch nach Schließen des Browsers erhalten & Soll \\
+\hline
+\end{tabularx}
+\caption{Funktionale Anforderungen: Warenkorb und Bestellung}
+\label{tab:fa-warenkorb}
+\end{table}
+
+\subsubsection{Angebotssystem}
+
+\begin{table}[H]
+\centering
+\begin{tabularx}{\textwidth}{|c|X|c|}
+\hline
+\textbf{ID} & \textbf{Anforderung} & \textbf{Priorität} \\
+\hline
+FA-30 & Administratoren können zeitlich begrenzte Angebote erstellen & Soll \\
+\hline
+FA-31 & Angebote können prozentuale oder absolute Rabatte definieren & Soll \\
+\hline
+FA-32 & Aktive Angebote werden auf der Startseite hervorgehoben & Soll \\
+\hline
+FA-33 & Rabatte werden automatisch im Warenkorb angewendet & Soll \\
+\hline
+\end{tabularx}
+\caption{Funktionale Anforderungen: Angebotssystem}
+\label{tab:fa-angebote}
+\end{table}
+
+\subsubsection{Administration}
+
+\begin{table}[H]
+\centering
+\begin{tabularx}{\textwidth}{|c|X|c|}
+\hline
+\textbf{ID} & \textbf{Anforderung} & \textbf{Priorität} \\
+\hline
+FA-40 & Der Administrationsbereich ist durch Authentifizierung geschützt & Muss \\
+\hline
+FA-41 & Administratoren können Produkte erstellen, bearbeiten und löschen & Muss \\
+\hline
+FA-42 & Administratoren können Kategorien verwalten & Muss \\
+\hline
+FA-43 & Administratoren können Bestellungen einsehen und deren Status ändern & Muss \\
+\hline
+FA-44 & Administratoren können Lagerbestände aktualisieren & Muss \\
+\hline
+FA-45 & Administratoren können Benutzerkonten einsehen und löschen & Soll \\
+\hline
+FA-46 & Administratoren können Angebote erstellen und verwalten & Soll \\
+\hline
+\end{tabularx}
+\caption{Funktionale Anforderungen: Administration}
+\label{tab:fa-admin}
+\end{table}
+
+\subsection{Nicht-funktionale Anforderungen}
+\label{subsec:nichtfunktionale-anforderungen}
+
+Nicht-funktionale Anforderungen definieren Qualitätsmerkmale des Systems:
+
+\begin{table}[H]
+\centering
+\begin{tabularx}{\textwidth}{|c|X|c|}
+\hline
+\textbf{ID} & \textbf{Anforderung} & \textbf{Kategorie} \\
+\hline
+NFA-01 & Die Anwendung lädt initial innerhalb von 3 Sekunden & Performance \\
+\hline
+NFA-02 & Die Anwendung funktioniert auf aktuellen Versionen von Chrome, Firefox, Safari und Edge & Kompatibilität \\
+\hline
+NFA-03 & Die Anwendung ist auf Bildschirmen von 320px bis 2560px Breite nutzbar & Responsivität \\
+\hline
+NFA-04 & Alle Datenübertragungen erfolgen verschlüsselt (HTTPS) & Sicherheit \\
+\hline
+NFA-05 & Passwörter werden gemäß aktueller Standards gehasht gespeichert & Sicherheit \\
+\hline
+NFA-06 & Die Anwendung entspricht den Anforderungen der DSGVO & Compliance \\
+\hline
+NFA-07 & Der Code folgt einheitlichen Formatierungs- und Namenskonventionen & Wartbarkeit \\
+\hline
+NFA-08 & Die Anwendung ist ohne JavaScript-Kenntnisse bedienbar & Benutzerfreundlichkeit \\
+\hline
+\end{tabularx}
+\caption{Nicht-funktionale Anforderungen}
+\label{tab:nfa}
+\end{table}
+
+\subsection{Abgrenzung}
+\label{subsec:abgrenzung}
+
+Zur Eingrenzung des Projektumfangs wurden bewusst bestimmte Funktionalitäten ausgeschlossen:
+
+\begin{itemize}
+    \item \textbf{Echte Zahlungsabwicklung:} Die Integration eines Zahlungsdienstleisters wie PayPal oder Stripe ist nicht Teil des Prototyps. Der Checkout-Prozess simuliert die Zahlungserfassung.
+    
+    \item \textbf{Versandintegration:} Eine Anbindung an Versanddienstleister zur Sendungsverfolgung ist nicht vorgesehen.
+    
+    \item \textbf{Mehrsprachigkeit:} Die Anwendung wird ausschließlich in deutscher Sprache entwickelt.
+    
+    \item \textbf{Produktbewertungen:} Ein System für Kundenbewertungen und -rezensionen ist nicht Teil des Projektumfangs.
+    
+    \item \textbf{Newsletter:} Eine Newsletter-Funktionalität mit E-Mail-Marketing ist nicht vorgesehen.
+\end{itemize}
+
+Diese Abgrenzungen ermöglichen die Fokussierung auf die Kernfunktionalitäten eines E-Commerce-Systems im gegebenen Zeitrahmen.
+
+\section{Konzeption und Architektur}
+\label{sec:konzeption-architektur}
+
+Basierend auf den erhobenen Anforderungen wurde die Architektur des Webshops konzipiert. Dieser Abschnitt beschreibt die gewählte Systemarchitektur, die Datenbankstruktur und die Komponentenarchitektur des Frontends.
+
+\subsection{Systemarchitektur}
+\label{subsec:systemarchitektur}
+
+Die Anwendung folgt einer Client-Server-Architektur, bei der das Frontend als Single Page Application im Browser des Benutzers ausgeführt wird und über APIs mit den Firebase-Backend-Diensten kommuniziert.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    box/.style={rectangle, draw, minimum width=3cm, minimum height=1cm, align=center},
+    arrow/.style={->, >=stealth, thick}
+]
+    % Client
+    \node[box, fill=blue!20] (client) at (0,0) {Vue.js\\Frontend};
+    
+    % Firebase Services
+    \node[box, fill=orange!20] (auth) at (5,2) {Firebase\\Authentication};
+    \node[box, fill=orange!20] (firestore) at (5,0) {Cloud\\Firestore};
+    \node[box, fill=orange!20] (storage) at (5,-2) {Firebase\\Storage};
+    \node[box, fill=orange!20] (functions) at (9,0) {Cloud\\Functions};
+    
+    % Hosting
+    \node[box, fill=green!20] (hosting) at (0,-3) {Firebase\\Hosting};
+    
+    % Arrows
+    \draw[arrow] (client) -- (auth);
+    \draw[arrow] (client) -- (firestore);
+    \draw[arrow] (client) -- (storage);
+    \draw[arrow] (firestore) -- (functions);
+    \draw[arrow] (hosting) -- (client) node[midway, right] {liefert};
+    
+\end{tikzpicture}
+\caption{Systemarchitektur des Webshops}
+\label{fig:systemarchitektur}
+\end{figure}
+
+Die Architektur zeichnet sich durch folgende Merkmale aus:
+
+\textbf{Lose Kopplung:} Frontend und Backend-Dienste kommunizieren ausschließlich über definierte APIs. Dies ermöglicht unabhängige Weiterentwicklung und einfachen Austausch einzelner Komponenten.
+
+\textbf{Zustandslosigkeit:} Der Server speichert keinen Client-Zustand zwischen Anfragen. Session-Informationen werden im Client verwaltet, Authentifizierungstoken werden bei jeder Anfrage mitgesendet.
+
+\textbf{Ereignisgesteuert:} Änderungen in der Datenbank können Cloud Functions auslösen, die serverseitige Logik ausführen. Dies ermöglicht reaktive Verarbeitung ohne aktives Polling.
+
+\subsection{Datenbankstruktur}
+\label{subsec:datenbankstruktur}
+
+Cloud Firestore organisiert Daten in Dokumenten und Collections. Für den Webshop wurden folgende Haupt-Collections definiert:
+
+\textbf{users:} Speichert Benutzerdaten wie Name, E-Mail, Adresse und Rolle. Die Dokument-ID entspricht der Firebase Auth UID.
+
+\textbf{products:} Enthält alle Produktinformationen einschließlich Name, Beschreibung, Preis, Kategorie und Lagerbestand. Produktbilder werden als URLs zu Firebase Storage gespeichert.
+
+\textbf{categories:} Definiert die verfügbaren Produktkategorien mit Name und optionaler Beschreibung.
+
+\textbf{orders:} Speichert Bestellungen mit Referenz zum Benutzer, bestellten Produkten, Gesamtbetrag, Lieferadresse und Bestellstatus.
+
+\textbf{offers:} Enthält Sonderangebote mit Gültigkeitszeitraum, Rabatttyp und -höhe sowie Referenzen zu betroffenen Produkten.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    collection/.style={rectangle, draw, fill=blue!10, minimum width=2.5cm, minimum height=0.8cm},
+    field/.style={rectangle, draw, fill=gray!10, minimum width=2.5cm, minimum height=0.5cm, font=\small},
+    arrow/.style={->, >=stealth}
+]
+    % Users Collection
+    \node[collection] (users) at (0,0) {users};
+    \node[field, below=0.1cm of users] (u1) {email};
+    \node[field, below=0.1cm of u1] (u2) {displayName};
+    \node[field, below=0.1cm of u2] (u3) {role};
+    \node[field, below=0.1cm of u3] (u4) {address};
+    
+    % Products Collection
+    \node[collection] (products) at (4,0) {products};
+    \node[field, below=0.1cm of products] (p1) {name};
+    \node[field, below=0.1cm of p1] (p2) {price};
+    \node[field, below=0.1cm of p2] (p3) {categoryId};
+    \node[field, below=0.1cm of p3] (p4) {stock};
+    
+    % Orders Collection
+    \node[collection] (orders) at (8,0) {orders};
+    \node[field, below=0.1cm of orders] (o1) {userId};
+    \node[field, below=0.1cm of o1] (o2) {items[]};
+    \node[field, below=0.1cm of o2] (o3) {total};
+    \node[field, below=0.1cm of o3] (o4) {status};
+    
+    % Categories Collection
+    \node[collection] (categories) at (4,-4) {categories};
+    \node[field, below=0.1cm of categories] (c1) {name};
+    \node[field, below=0.1cm of c1] (c2) {description};
+    
+    % Relationships
+    \draw[arrow, dashed] (p3.south) -- (categories.north);
+    \draw[arrow, dashed] (o1.west) -- +(-1,0) |- (users.east);
+    
+\end{tikzpicture}
+\caption{Vereinfachtes Datenbankschema}
+\label{fig:datenbankschema}
+\end{figure}
+
+\subsection{Frontend-Komponentenarchitektur}
+\label{subsec:komponentenarchitektur}
+
+Das Frontend ist nach dem Komponentenprinzip von Vue.js strukturiert. Die Komponenten sind hierarchisch organisiert und nach ihrer Funktion gruppiert:
+
+\textbf{Views:} Seitenkomponenten, die über den Router angesteuert werden. Sie entsprechen den Hauptseiten der Anwendung wie Startseite, Produktübersicht oder Checkout.
+
+\textbf{Layout-Komponenten:} Strukturelle Komponenten wie Header, Footer und Navigation, die auf mehreren Seiten verwendet werden.
+
+\textbf{Feature-Komponenten:} Fachliche Komponenten wie Produktkarte, Warenkorb-Dialog oder Bestellübersicht, die spezifische Funktionalitäten kapseln.
+
+\textbf{Utility-Komponenten:} Wiederverwendbare UI-Elemente wie Buttons, Eingabefelder oder Benachrichtigungen.
+
+Die Kommunikation zwischen Komponenten erfolgt über:
+
+\begin{itemize}
+    \item \textbf{Props:} Datenübergabe von Eltern- an Kind-Komponenten
+    \item \textbf{Events:} Kommunikation von Kind- zu Eltern-Komponenten
+    \item \textbf{Stores:} Zentraler Zustand für komponentenübergreifende Daten (Pinia)
+\end{itemize}
+
+\subsection{Sicherheitskonzept}
+\label{subsec:sicherheitskonzept}
+
+Die Sicherheit der Anwendung basiert auf mehreren Ebenen:
+
+\textbf{Authentifizierung:} Firebase Authentication verwaltet die Benutzeridentität. Bei erfolgreicher Anmeldung erhält der Client ein JWT-Token, das bei allen Backend-Anfragen mitgesendet wird.
+
+\textbf{Autorisierung:} Firestore Security Rules definieren, welche Benutzer auf welche Daten zugreifen dürfen. Beispielsweise können Benutzer nur ihre eigenen Bestellungen lesen, während Administratoren Zugriff auf alle Daten haben.
+
+\textbf{Datenverschlüsselung:} Alle Kommunikation zwischen Client und Firebase erfolgt über HTTPS. Firebase verschlüsselt gespeicherte Daten automatisch.
+
+\textbf{Input-Validierung:} Benutzereingaben werden sowohl im Frontend als auch durch Security Rules im Backend validiert, um Injection-Angriffe zu verhindern.
+
+Ein Beispiel für Firestore Security Rules:
+
+\begin{lstlisting}[language=Java, caption=Firestore Security Rules (Auszug)]
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Benutzer koennen nur eigene Daten lesen/schreiben
+    match /users/{userId} {
+      allow read, write: if request.auth != null 
+                         && request.auth.uid == userId;
+    }
+    
+    // Produkte sind oeffentlich lesbar
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    
+    // Hilfsfunktion zur Admin-Pruefung
+    function isAdmin() {
+      return request.auth != null 
+             && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+  }
+}
+\end{lstlisting}
+
+\subsection{Deployment-Konzept}
+\label{subsec:deployment-konzept}
+
+Das Deployment der Anwendung erfolgt über Firebase Hosting mit automatisierter CI/CD-Pipeline:
+
+\begin{enumerate}
+    \item \textbf{Build:} Der Vue.js-Quellcode wird durch Vite zu optimierten statischen Dateien kompiliert.
+    \item \textbf{Test:} Automatisierte Tests prüfen die Funktionalität der Anwendung.
+    \item \textbf{Deploy:} Die Build-Artefakte werden zu Firebase Hosting hochgeladen.
+    \item \textbf{Aktivierung:} Firebase aktiviert die neue Version und routet Traffic automatisch um.
+\end{enumerate}
+
+Firebase Hosting bietet dabei Features wie automatische SSL-Zertifikate, globales CDN und atomare Deployments mit Rollback-Möglichkeit.
