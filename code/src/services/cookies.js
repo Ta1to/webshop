@@ -39,7 +39,7 @@ export const hasConsent = () => {
     if (!consent) return false
     
     const data = JSON.parse(consent)
-    return data.version === CONSENT_VERSION && data.timestamp
+    return data.version === CONSENT_VERSION && !!data.timestamp
   } catch (error) {
     errorHandler.warn('Cookie consent could not be verified', error)
     return false
