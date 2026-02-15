@@ -14,10 +14,10 @@ import {
   addDoc
 } from 'firebase/firestore'
 import { db } from './config'
-import { User } from '../models/User'
-import { Product } from '../models/Product'
-import { Order } from '../models/Order'
-import { errorHandler } from './errorHandler'
+import { User } from '../../models/User'
+import { Product } from '../../models/Product'
+import { Order } from '../../models/Order'
+import { errorHandler } from '../utils/errorHandler'
 
 // ==================== GENERIC CRUD OPERATIONS ====================
 

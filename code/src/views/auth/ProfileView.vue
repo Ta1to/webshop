@@ -363,8 +363,8 @@
 
 <script>
 import { reactive, ref, computed, onMounted, onBeforeUnmount } from 'vue'
-import { observeAuthState, updateUserProfile, sendVerificationEmail, refreshEmailVerificationStatus } from '../../services/auth'
-import { getUserDocument } from '../../services/db'
+import { observeAuthState, updateUserProfile, sendVerificationEmail, refreshEmailVerificationStatus } from '../../services/firebase/auth'
+import { getUserDocument } from '../../services/firebase/db'
 import { 
   User, 
   MapPin, 

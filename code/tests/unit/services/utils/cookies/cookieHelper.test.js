@@ -4,7 +4,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { CookieManager } from '@/services/cookieHelper'
+import { CookieManager } from '@/services/utils/cookies'
 
 // Mock document.cookie
 let cookieStore = ''

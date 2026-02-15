@@ -158,8 +158,8 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { Home, ShoppingBag, ShoppingCart, User, Package, LogOut, Search, LayoutGrid, Laptop, Shirt, BookOpen, Dumbbell, Shield, ScrollText, X } from 'lucide-vue-next'
-import { getAllDocuments } from '@/services/db'
-import { getSearchSuggestions } from '@/services/search'
+import { getAllDocuments } from '@/services/firebase/db'
+import { getSearchSuggestions } from '@/services/business/search'
 import SearchDropdown from '@/components/utility/SearchDropdown.vue'
 
 export default {

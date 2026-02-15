@@ -154,7 +154,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { getAllOrders, updateOrderStatus as updateStatus } from '../../services/orders'
+import { getAllOrders, updateOrderStatus as updateStatus } from '../../services/business/orders'
 import AlertDialog from '../../components/dialog/AlertDialog.vue'
 import OrderDetailsModal from '../../components/modal/OrderDetailsModal.vue'
 import OrderStatusSelect from '../../components/admin/OrderStatusSelect.vue'

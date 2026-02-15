@@ -7,7 +7,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { ref } from 'vue'
 
 // Mock cart service
-vi.mock('@/services/cart', () => ({
+vi.mock('@/services/business/cart', () => ({
   getCart: vi.fn(),
   getCartItemCount: vi.fn()
 }))
@@ -19,7 +19,7 @@ import {
   useCartItems,
   initCartStore
 } from '@/stores/cartStore'
-import { getCart, getCartItemCount } from '@/services/cart'
+import { getCart, getCartItemCount } from '@/services/business/cart'
 
 // Mock cart data
 const mockCartItems = [

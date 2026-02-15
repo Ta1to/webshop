@@ -10,11 +10,11 @@ import {
   orderBy,
   serverTimestamp
 } from 'firebase/firestore'
-import { db } from './config'
-import { Order } from '../models/Order'
-import { errorHandler } from './errorHandler'
-import { COLLECTIONS, ORDER_STATUS, ERROR_MESSAGES } from '../constants'
-import { isValidEmail } from '../utils'
+import { db } from '../firebase/config'
+import { Order } from '../../models/Order'
+import { errorHandler } from '../utils/errorHandler'
+import { COLLECTIONS, ORDER_STATUS, ERROR_MESSAGES } from '../../constants'
+import { isValidEmail } from '../../utils'
 
 /**
  * Create a new order

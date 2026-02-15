@@ -68,7 +68,7 @@
 
 <script>
 import { ref, onMounted, computed } from 'vue'
-import { getAllProducts } from '../services/db'
+import { getAllProducts } from '../services/firebase/db'
 import { ProductCard, ProductFilter } from '../components'
 
 export default {

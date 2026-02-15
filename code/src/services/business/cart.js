@@ -1,9 +1,9 @@
-import { updateUserDocument, getUserDocument, getDocument } from './db'
-import { getCurrentUser } from './auth'
+import { updateUserDocument, getUserDocument, getDocument } from '../firebase/db'
+import { getCurrentUser } from '../firebase/auth'
 import { getOfferByProductId } from './offers'
-import { CookieManager } from './cookieHelper'
-import { errorHandler } from './errorHandler'
-import { STORAGE, PRODUCT, COLLECTIONS } from '../constants'
+import { CookieManager } from '../utils/cookies'
+import { errorHandler } from '../utils/errorHandler'
+import { STORAGE, PRODUCT, COLLECTIONS } from '../../constants'
 
 // Import the store update function (will be set to avoid circular dependency)
 let updateStoreCallback = null

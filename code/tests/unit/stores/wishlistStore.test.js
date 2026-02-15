@@ -7,7 +7,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { ref } from 'vue'
 
 // Mock wishlist service
-vi.mock('@/services/wishlist', () => ({
+vi.mock('@/services/business/wishlist', () => ({
   getWishlistItems: vi.fn(),
   getWishlistItemCount: vi.fn()
 }))
@@ -19,7 +19,7 @@ import {
   useWishlistItems,
   initWishlistStore
 } from '@/stores/wishlistStore'
-import { getWishlistItems, getWishlistItemCount } from '@/services/wishlist'
+import { getWishlistItems, getWishlistItemCount } from '@/services/business/wishlist'
 
 // Mock wishlist data
 const mockWishlistItems = [

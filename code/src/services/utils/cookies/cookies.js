@@ -3,7 +3,7 @@
  * Handles cookie preferences and consent management
  */
 
-import { errorHandler } from './errorHandler'
+import { errorHandler } from '../errorHandler.js'
 
 // Cookie consent constants
 const COOKIE_CONSENT_KEY = 'evaris_cookie_consent'

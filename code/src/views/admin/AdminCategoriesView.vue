@@ -165,7 +165,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { getAllDocuments, createDocument, updateDocument, deleteDocument } from '../../services/db'
+import { getAllDocuments, createDocument, updateDocument, deleteDocument } from '../../services/firebase/db'
 import AlertDialog from '../../components/dialog/AlertDialog.vue'
 import CategoryModal from '../../components/modal/CategoryModal.vue'
 import AdminPageHeader from '../../components/admin/AdminPageHeader.vue'

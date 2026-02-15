@@ -60,7 +60,7 @@
 <script>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { getAllDocuments } from '../../services/db'
+import { getAllDocuments } from '../../services/firebase/db'
 import { Laptop, Shirt, BookOpen, Dumbbell, Home, ShoppingCart, Package } from 'lucide-vue-next'
 
 export default {

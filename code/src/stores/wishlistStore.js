@@ -1,5 +1,5 @@
 import { ref } from 'vue'
-import { getWishlistItems, getWishlistItemCount as getCount } from '../services/wishlist'
+import { getWishlistItems, getWishlistItemCount as getCount } from '../services/business/wishlist'
 
 // Reactive wishlist state
 const wishlistItemCount = ref(0)

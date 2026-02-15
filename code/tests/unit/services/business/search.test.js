@@ -6,19 +6,19 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 // Mock the dependencies before importing the module
-vi.mock('@/services/db', () => ({
+vi.mock('@/services/firebase/db', () => ({
   getAllDocuments: vi.fn()
 }))
 
-vi.mock('@/services/errorHandler', () => ({
+vi.mock('@/services/utils/errorHandler', () => ({
   errorHandler: {
     error: vi.fn(),
     warn: vi.fn()
   }
 }))
 
-import { searchProducts, getSearchSuggestions } from '@/services/search'
-import { getAllDocuments } from '@/services/db'
+import { searchProducts, getSearchSuggestions } from '@/services/business/search'
+import { getAllDocuments } from '@/services/firebase/db'
 
 // Mock products data
 const mockProducts = [

@@ -178,7 +178,7 @@
 <script setup>
 import { ref } from 'vue'
 import { Shield, Sliders, BarChart3, Target, Settings, Mail, Phone } from 'lucide-vue-next'
-import { cookieEventBus, COOKIE_EVENTS } from '@/services/cookieEvents'
+import { cookieEventBus, COOKIE_EVENTS } from '@/services/utils/cookies'
 
 const lastUpdated = ref('14. Januar 2026')
 

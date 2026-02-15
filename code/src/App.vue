@@ -33,17 +33,17 @@
 <script>
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { observeAuthState, logoutUser } from '@/services/auth'
-import { getUserDocument, updateUserDocument, createUserDocument } from '@/services/db'
-import { mergeGuestCart, registerCartUpdateCallback } from '@/services/cart'
-import { mergeGuestWishlist, registerWishlistUpdateCallback } from '@/services/wishlist'
+import { observeAuthState, logoutUser } from '@/services/firebase/auth'
+import { getUserDocument, updateUserDocument, createUserDocument } from '@/services/firebase/db'
+import { mergeGuestCart, registerCartUpdateCallback } from '@/services/business/cart'
+import { mergeGuestWishlist, registerWishlistUpdateCallback } from '@/services/business/wishlist'
 import { initCartStore, updateCartItems, useCartItemCount } from '@/stores/cartStore'
 import { initWishlistStore, updateWishlistItems } from '@/stores/wishlistStore'
 import AppHeader from '@/components/layout/AppHeader.vue'
 import AppFooter from '@/components/layout/AppFooter.vue'
 import CookieBanner from '@/components/utility/CookieBanner.vue'
 import CookieSettingsModal from '@/components/modal/CookieSettingsModal.vue'
-import { cookieEventBus, COOKIE_EVENTS } from '@/services/cookieEvents'
+import { cookieEventBus, COOKIE_EVENTS } from '@/services/utils/cookies'
 
 export default {
   name: 'App',

@@ -12,9 +12,9 @@ import {
 } from 'firebase/auth'
 import { auth } from './config'
 import { createUserDocument, updateUserDocument, getUserDocument } from './db'
-import { errorHandler } from './errorHandler'
-import { USER_ROLES, ERROR_MESSAGES } from '../constants'
-import { isValidEmail } from '../utils'
+import { errorHandler } from '../utils/errorHandler'
+import { USER_ROLES, ERROR_MESSAGES } from '../../constants'
+import { isValidEmail } from '../../utils'
 
 // Register a new user
 export const registerUser = async (email, password, displayName) => {

@@ -1,7 +1,7 @@
 import { storage } from './config'
 import { ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage'
-import { errorHandler } from './errorHandler'
-import { VALIDATION, UI } from '../constants'
+import { errorHandler } from '../utils/errorHandler'
+import { VALIDATION, UI } from '../../constants'
 
 /**
  * Uploads an image file to Firebase Storage

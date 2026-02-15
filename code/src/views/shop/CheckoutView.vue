@@ -340,10 +340,10 @@
 <script>
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
-import { getCart, getCartTotal, clearCart } from '../../services/cart'
-import { observeAuthState, getCurrentUser } from '../../services/auth'
-import { getUserDocument } from '../../services/db'
-import { createOrder } from '../../services/orders'
+import { getCart, getCartTotal, clearCart } from '../../services/business/cart'
+import { observeAuthState, getCurrentUser } from '../../services/firebase/auth'
+import { getUserDocument } from '../../services/firebase/db'
+import { createOrder } from '../../services/business/orders'
 import { 
   Check,
   MapPin,

@@ -167,7 +167,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { getAllDocuments, updateDocument, deleteDocument } from '../../services/db'
+import { getAllDocuments, updateDocument, deleteDocument } from '../../services/firebase/db'
 import AlertDialog from '../../components/dialog/AlertDialog.vue'
 import AdminPageHeader from '../../components/admin/AdminPageHeader.vue'
 import AdminFilters from '../../components/admin/AdminFilters.vue'

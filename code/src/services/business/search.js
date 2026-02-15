@@ -1,6 +1,6 @@
-import { getAllDocuments } from './db'
-import { errorHandler } from './errorHandler'
-import { COLLECTIONS } from '../constants'
+import { getAllDocuments } from '../firebase/db'
+import { errorHandler } from '../utils/errorHandler'
+import { COLLECTIONS } from '../../constants'
 
 /**
  * Search Service

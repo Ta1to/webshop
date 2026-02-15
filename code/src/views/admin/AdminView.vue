@@ -502,9 +502,9 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { getAllDocuments, updateDocument, deleteDocument, createDocument } from '../../services/db'
-import { getAllOrders, updateOrderStatus } from '../../services/orders'
-import { getAllOffers } from '../../services/offers'
+import { getAllDocuments, updateDocument, deleteDocument, createDocument } from '../../services/firebase/db'
+import { getAllOrders, updateOrderStatus } from '../../services/business/orders'
+import { getAllOffers } from '../../services/business/offers'
 import AlertDialog from '../../components/dialog/AlertDialog.vue'
 import ProductModal from '../../components/modal/ProductModal.vue'
 import CategoryModal from '../../components/modal/CategoryModal.vue'

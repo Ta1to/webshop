@@ -102,7 +102,7 @@
 <script>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { registerUser, signInWithGoogle } from '../../services/auth'
+import { registerUser, signInWithGoogle } from '../../services/firebase/auth'
 import { CheckCircle, AlertCircle } from 'lucide-vue-next'
 
 export default {

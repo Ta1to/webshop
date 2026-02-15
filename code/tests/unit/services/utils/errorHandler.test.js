@@ -4,7 +4,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { errorHandler, ErrorLevel, withErrorHandling } from '@/services/errorHandler'
+import { errorHandler, ErrorLevel, withErrorHandling } from '@/services/utils/errorHandler'
 
 describe('ErrorHandler', () => {
   // Spy on console methods

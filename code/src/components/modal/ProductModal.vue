@@ -188,7 +188,7 @@
 <script setup>
 import { ref, watch } from 'vue'
 import { X, Loader, Upload, Check, Trash} from 'lucide-vue-next'
-import { uploadImage, validateImageUrl, compressImage } from '@/services/storage'
+import { uploadImage, validateImageUrl, compressImage } from '@/services/firebase/storage'
 
 const props = defineProps({
   isOpen: Boolean,

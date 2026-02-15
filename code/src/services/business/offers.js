@@ -16,11 +16,11 @@ import {
   orderBy,
   serverTimestamp 
 } from 'firebase/firestore'
-import { db } from './config'
-import { Offer } from '../models/Offers'
-import { errorHandler } from './errorHandler'
-import { COLLECTIONS } from '../constants'
-import { calculateDiscountPrice } from '../utils'
+import { db } from '../firebase/config'
+import { Offer } from '../../models/Offers'
+import { errorHandler } from '../utils/errorHandler'
+import { COLLECTIONS } from '../../constants'
+import { calculateDiscountPrice } from '../../utils'
 
 /**
  * Get all offers

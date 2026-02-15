@@ -67,7 +67,7 @@
 <script>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { loginUser, signInWithGoogle } from '../../services/auth'
+import { loginUser, signInWithGoogle } from '../../services/firebase/auth'
 import { AlertCircle } from 'lucide-vue-next'
 
 export default {

@@ -123,7 +123,7 @@ import {
   updateCartItem, 
   removeFromCart, 
   getCartTotal 
-} from '../../services/cart'
+} from '../../services/business/cart'
 import { 
   ShoppingCart, 
   Trash2, 

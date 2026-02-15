@@ -88,10 +88,10 @@ import {
     ShoppingCartIcon 
 } from 'lucide-vue-next'
 import StockIndicator from '../../components/utility/StockIndicator.vue'
-import { observeAuthState } from '../../services/auth'
+import { observeAuthState } from '../../services/firebase/auth'
 import { useWishlistItems, updateWishlistItems } from '../../stores/wishlistStore'
-import { removeFromWishlist as removeWishlistItem } from '../../services/wishlist'
-import { addToCart } from '../../services/cart'
+import { removeFromWishlist as removeWishlistItem } from '../../services/business/wishlist'
+import { addToCart } from '../../services/business/cart'
 import { updateCartItems } from '../../stores/cartStore'
 
 export default {

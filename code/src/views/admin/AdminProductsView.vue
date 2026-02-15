@@ -220,7 +220,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { getAllDocuments, createDocument, updateDocument, deleteDocument } from '../../services/db'
+import { getAllDocuments, createDocument, updateDocument, deleteDocument } from '../../services/firebase/db'
 import AlertDialog from '../../components/dialog/AlertDialog.vue'
 import ProductModal from '../../components/modal/ProductModal.vue'
 import AdminPageHeader from '../../components/admin/AdminPageHeader.vue'

@@ -162,9 +162,9 @@ import {
     createOffer, 
     updateOffer, 
     deleteOffer
-} from '../../services/offers'
+} from '../../services/business/offers'
 import { calculateDiscountPrice } from '../../utils'
-import { getAllProducts, createProduct } from '../../services/db'
+import { getAllProducts, createProduct } from '../../services/firebase/db'
 
 // State
 const loading = ref(true)

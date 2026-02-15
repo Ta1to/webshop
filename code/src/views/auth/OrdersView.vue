@@ -158,8 +158,8 @@
 <script>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { Package } from 'lucide-vue-next'
-import { observeAuthState } from '../../services/auth'
-import { getUserOrders, cancelOrder } from '../../services/orders'
+import { observeAuthState } from '../../services/firebase/auth'
+import { getUserOrders, cancelOrder } from '../../services/business/orders'
 import AlertDialog from '../../components/dialog/AlertDialog.vue'
 
 export default {

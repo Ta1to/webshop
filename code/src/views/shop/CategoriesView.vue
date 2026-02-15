@@ -88,8 +88,8 @@
 <script>
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { getAllDocuments } from '../../services/db'
-import { searchProducts } from '../../services/search'
+import { getAllDocuments } from '../../services/firebase/db'
+import { searchProducts } from '../../services/business/search'
 import { Laptop, Shirt, BookOpen, Dumbbell, Home, Search, X } from 'lucide-vue-next'
 
 export default {

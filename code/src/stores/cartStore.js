@@ -1,5 +1,5 @@
 import { ref } from 'vue'
-import { getCart, getCartItemCount as getCount } from '../services/cart'
+import { getCart, getCartItemCount as getCount } from '../services/business/cart'
 
 // Reactive cart state
 const cartItemCount = ref(0)

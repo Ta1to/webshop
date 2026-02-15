@@ -109,7 +109,7 @@ import {
   acceptNecessaryCookies,
   COOKIE_CATEGORIES,
   COOKIE_DESCRIPTIONS 
-} from '@/services/cookies'
+} from '@/services/utils/cookies'
 
 const props = defineProps({
   modelValue: {

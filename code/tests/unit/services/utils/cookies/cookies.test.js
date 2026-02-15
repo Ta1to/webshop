@@ -6,7 +6,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 
 // Mock errorHandler
-vi.mock('@/services/errorHandler', () => ({
+vi.mock('@/services/utils/errorHandler', () => ({
   errorHandler: {
     error: vi.fn(),
     warn: vi.fn()
@@ -24,7 +24,7 @@ import {
   clearConsent,
   isCategoryAllowed,
   getConsentInfo
-} from '@/services/cookies'
+} from '@/services/utils/cookies'
 
 // Mock localStorage
 let localStorageMock = {}

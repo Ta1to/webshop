@@ -48,7 +48,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { Cookie, Settings, Check } from 'lucide-vue-next'
-import { hasConsent, acceptAllCookies, acceptNecessaryCookies } from '@/services/cookies'
+import { hasConsent, acceptAllCookies, acceptNecessaryCookies } from '@/services/utils/cookies'
 
 const emit = defineEmits(['customize', 'accepted'])
 const showBanner = ref(false)
