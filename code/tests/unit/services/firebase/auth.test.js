@@ -70,8 +70,7 @@ describe('registerUser', () => {
     const displayName = 'Test User'
     const mockUser = { 
       uid: 'user123', 
-      email, 
-      photoURL: null,
+      email,
       emailVerified: false
     }
 
@@ -94,7 +93,6 @@ describe('registerUser', () => {
     expect(createUserDocument).toHaveBeenCalledWith('user123', {
       email,
       displayName,
-      photoURL: '',
       role: USER_ROLES.USER,
       newsletter: true,
       emailVerified: false
@@ -242,7 +240,6 @@ describe('signInWithGoogle', () => {
       uid: 'google123',
       email: 'google@example.com',
       displayName: 'Google User',
-      photoURL: 'https://example.com/photo.jpg',
       emailVerified: true
     }
 
@@ -259,7 +256,6 @@ describe('signInWithGoogle', () => {
     expect(createUserDocument).toHaveBeenCalledWith('google123', {
       email: mockUser.email,
       displayName: mockUser.displayName,
-      photoURL: mockUser.photoURL,
       role: USER_ROLES.USER,
       newsletter: true,
       emailVerified: true
@@ -272,15 +268,13 @@ describe('signInWithGoogle', () => {
       uid: 'google123',
       email: 'google@example.com',
       displayName: 'Google User',
-      photoURL: 'https://example.com/photo.jpg',
       emailVerified: true
     }
 
     firebaseAuth.signInWithPopup.mockResolvedValue({ user: mockUser })
     getUserDocument.mockResolvedValue({ 
       id: 'google123', 
-      email: mockUser.email,
-      photoURL: 'old-photo.jpg'
+      email: mockUser.email
     })
     updateUserDocument.mockResolvedValue({ success: true })
 
@@ -290,8 +284,7 @@ describe('signInWithGoogle', () => {
     // Assert
     expect(result.success).toBe(true)
     expect(updateUserDocument).toHaveBeenCalledWith('google123', {
-      emailVerified: true,
-      photoURL: mockUser.photoURL
+      emailVerified: true
     })
   })
 
@@ -376,15 +369,13 @@ describe('updateUserProfile', () => {
     const mockUser = {
       uid: 'user123',
       email: 'old@example.com',
-      displayName: 'Old Name',
-      photoURL: 'old-photo.jpg'
+      displayName: 'Old Name'
     }
     auth.currentUser = mockUser
 
     const profileUpdates = {
       displayName: 'New Name',
       email: 'new@example.com',
-      photoURL: 'new-photo.jpg',
       street: 'Main St',
       city: 'Berlin'
     }
@@ -400,14 +391,12 @@ describe('updateUserProfile', () => {
     // Assert
     expect(result.success).toBe(true)
     expect(firebaseAuth.updateProfile).toHaveBeenCalledWith(mockUser, {
-      displayName: 'New Name',
-      photoURL: 'new-photo.jpg'
+      displayName: 'New Name'
     })
     expect(firebaseAuth.updateEmail).toHaveBeenCalledWith(mockUser, 'new@example.com')
     expect(updateUserDocument).toHaveBeenCalledWith('user123', {
       displayName: 'New Name',
       email: 'new@example.com',
-      photoURL: 'new-photo.jpg',
       street: 'Main St',
       city: 'Berlin'
     })

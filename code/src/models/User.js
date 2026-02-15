@@ -6,7 +6,6 @@ export class User {
     this.id = data.id || null
     this.email = data.email || ''
     this.displayName = data.displayName || ''
-    this.photoURL = data.photoURL || ''
     this.role = data.role || 'user'
     this.newsletter = data.newsletter ?? false
     this.cart = data.cart || []
@@ -39,7 +38,6 @@ export class User {
     return {
       email: this.email,
       displayName: this.displayName,
-      photoURL: this.photoURL,
       role: this.role,
       newsletter: this.newsletter,
       cart: this.cart,

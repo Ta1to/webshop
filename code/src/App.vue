@@ -74,7 +74,6 @@ export default {
         await createUserDocument(uid, {
           email: currentUser.value.email || '',
           displayName: currentUser.value.displayName || '',
-          photoURL: currentUser.value.photoURL || '',
           role: 'user',
           newsletter: false
         })

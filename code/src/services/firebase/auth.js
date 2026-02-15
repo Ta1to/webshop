@@ -44,7 +44,6 @@ export const registerUser = async (email, password, displayName) => {
     await createUserDocument(userCredential.user.uid, {
       email: email,
       displayName: displayName || '',
-      photoURL: userCredential.user.photoURL || '',
       role: USER_ROLES.USER, // Default role
       newsletter: true,
       emailVerified: false // Initial verification status
@@ -103,7 +102,6 @@ export const signInWithGoogle = async () => {
       await createUserDocument(user.uid, {
         email: user.email,
         displayName: user.displayName || '',
-        photoURL: user.photoURL || '',
         role: USER_ROLES.USER,
         newsletter: true,
         emailVerified: user.emailVerified
@@ -111,8 +109,7 @@ export const signInWithGoogle = async () => {
     } else {
       // Update existing user document
       await updateUserDocument(user.uid, {
-        emailVerified: user.emailVerified,
-        photoURL: user.photoURL || userDoc.photoURL
+        emailVerified: user.emailVerified
       })
     }
     
@@ -152,15 +149,11 @@ export const updateUserProfile = async (profileUpdates = {}) => {
     return { success: false, error: 'auth/user-not-found' }
   }
 
-  const { displayName, email, photoURL, street, postalCode, city, country, phone } = profileUpdates
+  const { displayName, email, street, postalCode, city, country, phone } = profileUpdates
   const authProfileUpdates = {}
 
   if (displayName !== undefined && displayName !== user.displayName) {
     authProfileUpdates.displayName = displayName
-  }
-
-  if (photoURL !== undefined && photoURL !== user.photoURL) {
-    authProfileUpdates.photoURL = photoURL
   }
 
   try {
@@ -180,10 +173,6 @@ export const updateUserProfile = async (profileUpdates = {}) => {
 
     if (email !== undefined) {
       firestoreUpdates.email = email
-    }
-
-    if (photoURL !== undefined) {
-      firestoreUpdates.photoURL = photoURL
     }
 
     // Address fields
