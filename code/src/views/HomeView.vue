@@ -182,7 +182,7 @@ export default {
             const result = await getAllProducts()
             if (result.success) {
                 // Import offers service and apply offers to products
-                const { getProductsWithOffers } = await import('../services/offers')
+                const { getProductsWithOffers } = await import('../services/business/offers')
                 products.value = await getProductsWithOffers(result.data)
             }
             loading.value = false

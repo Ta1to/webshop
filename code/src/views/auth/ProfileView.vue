@@ -552,7 +552,7 @@ export default {
         
         if (authVerified !== firestoreVerified) {
           // Update Firestore to match Firebase Auth
-          const { updateUserDocument } = await import('../../services/db')
+          const { updateUserDocument } = await import('../../services/firebase/db')
           await updateUserDocument(authUser.uid, { emailVerified: authVerified })
           // Update local userData
           userData.value.emailVerified = authVerified
@@ -816,7 +816,7 @@ export default {
       const newValue = form.newsletter
 
       try {
-        const { updateUserDocument } = await import('../../services/db')
+        const { updateUserDocument } = await import('../../services/firebase/db')
         const result = await updateUserDocument(user.value.uid, {
           newsletter: newValue
         })
