@@ -146,8 +146,7 @@ const routes = [
     {
         path: '/wishlist',
         name: 'Wishlist',
-        component: WishlistView,
-        meta: { requiresAuth: true }
+        component: WishlistView
     },
     {
         path: '/contact',

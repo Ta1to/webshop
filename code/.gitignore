@@ -28,3 +28,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# E2E Testing
+tests/videos
+tests/downloads
+tests/screenshots

@@ -44,6 +44,7 @@
                   <label for="firstName">Vorname *</label>
                   <input 
                     id="firstName"
+                    name="firstName"
                     v-model="shippingAddress.firstName" 
                     type="text" 
                     required
@@ -54,6 +55,7 @@
                   <label for="lastName">Nachname *</label>
                   <input 
                     id="lastName"
+                    name="lastName"
                     v-model="shippingAddress.lastName" 
                     type="text" 
                     required
@@ -66,6 +68,7 @@
                 <label for="email">E-Mail *</label>
                 <input 
                   id="email"
+                  name="email"
                   v-model="shippingAddress.email" 
                   type="email" 
                   required
@@ -77,6 +80,7 @@
                 <label for="phone">Telefon *</label>
                 <input 
                   id="phone"
+                  name="phone"
                   v-model="shippingAddress.phone" 
                   type="tel" 
                   required
@@ -88,6 +92,7 @@
                 <label for="street">Straße und Hausnummer *</label>
                 <input 
                   id="street"
+                  name="street"
                   v-model="shippingAddress.street" 
                   type="text" 
                   required
@@ -100,6 +105,7 @@
                   <label for="postalCode">PLZ *</label>
                   <input 
                     id="postalCode"
+                    name="zip"
                     v-model="shippingAddress.postalCode" 
                     type="text" 
                     required
@@ -110,6 +116,7 @@
                   <label for="city">Stadt *</label>
                   <input 
                     id="city"
+                    name="city"
                     v-model="shippingAddress.city" 
                     type="text" 
                     required

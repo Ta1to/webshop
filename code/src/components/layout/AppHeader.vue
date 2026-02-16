@@ -81,6 +81,10 @@
               </div>
             </div>
             <div class="user-dropdown">
+              <router-link to="/wishlist" class="dropdown-item" @click="closeMobileMenu">
+                <ScrollText class="dropdown-icon" :size="16" />
+                Wunschliste
+              </router-link>
               <template v-if="currentUser">
                 <router-link to="/profile" class="dropdown-item" @click="closeMobileMenu">
                   <User class="dropdown-icon" :size="16" />
@@ -89,10 +93,6 @@
                 <router-link to="/orders" class="dropdown-item" @click="closeMobileMenu">
                   <Package class="dropdown-icon" :size="16" />
                   Bestellungen
-                </router-link>
-                <router-link to="/wishlist" class="dropdown-item" @click="closeMobileMenu">
-                  <ScrollText class="dropdown-icon" :size="16" />
-                  Wunschliste
                 </router-link>
                 <router-link v-if="isAdmin" to="/admin" class="dropdown-item admin-item" @click="closeMobileMenu">
                   <Shield class="dropdown-icon" :size="16" />
