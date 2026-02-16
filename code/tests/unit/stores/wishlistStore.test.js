@@ -1,10 +1,4 @@
-/**
- * Unit Tests for Wishlist Store
- * Following the AAA (Arrange-Act-Assert) Pattern
- */
-
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { ref } from 'vue'
 
 // Mock wishlist service
 vi.mock('@/services/business/wishlist', () => ({

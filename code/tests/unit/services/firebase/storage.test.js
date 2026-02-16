@@ -1,8 +1,3 @@
-/**
- * Unit Tests for Firebase Storage Service
- * Following the AAA (Arrange-Act-Assert) Pattern
- */
-
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import {
   uploadImage,
@@ -10,7 +5,6 @@ import {
   validateImageUrl,
   compressImage
 } from '@/services/firebase/storage'
-import { VALIDATION } from '@/constants'
 
 // Mock Firebase Storage
 vi.mock('firebase/storage', () => ({

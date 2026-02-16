@@ -1,8 +1,3 @@
-/**
- * Unit Tests for Cookies Service (Cookie Consent Management)
- * Following the AAA (Arrange-Act-Assert) Pattern
- */
-
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 
 // Mock errorHandler

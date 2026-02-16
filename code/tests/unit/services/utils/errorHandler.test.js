@@ -1,8 +1,3 @@
-/**
- * Unit Tests for ErrorHandler Service
- * Following the AAA (Arrange-Act-Assert) Pattern
- */
-
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { errorHandler, ErrorLevel, withErrorHandling } from '@/services/utils/errorHandler'
 

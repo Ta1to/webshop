@@ -1,8 +1,3 @@
-/**
- * Unit Tests for Utility Functions
- * Following the AAA (Arrange-Act-Assert) Pattern
- */
-
 import { describe, it, expect } from 'vitest'
 import {
   formatPrice,

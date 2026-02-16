@@ -1,8 +1,3 @@
-/**
- * Unit Tests for Search Service
- * Following the AAA (Arrange-Act-Assert) Pattern
- */
-
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 // Mock the dependencies before importing the module
