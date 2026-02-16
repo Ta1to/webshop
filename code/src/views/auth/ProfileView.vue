@@ -868,7 +868,6 @@ export default {
           const auth = getAuth()
           user.value = auth.currentUser
         } catch (error) {
-          console.log('Could not reload user:', error)
           user.value = authUser
         }
 

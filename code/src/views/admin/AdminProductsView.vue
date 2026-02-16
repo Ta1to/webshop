@@ -376,10 +376,6 @@ const loadProducts = async () => {
     const productsResult = await getAllDocuments('products')
     if (productsResult.success) {
       products.value = productsResult.data
-      console.log('Produkte geladen:', products.value.length)
-      if (products.value.length > 0) {
-        console.log('Beispiel-Produkt:', products.value[0])
-      }
     } else {
       throw new Error(productsResult.error)
     }
@@ -388,10 +384,6 @@ const loadProducts = async () => {
     const categoriesResult = await getAllDocuments('categories')
     if (categoriesResult.success) {
       categories.value = categoriesResult.data
-      console.log('Kategorien geladen:', categories.value.length)
-      if (categories.value.length > 0) {
-        console.log('Beispiel-Kategorie:', categories.value[0])
-      }
     }
 
   } catch (err) {
@@ -404,12 +396,6 @@ const loadProducts = async () => {
 
 const applyFilters = () => {
   currentPage.value = 1
-  console.log('Filter angewendet:', {
-    selectedCategory: selectedCategory.value,
-    selectedStock: selectedStock.value,
-    totalProducts: products.value.length,
-    filteredProducts: filteredProducts.value.length
-  })
 }
 
 const applySort = () => {

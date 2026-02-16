@@ -16,11 +16,9 @@
       :newsletter-loading="newsletterLoading"
     />
 
-    <!-- Cookie Banner & Settings -->
     <CookieBanner 
       ref="cookieBannerRef"
       @customize="showCookieSettings = true"
-      @accepted="handleCookieAccepted"
     />
     
     <CookieSettingsModal 
@@ -174,7 +172,6 @@ export default {
         userProfile.value = null
         newsletterLoading.value = false
         
-        // Update UI state for guest after logout
         await Promise.all([
           updateCartItems(),
           updateWishlistItems()
@@ -184,17 +181,10 @@ export default {
       }
     }
 
-    const handleCookieAccepted = (preferences) => {
-      console.log('Cookie preferences accepted:', preferences)
-      // Here you could initialize analytics or marketing scripts based on preferences
-    }
-
-    const handleCookieSaved = (preferences) => {
-      console.log('Cookie preferences saved:', preferences)
+    const handleCookieSaved = () => {
       if (cookieBannerRef.value) {
         cookieBannerRef.value.hide()
       }
-      // Here you could initialize/disable analytics or marketing scripts based on preferences
     }
 
     return {
@@ -206,7 +196,6 @@ export default {
       showCookieSettings,
       cookieBannerRef,
       handleLogout,
-      handleCookieAccepted,
       handleCookieSaved
     }
   }
