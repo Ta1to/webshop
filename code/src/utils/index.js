@@ -1,8 +1,3 @@
-/**
- * Utility Functions
- * Common helper functions used across the application
- */
-
 import { FORMATS, UI, PRODUCT } from '../constants'
 
 /**

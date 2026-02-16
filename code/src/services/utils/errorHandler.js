@@ -1,9 +1,4 @@
 /**
- * Error Handler Service
- * Centralized error handling and logging
- */
-
-/**
  * Error severity levels
  */
 export const ErrorLevel = {
@@ -12,10 +7,6 @@ export const ErrorLevel = {
   INFO: 'info'
 }
 
-/**
- * Error Handler Class
- * Handles logging, user notifications, and error tracking
- */
 class ErrorHandler {
   constructor() {
     this.listeners = []
@@ -51,11 +42,9 @@ class ErrorHandler {
 
     // Production: Send to external service (Sentry, LogRocket, etc.)
     if (import.meta.env.PROD && level === ErrorLevel.ERROR) {
-      // Example: Sentry.captureException(error, { extra: context })
       this.sendToExternalService(entry)
     }
 
-    // Notify listeners (e.g., Toast notifications)
     this.notifyListeners(entry)
   }
 

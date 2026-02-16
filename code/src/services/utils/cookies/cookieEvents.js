@@ -1,8 +1,3 @@
-/**
- * Cookie Event Bus
- * Simple event emitter for cookie-related events across components
- */
-
 class CookieEventBus {
   constructor() {
     this.listeners = {}

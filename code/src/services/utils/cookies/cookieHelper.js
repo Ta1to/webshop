@@ -1,12 +1,3 @@
-/**
- * Cookie Helper Service
- * Centralized cookie management for the application
- */
-
-/**
- * Cookie Manager
- * Provides methods for setting, getting, and deleting cookies
- */
 export const CookieManager = {
   /**
    * Set a cookie

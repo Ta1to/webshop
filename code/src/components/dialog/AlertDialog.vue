@@ -48,7 +48,7 @@ import { CheckCircle2, XCircle, AlertTriangle, HelpCircle, Info } from 'lucide-v
 const props = defineProps({
   type: {
     type: String,
-    default: 'info', // success, error, warning, confirm, info
+    default: 'info',
     validator: (value) => ['success', 'error', 'warning', 'confirm', 'info'].includes(value)
   },
   title: {

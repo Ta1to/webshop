@@ -1,8 +1,3 @@
-/**
- * Offers Service
- * Handles all offer-related operations with Firestore
- */
-
 import { 
   collection, 
   doc, 

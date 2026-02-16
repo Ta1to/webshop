@@ -78,23 +78,6 @@ const routes = [
         name: 'CheckoutSuccess',
         component: CheckoutSuccessView
     },
-    // Placeholder routes for navigation links
-    // These can be replaced with real views later
-    {
-        path: '/products',
-        name: 'Products',
-        component: () => import('../views/PlaceholderView.vue'),
-    },
-    {
-        path: '/deals',
-        name: 'Deals',
-        component: () => import('../views/PlaceholderView.vue'),
-    },
-    {
-        path: '/new-arrivals',
-        name: 'NewArrivals',
-        component: () => import('../views/PlaceholderView.vue'),
-    },
     {
         path: '/profile',
         name: 'Profile',
@@ -192,11 +175,6 @@ const routes = [
         path: '/imprint',
         name: 'Imprint',
         component: ImprintView
-    },
-    {
-        path: '/sitemap',
-        name: 'Sitemap',
-        component: () => import('../views/PlaceholderView.vue')
     },
     {
         path: '/:pathMatch(.*)*',

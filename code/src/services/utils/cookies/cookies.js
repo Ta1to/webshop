@@ -1,8 +1,3 @@
-/**
- * Cookie Consent Management Service
- * Handles cookie preferences and consent management
- */
-
 import { errorHandler } from '../errorHandler.js'
 
 // Cookie consent constants

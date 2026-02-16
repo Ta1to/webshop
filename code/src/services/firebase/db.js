@@ -19,8 +19,6 @@ import { Product } from '../../models/Product'
 import { Order } from '../../models/Order'
 import { errorHandler } from '../utils/errorHandler'
 
-// ==================== GENERIC CRUD OPERATIONS ====================
-
 /**
  * Create a document
  * @param {string} collectionName - Collection name

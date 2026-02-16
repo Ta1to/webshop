@@ -2,11 +2,6 @@ import { getAllDocuments } from '../firebase/db'
 import { errorHandler } from '../utils/errorHandler'
 import { COLLECTIONS } from '../../constants'
 
-/**
- * Search Service
- * Provides search functionality for products with suggestions and autocomplete
- */
-
 // Cache configuration
 const CACHE_DURATION = 5 * 60 * 1000 // 5 minutes
 

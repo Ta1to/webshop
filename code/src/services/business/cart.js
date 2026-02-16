@@ -3,9 +3,8 @@ import { getCurrentUser } from '../firebase/auth'
 import { getOfferByProductId } from './offers'
 import { CookieManager } from '../utils/cookies'
 import { errorHandler } from '../utils/errorHandler'
-import { STORAGE, PRODUCT, COLLECTIONS } from '../../constants'
+import { STORAGE, PRODUCT } from '../../constants'
 
-// Import the store update function (will be set to avoid circular dependency)
 let updateStoreCallback = null
 
 /**
@@ -14,15 +13,6 @@ let updateStoreCallback = null
 export const registerCartUpdateCallback = (callback) => {
   updateStoreCallback = callback
 }
-
-/**
- * Cart Service
- * Manages cart storage in cookies (guest) or Firestore (logged in users)
- * Cart items are stored as: { productId: string, quantity: number, addedAt: timestamp }
- * Product details are fetched separately when displaying the cart
- */
-
-// ==================== CART OPERATIONS ====================
 
 /**
  * Get raw cart items (just IDs and quantities)

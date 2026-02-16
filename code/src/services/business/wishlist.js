@@ -4,7 +4,6 @@ import { CookieManager } from '../utils/cookies'
 import { errorHandler } from '../utils/errorHandler'
 import { STORAGE, COLLECTIONS } from '../../constants'
 
-// Import the store update function (will be set to avoid circular dependency)
 let updateStoreCallback = null
 
 /**
@@ -13,14 +12,6 @@ let updateStoreCallback = null
 export const registerWishlistUpdateCallback = (callback) => {
   updateStoreCallback = callback
 }
-
-/**
- * Wishlist Service
- * Manages wishlist storage in cookies (guest) or Firestore (logged in users)
- * Wishlist items are stored as an array of product IDs
- */
-
-// ==================== WISHLIST OPERATIONS ====================
 
 /**
  * Get raw wishlist items (just IDs)

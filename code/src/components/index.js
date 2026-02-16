@@ -1,4 +1,3 @@
-// Modular Vue components export
 export { default as AppHeader } from './layout/AppHeader.vue'
 export { default as AppFooter } from './layout/AppFooter.vue'
 export { default as AlertDialog } from './dialog/AlertDialog.vue'

@@ -1,7 +1,6 @@
 /**
  * Offer Model
  */
-
 export class Offer {
     constructor(data = {}) {
         this.id = data.id || null

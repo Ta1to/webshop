@@ -2,7 +2,6 @@
  * Mock Products for Sustainable Webshop
  */
 export const mockProducts = [
-  // Nachhaltige Mode
   {
     name: 'Bio-Baumwoll T-Shirt "Earth"',
     description: 'Fair-Trade T-Shirt aus 100% Bio-Baumwolle. GOTS-zertifiziert, vegan und in Europa produziert. Zeitloses Design in verschiedenen Naturfarben erhältlich.',
@@ -43,8 +42,6 @@ export const mockProducts = [
     featured: true,
     tags: ['Vegan', 'Innovation', 'Biologisch abbaubar']
   },
-
-  // Zero Waste
   {
     name: 'Bienenwachstücher Set (5-teilig)',
     description: 'Wiederverwendbare Alternative zu Frischhaltefolie. Hergestellt aus Bio-Baumwolle und regionalem Bienenwachs. Verschiedene Größen für jeden Bedarf.',
@@ -95,8 +92,6 @@ export const mockProducts = [
     featured: false,
     tags: ['Glas', 'Auslaufsicher', 'Mikrowellengeeignet']
   },
-
-  // Bio-Lebensmittel
   {
     name: 'Bio-Kaffee "Fair Morning" (500g)',
     description: 'Aromatische Bio-Kaffeebohnen aus fairem Handel. Schonend geröstet in Deutschland. Sorte: 100% Arabica aus Äthiopien.',
@@ -137,8 +132,6 @@ export const mockProducts = [
     featured: true,
     tags: ['Regional', 'Imker', 'Naturbelassen']
   },
-
-  // Naturkosmetik
   {
     name: 'Festes Shampoo "Lavendel Liebe"',
     description: 'Zero-Waste Haarshampoo mit Bio-Lavendelöl. Vegan, palmölfrei und für 60-80 Wäschen. Entspricht ca. 2-3 Shampoo-Flaschen.',
@@ -271,8 +264,6 @@ export const mockProducts = [
     featured: true,
     tags: ['Solar', 'Wetterfest', 'Automatisch']
   },
-
-  // Upcycling & Handwerk
   {
     name: 'Geldbörse aus recyceltem Segeltuch',
     description: 'Einzigartige Brieftasche aus alten Segeln. Jedes Stück ein Unikat mit eigener Geschichte. Wasserabweisend und robust.',

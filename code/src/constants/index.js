@@ -1,9 +1,4 @@
 /**
- * Application Constants
- * Centralized configuration values and magic numbers
- */
-
-/**
  * Storage constants
  */
 export const STORAGE = {
