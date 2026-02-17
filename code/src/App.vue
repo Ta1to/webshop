@@ -32,7 +32,7 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { observeAuthState, logoutUser } from '@/services/firebase/auth'
-import { getUserDocument, updateUserDocument, createUserDocument } from '@/services/firebase/db'
+import { getUserDocument, createUserDocument } from '@/services/firebase/db'
 import { mergeGuestCart, registerCartUpdateCallback } from '@/services/business/cart'
 import { mergeGuestWishlist, registerWishlistUpdateCallback } from '@/services/business/wishlist'
 import { initCartStore, updateCartItems, useCartItemCount } from '@/stores/cartStore'

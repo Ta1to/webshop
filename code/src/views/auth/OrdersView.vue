@@ -328,7 +328,7 @@ export default {
   font-weight: 700;
   color: var(--gray-900);
   margin-bottom: 2rem;
-  text-align: center;
+  text-align: left;
 }
 
 .loading-state {
