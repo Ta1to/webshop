@@ -25,47 +25,14 @@ Für die Entwicklung des Webshops wurde ein iterativ-inkrementelles Vorgehensmod
 
 Das Projekt wurde in acht Meilensteine gegliedert, die über einen Zeitraum von 36 Wochen bearbeitet wurden:
 
-\begin{table}[H]
-\centering
-\begin{tabularx}{\textwidth}{|c|X|c|}
-\hline
-\textbf{Nr.} & \textbf{Meilenstein} & \textbf{Zeitraum} \\
-\hline
-1 & Konzeption und Technologieauswahl & Wochen 1--4 \\
-\hline
-2 & Frontend-Gerüst und Basisstruktur & Wochen 5--8 \\
-\hline
-3 & Authentifizierung und Benutzerverwaltung & Wochen 9--11 \\
-\hline
-4 & Produktkatalog und Suchfunktion & Wochen 12--15 \\
-\hline
-5 & Warenkorb und Checkout & Wochen 16--18 \\
-\hline
-6 & Administrationsbereich & Wochen 19--22 \\
-\hline
-7 & Deployment und CI/CD & Wochen 23--26 \\
-\hline
-8 & Testing und Dokumentation & Wochen 27--36 \\
-\hline
-\end{tabularx}
-\caption{Meilensteine und Zeitplanung}
-\label{tab:meilensteine}
-\end{table}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1\textwidth]{meilenstein.png}
+    \caption{Meilensteine und Zeitplan der Projektphasen}
+    \label{fig:meilensteine}
+\end{figure}
 
 Die Meilensteine wurden so strukturiert, dass aufeinander aufbauende Funktionalitäten sequentiell entwickelt werden. Beispielsweise setzt der Warenkorb eine funktionierende Produktansicht voraus, und der Checkout erfordert ein implementiertes Authentifizierungssystem.
-
-\subsection{Entwicklungspraktiken}
-\label{subsec:entwicklungspraktiken}
-
-Im Rahmen des Projekts wurden verschiedene Entwicklungspraktiken angewendet:
-
-\textbf{Versionskontrolle:} Der gesamte Quellcode wird in einem Git-Repository verwaltet. Dies ermöglicht die Nachverfolgung von Änderungen, parallele Entwicklung durch Branching und die Möglichkeit, auf frühere Versionen zurückzugreifen \cite{chacon2014}.
-
-\textbf{Kontinuierliche Integration:} Änderungen werden regelmäßig in den Hauptentwicklungszweig integriert und automatisch gebaut. Dies ermöglicht die frühzeitige Erkennung von Integrationsproblemen.
-
-\textbf{Code-Reviews:} Vor der Integration in den Hauptzweig werden Änderungen von beiden Teammitgliedern geprüft. Dies verbessert die Codequalität und fördert den Wissensaustausch.
-
-\textbf{Dokumentation:} Relevante Entscheidungen und Implementierungsdetails werden fortlaufend dokumentiert. Dies umfasst sowohl Inline-Kommentare im Code als auch separate Dokumentation für komplexere Konzepte.
 
 \section{Anforderungsanalyse}
 \label{sec:anforderungsanalyse}
