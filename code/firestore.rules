@@ -1,18 +1,116 @@
-rules_version='2'
+rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /{document=**} {
-      // This rule allows anyone with your database reference to view, edit,
-      // and delete all data in your database. It is useful for getting
-      // started, but it is configured to expire after 30 days because it
-      // leaves your app open to attackers. At that time, all client
-      // requests to your database will be denied.
-      //
-      // Make sure to write security rules for your app before that time, or
-      // else all client requests to your database will be denied until you
-      // update your rules.
-      allow read, write: if request.time < timestamp.date(2025, 11, 9);
+
+    // ── Helper functions ──────────────────────────────────────────────────────
+
+    // Check whether the request comes from a signed-in user
+    function isAuthenticated() {
+      return request.auth != null;
     }
+
+    // Check whether the signed-in user is the owner of the document
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Check whether the signed-in user has the admin role
+    // The role field is stored inside the user's own Firestore document.
+    function isAdmin() {
+      return isAuthenticated() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // Prevent a user from silently escalating their own role field
+    function noRoleEscalation() {
+      return !('role' in request.resource.data) ||
+        request.resource.data.role == resource.data.role;
+    }
+
+
+    // ── users /{userId} ───────────────────────────────────────────────────────
+    // Cart and wishlist are stored as array fields inside this document,
+    // so the same rules protect them automatically.
+
+    match /users/{userId} {
+      // Read: a user may read their own document; admins may read any document.
+      allow get:  if isOwner(userId) || isAdmin();
+      allow list: if isAdmin();
+
+      // Create: only the user themselves, and only with the default role 'user'.
+      allow create: if isOwner(userId) &&
+        request.resource.data.role == 'user';
+
+      // Update: users may update their own document but cannot change their role;
+      //         admins may update any document (including role changes).
+      allow update: if (isOwner(userId) && noRoleEscalation()) || isAdmin();
+
+      // Delete: admin only.
+      allow delete: if isAdmin();
+    }
+
+
+    // ── products/{productId} ─────────────────────────────────────────────────
+
+    match /products/{productId} {
+      // Public read – products are visible to everyone including guests.
+      allow read: if true;
+
+      // Write – admin only.
+      allow create, update, delete: if isAdmin();
+    }
+
+
+    // ── orders/{orderId} ─────────────────────────────────────────────────────
+
+    match /orders/{orderId} {
+      // Read: a user may read orders that belong to them; admins may read all.
+      allow get:  if isAuthenticated() &&
+                    (resource.data.userId == request.auth.uid || isAdmin());
+      allow list: if isAdmin() ||
+                    (isAuthenticated() && resource.data.userId == request.auth.uid);
+
+      // Create:
+      //   • Authenticated users may create an order only when userId matches their UID.
+      //   • Guests (unauthenticated) may create an order only when userId is null
+      //     (guest checkout).
+      //   • Any new order must start with status 'pending'.
+      allow create: if request.resource.data.status == 'pending' &&
+        (
+          (isAuthenticated() && request.resource.data.userId == request.auth.uid) ||
+          (!isAuthenticated() && request.resource.data.userId == null)
+        );
+
+      // Update / Delete: admin only (status changes are done from the admin
+      // dashboard or by Cloud Functions, which use the Admin SDK).
+      allow update, delete: if isAdmin();
+    }
+
+
+    // ── categories/{categoryId} ───────────────────────────────────────────────
+
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+
+    // ── offers/{offerId} ─────────────────────────────────────────────────────
+
+    match /offers/{offerId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+
+    // ── newsletterLogs/{logId} ───────────────────────────────────────────────
+    // Written exclusively by Cloud Functions via the Admin SDK.
+    // No direct client access is permitted.
+
+    match /newsletterLogs/{logId} {
+      allow read, write: if false;
+    }
+
   }
 }
