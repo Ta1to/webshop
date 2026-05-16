@@ -4,6 +4,7 @@
  */
 
 import nodemailer from 'nodemailer';
+import { createHmac } from 'crypto';
 import Handlebars from 'handlebars';
 import { baseTemplate } from './emailTemplates.js';
 
@@ -89,6 +90,20 @@ export const sendEmail = async ({ to, subject, html, from }) => {
 };
 
 /**
+ * Generate a signed unsubscribe token to prevent IDOR attacks.
+ * Token = HMAC-SHA256(userId, UNSUBSCRIBE_SECRET), hex-encoded.
+ * @param {string} userId
+ * @returns {string}
+ */
+const generateUnsubscribeToken = (userId) => {
+  const secret = process.env.UNSUBSCRIBE_SECRET;
+  if (!secret) {
+    throw new Error('UNSUBSCRIBE_SECRET environment variable is not set.');
+  }
+  return createHmac('sha256', secret).update(userId).digest('hex');
+};
+
+/**
  * Send newsletter email
  * @param {object} options - Newsletter options
  * @param {string} options.to - Recipient email
@@ -101,6 +116,7 @@ export const sendNewsletterEmail = async ({ to, userName, offers, userId }) => {
   const { weeklyNewsletterBody } = await import('./emailTemplates.js');
   
   const appUrl = process.env.APP_URL || 'https://your-domain.com';
+  const unsubscribeToken = generateUnsubscribeToken(userId);
   
   const templateData = {
     subject: `Wöchentliche Angebote - ${new Date().toLocaleDateString('de-DE')}`,
@@ -112,7 +128,7 @@ export const sendNewsletterEmail = async ({ to, userName, offers, userId }) => {
       endDate: offer.endDate ? new Date(offer.endDate).toLocaleDateString('de-DE') : null
     })),
     appUrl,
-    unsubscribeUrl: `${appUrl}/unsubscribe?userId=${userId}`
+    unsubscribeUrl: `${appUrl}/unsubscribe?userId=${userId}&token=${unsubscribeToken}`
   };
 
   const html = compileEmailTemplate(weeklyNewsletterBody, templateData);

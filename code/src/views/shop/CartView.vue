@@ -598,8 +598,7 @@ export default {
   font-size: 1.25rem;
   font-weight: 700;
   color: var(--gray-900);
-  padding-top: 1rem;
-  border-top: 2px solid var(--gray-200);
+  padding-top: 0.25rem;
 }
 
 .total-amount {

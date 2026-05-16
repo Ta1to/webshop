@@ -43,7 +43,7 @@ const logOrderNotification = async (orderId, recipientEmail, status, result, err
   try {
     const db = admin.firestore();
     
-    await db.collection('newsletterLogs').add({
+    await db.collection('notificationLogs').add({
       sentAt: admin.firestore.FieldValue.serverTimestamp(),
       type: 'order_status',
       recipientEmail,

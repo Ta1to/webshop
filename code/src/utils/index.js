@@ -123,7 +123,7 @@ export function debounce(func, wait = UI.DEBOUNCE_DELAY) {
  * @returns {any} Cloned object
  */
 export function deepClone(obj) {
-  return JSON.parse(JSON.stringify(obj))
+  return structuredClone(obj)
 }
 
 /**

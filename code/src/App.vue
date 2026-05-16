@@ -13,7 +13,6 @@
 
     <AppFooter
       :user="userProfile"
-      :newsletter-loading="newsletterLoading"
     />
 
     <CookieBanner 
@@ -55,7 +54,6 @@ export default {
     const currentUser = ref(null)
     const cartItemCount = useCartItemCount()
     const userProfile = ref(null)
-    const newsletterLoading = ref(false)
     const isAdmin = ref(false)
     const router = useRouter()
     const showCookieSettings = ref(false)
@@ -148,7 +146,6 @@ export default {
         } else {
           isAdmin.value = false
           userProfile.value = null
-          newsletterLoading.value = false
           
           // Update UI state for guest
           await Promise.all([
@@ -170,7 +167,6 @@ export default {
         currentUser.value = null
         isAdmin.value = false
         userProfile.value = null
-        newsletterLoading.value = false
         
         await Promise.all([
           updateCartItems(),
@@ -191,7 +187,6 @@ export default {
       currentUser,
       cartItemCount,
       userProfile,
-      newsletterLoading,
       isAdmin,
       showCookieSettings,
       cookieBannerRef,

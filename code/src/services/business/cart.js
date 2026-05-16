@@ -73,8 +73,7 @@ export const getCart = async () => {
             price: productResult.data.price,
             finalPrice: finalPrice,
             offer: offer,
-            image: productResult.data.imageUrl || productResult.data.image,
-            imageUrl: productResult.data.imageUrl || productResult.data.image,
+            imageUrl: productResult.data.imageUrl,
             category: productResult.data.category,
             stock: productResult.data.stock
           })

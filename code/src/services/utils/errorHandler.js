@@ -82,17 +82,16 @@ class ErrorHandler {
    * @param {object} entry - Error entry
    */
   sendToExternalService(entry) {
-    // Placeholder for external service integration
-    // Example: Sentry, LogRocket, custom API
-    try {
-      // fetch('/api/log-error', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(entry)
-      // })
-    } catch (err) {
-      console.error('Failed to send error to external service:', err)
-    }
+    const reportingUrl = import.meta.env.VITE_ERROR_REPORTING_URL
+    if (!reportingUrl) return
+
+    fetch(reportingUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(entry)
+    }).catch(() => {
+      // Silently ignore — reporting failure must never break the app
+    })
   }
 
   /**

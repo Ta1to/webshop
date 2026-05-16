@@ -31,6 +31,7 @@ import WishlistView from '../views/auth/WishlistView.vue'
 import NotFoundView from '../views/NotFoundView.vue'
 import { auth } from '../services/firebase/config'
 import { onAuthStateChanged } from 'firebase/auth'
+import { errorHandler } from '../services/utils/errorHandler'
 
 const routes = [
     {
@@ -222,7 +223,7 @@ router.beforeEach(async (to, from, next) => {
                 next('/')
             }
         } catch (error) {
-            console.error('Error checking admin status:', error)
+            errorHandler.error('Error checking admin status', error)
             next('/')
         }
     } else {

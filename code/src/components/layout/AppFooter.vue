@@ -42,7 +42,7 @@
         </div>
 
         <!-- Customer Service -->
-  <div class="footer-section footer-links-column">
+        <div class="footer-section footer-links-column">
           <h3 class="section-title">Kundenservice</h3>
           <ul class="footer-links">
             <li><router-link to="/contact" class="footer-link">Kontakt</router-link></li>
@@ -127,8 +127,7 @@ import {
   Mail, 
   Phone, 
   MapPin, 
-  ArrowUp,
-  BellRing
+  ArrowUp
 } from 'lucide-vue-next'
 
 export default {
@@ -141,8 +140,7 @@ export default {
     Mail,
     Phone,
     MapPin,
-    ArrowUp,
-    BellRing
+    ArrowUp
   },
   props: {
     user: {

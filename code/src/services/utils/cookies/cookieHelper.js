@@ -1,3 +1,5 @@
+import { errorHandler } from '../errorHandler.js'
+
 export const CookieManager = {
   /**
    * Set a cookie
@@ -35,7 +37,7 @@ export const CookieManager = {
         try {
           return JSON.parse(trimmed.substring(nameEQ.length))
         } catch (e) {
-          console.warn(`Failed to parse cookie "${name}":`, e)
+          errorHandler.warn(`Failed to parse cookie "${name}"`, e)
           return null
         }
       }

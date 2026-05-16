@@ -1,6 +1,8 @@
 /**
  * Product Model
  */
+import { PRODUCT } from '../constants'
+
 export class Product {
   constructor(data = {}) {
     this.id = data.id || null
@@ -62,10 +64,10 @@ export class Product {
   }
 
   /**
-   * Check if product is low stock (less than 10)
+   * Check if product is low stock
    */
   isLowStock() {
-    return this.stock > 0 && this.stock < 10
+    return this.stock > 0 && this.stock < PRODUCT.LOW_STOCK_THRESHOLD
   }
 
   /**

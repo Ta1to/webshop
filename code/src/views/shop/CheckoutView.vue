@@ -4,7 +4,7 @@
       <h1 class="checkout-title">Zur Kasse</h1>
 
       <!-- Progress Steps -->
-      <div class="checkout-progress">
+      <div class="checkout-progress" :style="{ '--progress': progressWidth }">
         <div 
           v-for="(step, index) in steps" 
           :key="index"
@@ -554,6 +554,10 @@ export default {
       return subtotal.value + shippingCost.value
     })
 
+    const progressWidth = computed(() => {
+      return (currentStep.value - 1) / (steps.length - 1)
+    })
+
     // Methods
     const formatPrice = (price) => {
       return new Intl.NumberFormat('de-DE', {
@@ -666,6 +670,7 @@ export default {
       subtotal,
       shippingCost,
       total,
+      progressWidth,
       formatPrice,
       nextStep,
       prevStep,
@@ -715,6 +720,19 @@ export default {
   height: 2px;
   background: var(--gray-300);
   z-index: 0;
+}
+
+.checkout-progress::after {
+  content: '';
+  position: absolute;
+  top: 24px;
+  left: 2rem;
+  right: auto;
+  height: 2px;
+  background: var(--primary-green);
+  z-index: 1;
+  width: calc(var(--progress, 0) * (100% - 4rem));
+  transition: width 0.4s ease;
 }
 
 .progress-step {
@@ -1210,8 +1228,7 @@ export default {
 .summary-total {
   font-size: 1.25rem;
   font-weight: 700;
-  padding-top: 1rem;
-  border-top: 2px solid var(--gray-200);
+  padding-top: 0.25rem;
   color: var(--gray-900);
 }
 
@@ -1244,9 +1261,14 @@ export default {
     padding: 0 1rem;
   }
 
-  .checkout-progress::before {
+  .checkout-progress::before,
+  .checkout-progress::after {
     left: 1rem;
     right: 1rem;
+  }
+
+  .checkout-progress::after {
+    width: calc(var(--progress, 0) * (100% - 2rem));
   }
 
   .step-number {

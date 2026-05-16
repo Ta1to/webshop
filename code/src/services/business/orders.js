@@ -155,7 +155,8 @@ export const getUserOrders = async (userId) => {
     const ordersRef = collection(db, COLLECTIONS.ORDERS)
     const q = query(
       ordersRef, 
-      where('userId', '==', userId)
+      where('userId', '==', userId),
+      orderBy('createdAt', 'desc')
     )
     
     const querySnapshot = await getDocs(q)
@@ -163,13 +164,6 @@ export const getUserOrders = async (userId) => {
     
     querySnapshot.forEach((doc) => {
       orders.push(new Order({ id: doc.id, ...doc.data() }))
-    })
-    
-    // Sort by createdAt on client side
-    orders.sort((a, b) => {
-      const dateA = a.createdAt?.toDate?.() || new Date(0)
-      const dateB = b.createdAt?.toDate?.() || new Date(0)
-      return dateB - dateA
     })
     
     return { success: true, orders }
@@ -186,18 +180,12 @@ export const getUserOrders = async (userId) => {
 export const getAllOrders = async () => {
   try {
     const ordersRef = collection(db, COLLECTIONS.ORDERS)
-    const querySnapshot = await getDocs(ordersRef)
+    const q = query(ordersRef, orderBy('createdAt', 'desc'))
+    const querySnapshot = await getDocs(q)
     const orders = []
     
     querySnapshot.forEach((doc) => {
       orders.push(new Order({ id: doc.id, ...doc.data() }))
-    })
-    
-    // Sort by createdAt on client side
-    orders.sort((a, b) => {
-      const dateA = a.createdAt?.toDate?.() || new Date(0)
-      const dateB = b.createdAt?.toDate?.() || new Date(0)
-      return dateB - dateA
     })
     
     return { success: true, orders }
