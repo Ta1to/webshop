@@ -10,50 +10,30 @@ Dieses Kapitel legt die theoretischen Grundlagen für die Entwicklung des Websho
 \subsection{Definition und Einordnung}
 \label{subsec:ecommerce-definition}
 
-Der Begriff E-Commerce, kurz für Electronic Commerce, bezeichnet den elektronischen Handel von Waren und Dienstleistungen über digitale Netzwerke, insbesondere das Internet \cite{heinemann2024}. Im engeren Sinne umfasst E-Commerce alle Transaktionen, bei denen der Kaufvertrag auf elektronischem Wege zustande kommt. Im weiteren Sinne schließt der Begriff auch vorgelagerte Prozesse wie Produktpräsentation, Kundenberatung und Bestellabwicklung sowie nachgelagerte Prozesse wie Zahlungsabwicklung und Kundenservice ein.
+Der Begriff E-Commerce, kurz für Electronic Commerce, bezeichnet den elektronischen Handel von Waren und Dienstleistungen über digitale Netzwerke, insbesondere das Internet \cite{heinemann2024, jain2021}. Im engeren Sinne umfasst E-Commerce alle Transaktionen, bei denen der Kaufvertrag auf elektronischem Wege zustande kommt. Im weiteren Sinne schließt der Begriff auch vorgelagerte Prozesse wie Produktpräsentation, Kundenberatung und Bestellabwicklung sowie nachgelagerte Prozesse wie Zahlungsabwicklung und Kundenservice ein.
 
-E-Commerce lässt sich anhand der beteiligten Akteure in verschiedene Kategorien einteilen:
+E-Commerce lässt sich anhand der beteiligten Akteure in verschiedene Kategorien einteilen \cite{jain2021}. Die bekannteste Form ist das \textit{Business-to-Consumer (B2C)}-Modell, das Geschäftsbeziehungen zwischen Unternehmen und Endverbrauchern beschreibt und klassische Online-Shops wie Amazon oder Zalando umfasst. Davon abzugrenzen ist der \textit{Business-to-Business (B2B)}-Bereich, in dem Unternehmen untereinander handeln und der sich durch komplexere Preisstrukturen, individuelle Konditionen und größere Bestellmengen auszeichnet. Das \textit{Consumer-to-Consumer (C2C)}-Modell bezeichnet Transaktionen zwischen Privatpersonen, wie sie auf Plattformen wie eBay oder Kleinanzeigen stattfinden, während das \textit{Consumer-to-Business (C2B)}-Modell als seltenste Form die umgekehrte Richtung beschreibt, bei der Privatpersonen Leistungen an Unternehmen verkaufen. Der in dieser Arbeit entwickelte Webshop fällt in die Kategorie B2C und richtet sich an Endverbraucher, die nachhaltige Produkte erwerben möchten:
 
 \begin{itemize}
-    \item \textbf{Business-to-Consumer (B2C):} Geschäftsbeziehungen zwischen Unternehmen und Endverbrauchern. Dies ist die bekannteste Form des E-Commerce und umfasst klassische Online-Shops wie Amazon oder Zalando.
-    \item \textbf{Business-to-Business (B2B):} Handelsbeziehungen zwischen Unternehmen. B2B-Plattformen zeichnen sich oft durch komplexere Preisstrukturen, individuelle Konditionen und größere Bestellmengen aus.
-    \item \textbf{Consumer-to-Consumer (C2C):} Transaktionen zwischen Privatpersonen, wie sie auf Plattformen wie eBay oder Kleinanzeigen stattfinden.
-    \item \textbf{Consumer-to-Business (C2B):} Ein weniger verbreitetes Modell, bei dem Privatpersonen Produkte oder Dienstleistungen an Unternehmen verkaufen.
+    \item \textbf{B2C (Business-to-Consumer):} Unternehmen verkaufen direkt an Endverbraucher – klassische Online-Shops wie Amazon oder Zalando.
+    \item \textbf{B2B (Business-to-Business):} Handel zwischen Unternehmen, geprägt durch Individualkonditionen, Rahmenverträge und größere Bestellmengen.
+    \item \textbf{C2C (Consumer-to-Consumer):} Privatpersonen handeln untereinander über Plattformen wie eBay oder Kleinanzeigen.
+    \item \textbf{C2B (Consumer-to-Business):} Privatpersonen bieten Leistungen an Unternehmen an – etwa auf Freelancer-Plattformen wie Fiverr.
 \end{itemize}
-
-Der in dieser Arbeit entwickelte Webshop fällt in die Kategorie B2C und richtet sich an Endverbraucher, die nachhaltige Produkte erwerben möchten.
 
 \subsection{Komponenten eines E-Commerce-Systems}
 \label{subsec:ecommerce-komponenten}
 
-Ein vollständiges E-Commerce-System besteht aus mehreren funktionalen Komponenten, die zusammenwirken müssen, um einen reibungslosen Geschäftsbetrieb zu ermöglichen:
+Ein vollständiges E-Commerce-System besteht aus mehreren funktionalen Komponenten, die zusammenwirken müssen, um einen reibungslosen Geschäftsbetrieb zu ermöglichen. Das \textit{Produktinformationsmanagement (PIM)} bildet dabei das zentrale Datenfundament, indem es alle produktbezogenen Informationen wie Beschreibungen, Preise, Bilder und Verfügbarkeiten verwaltet und konsistente Produktdarstellungen über verschiedene Kanäle hinweg gewährleistet. Ergänzt wird es durch ein \textit{Content-Management-System (CMS)}, das redaktionelle Inhalte wie Kategorieseiten und Marketingbanner verwaltet; die Trennung von Inhalt und Darstellung erlaubt dabei flexible Anpassungen ohne Programmieraufwand.
 
-\textbf{Produktinformationsmanagement (PIM):} Das PIM-System verwaltet alle produktbezogenen Daten wie Beschreibungen, Preise, Bilder und Verfügbarkeiten. Eine strukturierte Datenhaltung ermöglicht konsistente Produktdarstellungen über verschiedene Kanäle hinweg.
-
-\textbf{Content-Management-System (CMS):} Das CMS ermöglicht die Verwaltung und Darstellung redaktioneller Inhalte wie Kategorieseiten, Informationsseiten und Marketingbanner. Die Trennung von Inhalt und Darstellung erlaubt flexible Anpassungen ohne Programmieraufwand.
-
-\textbf{Kundenverwaltung:} Die Kundenverwaltung umfasst Registrierung, Authentifizierung und Profilverwaltung. Gespeicherte Kundendaten ermöglichen personalisierte Einkaufserlebnisse und vereinfachen wiederkehrende Bestellungen.
-
-\textbf{Warenkorb und Checkout:} Der Warenkorb sammelt die vom Kunden ausgewählten Produkte und ermöglicht deren Verwaltung vor dem Kauf. Der Checkout-Prozess führt durch die notwendigen Schritte zur Bestellaufgabe, einschließlich Adresseingabe, Versandauswahl und Zahlungsabwicklung.
-
-\textbf{Bestellmanagement:} Nach Abschluss einer Bestellung muss diese verarbeitet, verfolgt und dokumentiert werden. Das Bestellmanagement koordiniert den Informationsfluss zwischen Kunde, Lager und Versanddienstleister.
-
-\textbf{Zahlungsabwicklung:} Die Integration verschiedener Zahlungsmethoden wie Kreditkarte, PayPal oder Rechnung ist ein kritischer Erfolgsfaktor. Dabei müssen Sicherheitsstandards wie PCI-DSS eingehalten werden.
+Die \textit{Kundenverwaltung} umfasst Registrierung, Authentifizierung und Profilverwaltung, wobei gespeicherte Kundendaten personalisierte Einkaufserlebnisse ermöglichen und wiederkehrende Bestellungen vereinfachen. Zentral für die eigentliche Kauftransaktion ist die Komponente \textit{Warenkorb und Checkout}: Der Warenkorb sammelt ausgewählte Produkte, während der Checkout-Prozess den Kunden durch Adresseingabe, Versandauswahl und Zahlungsabwicklung führt \cite{butnampetch2020}. Das anschließende \textit{Bestellmanagement} verarbeitet, verfolgt und dokumentiert abgeschlossene Bestellungen und koordiniert den Informationsfluss zwischen Kunde, Lager und Versanddienstleister. Den Abschluss bildet die \textit{Zahlungsabwicklung}, die verschiedene Zahlungsmethoden wie Kreditkarte, PayPal oder Rechnung integriert und dabei Sicherheitsstandards wie PCI-DSS einhalten muss.
 
 \subsection{Anforderungen an moderne Webshops}
 \label{subsec:webshop-anforderungen}
 
-Moderne E-Commerce-Plattformen müssen eine Vielzahl von Anforderungen erfüllen, um im Wettbewerb bestehen zu können:
+Moderne E-Commerce-Plattformen müssen eine Vielzahl von Anforderungen erfüllen, um im Wettbewerb bestehen zu können. Hinsichtlich der Benutzerfreundlichkeit sind eine intuitive Navigation und ein übersichtliches Design entscheidend für die Conversion-Rate; empirische Studien belegen, dass komplizierte Checkout-Prozesse einen der Hauptgründe für Kaufabbrüche darstellen \cite{heinemann2024, butnampetch2020}. Eng damit verknüpft ist die Anforderung an Responsive Design: Da mobile Endgeräte einen stetig wachsenden Anteil am Online-Handel ausmachen, ist eine optimale Darstellung auf Smartphones und Tablets unverzichtbar \cite{nawir2024}.
 
-\textbf{Benutzerfreundlichkeit:} Eine intuitive Navigation und ein übersichtliches Design sind entscheidend für die Conversion-Rate. Studien zeigen, dass komplizierte Checkout-Prozesse einer der Hauptgründe für Kaufabbrüche sind \cite{heinemann2024}.
-
-\textbf{Responsive Design:} Mit einem steigenden Anteil mobiler Endgeräte am Online-Handel ist eine optimale Darstellung auf Smartphones und Tablets unverzichtbar. Responsive Webdesign passt die Darstellung automatisch an die Bildschirmgröße an.
-
-\textbf{Performance:} Ladezeiten haben einen direkten Einfluss auf Conversion-Raten und Suchmaschinenrankings. Eine Verzögerung von einer Sekunde kann zu einem signifikanten Rückgang der Conversions führen.
-
-\textbf{Sicherheit:} Der Schutz von Kundendaten und Zahlungsinformationen ist nicht nur rechtlich vorgeschrieben, sondern auch ein wichtiger Vertrauensfaktor. HTTPS-Verschlüsselung, sichere Authentifizierung und regelmäßige Sicherheitsupdates sind Mindestanforderungen.
-
-\textbf{Skalierbarkeit:} Ein erfolgreiches E-Commerce-System muss mit steigenden Nutzerzahlen und Bestellvolumen wachsen können, ohne an Performance einzubüßen.
+Ebenso kritisch ist die Performance: Ladezeiten beeinflussen Conversion-Raten und Suchmaschinenrankings unmittelbar, und empirische Untersuchungen zeigen, dass bereits eine Verzögerung von einer Sekunde zu einem messbaren Rückgang der Conversions führt \cite{peterson2018}. Gleichrangig ist die Sicherheit, denn der Schutz von Kundendaten und Zahlungsinformationen ist nicht nur rechtlich vorgeschrieben, sondern auch ein zentraler Vertrauensfaktor; die Umsetzung sollte sich dabei an anerkannten Standards wie den OWASP Top Ten orientieren \cite{fredj2020}. Schließlich muss ein erfolgreiches E-Commerce-System skalierbar sein, also mit steigenden Nutzerzahlen und Bestellvolumen wachsen können, ohne Performanceeinbußen zu erleiden.
 
 \section{Frontend-Technologien}
 \label{sec:frontend-technologien}
@@ -63,37 +43,61 @@ Moderne E-Commerce-Plattformen müssen eine Vielzahl von Anforderungen erfüllen
 
 JavaScript hat sich in den vergangenen Jahren zur dominierenden Programmiersprache für die Webentwicklung entwickelt \cite{flanagan2020}. Ursprünglich als einfache Skriptsprache für clientseitige Interaktionen konzipiert, ermöglicht JavaScript heute die Entwicklung komplexer Anwendungen sowohl im Browser als auch auf dem Server.
 
-Die Sprache zeichnet sich durch folgende Eigenschaften aus:
-
-\textbf{Dynamische Typisierung:} Variablen in JavaScript sind nicht an einen festen Datentyp gebunden. Dies ermöglicht flexible Programmierung, erfordert aber sorgfältige Handhabung, um Laufzeitfehler zu vermeiden.
-
-\textbf{Prototypbasierte Objektorientierung:} Anders als klassenbasierte Sprachen wie Java verwendet JavaScript Prototypen zur Vererbung. Mit ECMAScript 2015 (ES6) wurde eine Klassensyntax eingeführt, die jedoch intern weiterhin auf Prototypen basiert.
-
-\textbf{Asynchrone Programmierung:} JavaScript unterstützt asynchrone Operationen durch Callbacks, Promises und seit ES2017 durch async/await. Dies ist essentiell für die nicht-blockierende Verarbeitung von Netzwerkanfragen und Benutzerinteraktionen.
-
-\textbf{Event-driven Architecture:} Das Event-Loop-Modell von JavaScript ermöglicht die effiziente Verarbeitung von Ereignissen ohne Multithreading. Dies ist besonders für interaktive Webanwendungen von Vorteil.
+Sprachlich zeichnet sich JavaScript durch dynamische Typisierung aus: Variablen sind nicht an feste Datentypen gebunden, was flexible Programmierung erlaubt, jedoch sorgfältige Handhabung erfordert, um Laufzeitfehler zu vermeiden. Statt klassenbasierter Vererbung wie in Java setzt JavaScript auf prototypbasierte Objektorientierung; mit ECMAScript 2015 (ES6) wurde zwar eine Klassensyntax eingeführt, die intern jedoch weiterhin auf Prototypen basiert. Für die Entwicklung reaktiver Webanwendungen besonders bedeutsam ist die Unterstützung asynchroner Programmierung durch Callbacks, Promises und seit ES2017 durch \texttt{async/await}, die eine nicht-blockierende Verarbeitung von Netzwerkanfragen und Benutzerinteraktionen ermöglicht. Das Event-Loop-Modell der Sprache erlaubt schließlich die effiziente Verarbeitung von Ereignissen ohne Multithreading und bildet damit die Grundlage für die hohe Interaktivität moderner Webanwendungen.
 
 \subsection{Single Page Applications}
 \label{subsec:spa}
 
-Single Page Applications (SPAs) sind Webanwendungen, die nach dem initialen Laden der Seite keine vollständigen Seitenneuladen mehr erfordern. Stattdessen werden Inhalte dynamisch nachgeladen und die Benutzeroberfläche durch JavaScript aktualisiert. Dies führt zu einem flüssigeren Benutzererlebnis, das eher dem einer Desktop-Anwendung entspricht.
+Single Page Applications (SPAs) sind Webanwendungen, die nach dem initialen Laden der Seite keine vollständigen Seitenneuladen mehr erfordern \cite{kothapalli2022}. Stattdessen werden Inhalte dynamisch nachgeladen und die Benutzeroberfläche durch JavaScript aktualisiert. Dies führt zu einem flüssigeren Benutzererlebnis, das eher dem einer Desktop-Anwendung entspricht.
 
-Die Vorteile von SPAs umfassen:
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    node distance=0.55cm and 1.8cm,
+    box/.style={rectangle, rounded corners=3pt, draw=black!60, fill=white,
+                minimum width=3.0cm, minimum height=0.65cm, text centered,
+                font=\small, drop shadow},
+    server/.style={box, fill=gray!15},
+    browser/.style={box, fill=blue!10},
+    arrow/.style={-{Stealth[length=5pt]}, thick, gray!70},
+]
 
-\begin{itemize}
-    \item Schnellere Interaktionen durch Vermeidung von Seitenneuladen
-    \item Reduzierte Serverlast durch Auslagerung der Rendering-Logik auf den Client
-    \item Bessere Trennung von Frontend und Backend durch API-basierte Kommunikation
-    \item Verbesserte Offline-Fähigkeiten durch lokales Caching
-\end{itemize}
+%% --- MPA (linke Hälfte) ---
+\node[browser] (mpa-b1) {Browser};
+\node[server,  below=of mpa-b1] (mpa-s1) {Server};
+\node[browser, below=of mpa-s1] (mpa-b2) {Browser};
 
-Den Vorteilen stehen jedoch auch Herausforderungen gegenüber:
+\draw[arrow]  (mpa-b1.south) -- node[right, font=\footnotesize]{HTML-Anfrage} (mpa-s1.north);
+\draw[arrow]  (mpa-s1.south) -- node[right, font=\footnotesize]{Vollst. HTML-Seite} (mpa-b2.north);
+\node[font=\footnotesize\itshape, below=0.25cm of mpa-b2] {Vollst. Seitenneuladen};
 
-\begin{itemize}
-    \item Längere initiale Ladezeit durch das Laden des gesamten JavaScript-Bundles
-    \item Komplexere Suchmaschinenoptimierung, da Inhalte erst durch JavaScript gerendert werden
-    \item Erhöhter Entwicklungsaufwand für State-Management und Routing
-\end{itemize}
+%% --- SPA (rechte Hälfte) ---
+\node[browser, right=3.5cm of mpa-b1] (spa-b1) {Browser};
+\node[server,  below=of spa-b1] (spa-s1) {Server};
+\node[browser, below=of spa-s1] (spa-b2) {Browser};
+\node[server,  right=1.5cm of spa-b2] (spa-api) {API};
+
+\draw[arrow] (spa-b1.south) -- node[right, font=\footnotesize]{Einmaliger Bundle-Request} (spa-s1.north);
+\draw[arrow] (spa-s1.south) -- node[right, font=\footnotesize]{HTML + JS-Bundle} (spa-b2.north);
+\draw[arrow] (spa-b2.east)  -- node[above, font=\footnotesize]{JSON} (spa-api.west);
+\draw[arrow] (spa-api.west) -- node[below, font=\footnotesize]{Daten} (spa-b2.east);
+\node[font=\footnotesize\itshape, below=0.25cm of spa-b2] {Partielles DOM-Update};
+
+%% Beschriftungen
+\node[font=\small\bfseries, above=0.3cm of mpa-b1] {Multi-Page Application (MPA)};
+\node[font=\small\bfseries, above=0.3cm of spa-b1] {Single Page Application (SPA)};
+
+%% Trennlinie
+\draw[dashed, gray!50] ($(mpa-b1.north east)!0.5!(spa-b1.north west)$) ++(0, 0.5cm)
+    -- ($(mpa-b2.south east)!0.5!(spa-b2.south west)$) ++(0,-0.6cm);
+\end{tikzpicture}
+\caption{Vergleich des Anfrageverhaltens von MPA und SPA}
+\label{fig:spa-vs-mpa}
+\end{figure}
+
+Gegenüber klassischen Multi-Page Applications bieten SPAs mehrere Vorteile: Durch die Vermeidung vollständiger Seitenneuladen reagiert die Anwendung deutlich schneller auf Nutzereingaben, die Rendering-Logik wird auf den Client ausgelagert und reduziert damit die Serverlast, und die klare API-basierte Trennung von Frontend und Backend erleichtert die parallele Entwicklung beider Schichten. Lokales Caching schafft zudem die Grundlage für verbesserte Offline-Fähigkeiten \cite{kothapalli2022}.
+
+Den Vorteilen stehen jedoch Herausforderungen gegenüber. Die initiale Ladezeit fällt länger aus, da zunächst das vollständige JavaScript-Bundle übertragen werden muss, bevor die Anwendung interaktiv wird. Die Suchmaschinenoptimierung gestaltet sich komplexer, weil Inhalte erst durch JavaScript gerendert werden und herkömmliche Crawler sie möglicherweise nicht vollständig erfassen können \cite{kowalczyk2024}. Hinzu kommt ein erhöhter Entwicklungsaufwand für clientseitiges State-Management und Routing im Vergleich zu serverseitigen Ansätzen.
 
 \subsection{Das Vue.js Framework}
 \label{subsec:vuejs}
@@ -102,50 +106,34 @@ Vue.js ist ein progressives JavaScript-Framework zur Entwicklung von Benutzerobe
 
 \subsubsection{Kernkonzepte von Vue.js}
 
-\textbf{Reaktives Datenbindung:} Vue verwendet ein reaktives System, das automatisch Änderungen an Daten erkennt und die betroffenen Teile der Benutzeroberfläche aktualisiert. Entwickler müssen nicht manuell DOM-Manipulationen durchführen, was den Code erheblich vereinfacht.
-
-\textbf{Komponentenbasierte Architektur:} Vue-Anwendungen werden aus wiederverwendbaren Komponenten zusammengesetzt. Jede Komponente kapselt ihre eigene Logik, ihr Template und optional ihre Styles. Dies fördert Modularität und Wiederverwendbarkeit.
-
-\textbf{Single File Components:} Vue ermöglicht die Definition von Komponenten in einzelnen .vue-Dateien, die Template, Script und Style in einer Datei vereinen. Diese Struktur verbessert die Organisation und Lesbarkeit des Codes.
-
-\textbf{Direktiven:} Vue bietet spezielle HTML-Attribute (Direktiven), die reaktives Verhalten ermöglichen. Beispiele sind \texttt{v-if} für bedingte Anzeige, \texttt{v-for} für Schleifen und \texttt{v-model} für bidirektionale Datenbindung.
+Das Herzstück von Vue.js ist ein reaktives Datenbindungssystem, das Änderungen an Daten automatisch erkennt und die betroffenen Teile der Benutzeroberfläche aktualisiert, ohne dass Entwickler manuell DOM-Manipulationen durchführen müssen. Darauf aufbauend fördert die komponentenbasierte Architektur Modularität und Wiederverwendbarkeit: Jede Komponente kapselt ihre eigene Logik, ihr Template und optional ihre Styles in einer eigenständigen Einheit. Das Konzept der \textit{Single File Components} setzt dies konsequent um, indem Template, Script und Style in einer einzigen \texttt{.vue}-Datei zusammengefasst werden, was die Organisation und Lesbarkeit des Codes erheblich verbessert. Ergänzt wird dieses Modell durch \textit{Direktiven} – spezielle HTML-Attribute wie \texttt{v-if} für bedingte Anzeige, \texttt{v-for} für Schleifen oder \texttt{v-model} für bidirektionale Datenbindung –, die reaktives Verhalten deklarativ im Template ausdrücken.
 
 \subsubsection{Das Vue.js Ökosystem}
 
-Um Vue.js herum hat sich ein umfangreiches Ökosystem entwickelt:
-
-\textbf{Vue Router:} Die offizielle Routing-Bibliothek ermöglicht die Navigation zwischen verschiedenen Ansichten einer SPA. Sie unterstützt verschachtelte Routen, dynamische Routenparameter und Navigation Guards für Zugriffskontrolle.
-
-\textbf{Pinia:} Der offizielle State-Management-Store für Vue 3 ermöglicht die zentrale Verwaltung von Anwendungszustand. Pinia löst die ältere Bibliothek Vuex ab und bietet eine intuitivere API mit voller TypeScript-Unterstützung.
-
-\textbf{Vite:} Ein modernes Build-Tool, das speziell für Vue optimiert ist \cite{vite2025}. Vite nutzt native ES-Module für schnelle Entwicklungsserver-Starts und bietet optimierte Production-Builds.
+Um Vue.js herum hat sich ein umfangreiches Ökosystem offiziell unterstützter Bibliotheken entwickelt. Der \textit{Vue Router} übernimmt als offizielle Routing-Bibliothek die Navigation zwischen den verschiedenen Ansichten einer SPA und unterstützt dabei verschachtelte Routen, dynamische Routenparameter sowie Navigation Guards für eine feingranulare Zugriffskontrolle. Das State-Management wird durch \textit{Pinia} abgedeckt, den offiziellen Nachfolger der älteren Vuex-Bibliothek, der sich durch eine intuitivere API und vollständige TypeScript-Unterstützung auszeichnet. Für den Build-Prozess kommt \textit{Vite} zum Einsatz, ein modernes Build-Tool, das native ES-Module für schnelle Entwicklungsserver-Starts nutzt und optimierte Production-Builds erzeugt \cite{vite2025}.
 
 \subsubsection{Vergleich mit anderen Frameworks}
 
-Im Vergleich zu anderen populären Frontend-Frameworks wie React und Angular positioniert sich Vue als ausgewogene Lösung:
+Im Vergleich zu anderen populären Frontend-Frameworks wie React und Angular positioniert sich Vue als ausgewogene Lösung, wie mehrere unabhängige empirische Leistungsvergleiche zeigen \cite{piastou2023, bielak2022, emmanni2023}:
 
 \begin{table}[H]
 \centering
-\begin{tabularx}{\textwidth}{|l|X|X|X|}
-\hline
-\textbf{Kriterium} & \textbf{Vue.js} & \textbf{React} & \textbf{Angular} \\
-\hline
-Lernkurve & Flach & Mittel & Steil \\
-\hline
-Größe (min) & ~33 KB & ~42 KB & ~143 KB \\
-\hline
-Architektur & Framework & Bibliothek & Framework \\
-\hline
-Template & HTML-basiert & JSX & HTML-basiert \\
-\hline
-State Mgmt & Pinia & Redux/Context & Services/RxJS \\
-\hline
-\end{tabularx}
-\caption{Vergleich von Frontend-Frameworks}
 \label{tab:framework-vergleich}
+\begin{tabular}{lllll}
+\toprule
+\textbf{Kriterium} & \textbf{Vue.js} & \textbf{React} & \textbf{Angular} \\
+\midrule
+Lernkurve    & Flach       & Mittel          & Steil \\
+Größe (min.) & $\sim$33 KB & $\sim$42 KB     & $\sim$143 KB \\
+Architektur  & Framework   & Bibliothek      & Framework \\
+Template     & HTML-basiert & JSX            & HTML-basiert \\
+State-Mgmt.  & Pinia       & Redux / Context & Services / RxJS \\
+\bottomrule
+\end{tabular}
+\caption{Vergleich von Frontend-Frameworks}
 \end{table}
 
-Die Entscheidung für Vue.js in diesem Projekt basiert auf der flachen Lernkurve, der ausgezeichneten Dokumentation und der guten Integration mit Firebase.
+Messungen von \textcite{diniz2022} belegen darüber hinaus, dass Vue bei Rendering-Operationen gegenüber Angular und React konkurrenzfähige Performance aufweist. Die Entscheidung für Vue.js in diesem Projekt basiert auf der flachen Lernkurve, der ausgezeichneten Dokumentation und der guten Integration mit Firebase.
 
 \section{Backend-as-a-Service mit Firebase}
 \label{sec:firebase}
@@ -153,98 +141,80 @@ Die Entscheidung für Vue.js in diesem Projekt basiert auf der flachen Lernkurve
 \subsection{Das Konzept Backend-as-a-Service}
 \label{subsec:baas-konzept}
 
-Backend-as-a-Service (BaaS) bezeichnet Cloud-Dienste, die fertige Backend-Funktionalitäten über APIs bereitstellen \cite{moroney2017}. Entwickler können diese Dienste nutzen, ohne eigene Server aufsetzen und administrieren zu müssen. Typische BaaS-Funktionalitäten umfassen:
-
-\begin{itemize}
-    \item Benutzerauthentifizierung und -autorisierung
-    \item Datenbanken und Datenspeicherung
-    \item Dateispeicher für Medien
-    \item Push-Benachrichtigungen
-    \item Cloud Functions für serverseitige Logik
-    \item Hosting für statische Inhalte
-\end{itemize}
-
-Die Vorteile von BaaS-Plattformen sind vielfältig:
-
-\textbf{Reduzierte Time-to-Market:} Durch die Nutzung fertiger Infrastrukturkomponenten können Entwickler sich auf die Geschäftslogik konzentrieren und Anwendungen schneller bereitstellen.
-
-\textbf{Automatische Skalierung:} BaaS-Dienste skalieren automatisch mit der Nutzung. Entwickler müssen sich nicht um Kapazitätsplanung oder Lastverteilung kümmern.
-
-\textbf{Geringere Betriebskosten:} Die Abrechnung erfolgt nutzungsbasiert (Pay-as-you-go), was besonders für Projekte mit variablem oder schwer vorhersagbarem Nutzungsvolumen vorteilhaft ist.
-
-\textbf{Integrierte Sicherheit:} Sicherheitskritische Aspekte wie Authentifizierung, Verschlüsselung und Zugriffskontrolle werden vom Anbieter verwaltet und regelmäßig aktualisiert.
+Backend-as-a-Service (BaaS) bezeichnet Cloud-Dienste, die fertige Backend-Funktionalitäten wie Authentifizierung, Datenbanken, Dateispeicherung und serverseitige Funktionsausführung über standardisierte APIs bereitstellen \cite{moroney2017, uunonen2023, kolesnikov2024}. Entwickler profitieren dabei von automatischer Skalierung, nutzungsbasierter Abrechnung nach dem Pay-as-you-go-Prinzip sowie der Auslagerung sicherheitskritischer Aspekte wie Verschlüsselung und Zugriffskontrolle an den Anbieter – und können sich damit vollständig auf die Geschäftslogik der Anwendung konzentrieren \cite{ayezabu2022}.
 
 \subsection{Firebase im Überblick}
 \label{subsec:firebase-overview}
 
-Firebase ist eine von Google betriebene BaaS-Plattform, die eine breite Palette von Diensten für die Entwicklung von Web- und Mobilanwendungen bereitstellt \cite{firebase2025}. Die Plattform wurde 2011 gegründet und 2014 von Google übernommen. Seitdem wurde das Angebot kontinuierlich erweitert.
+Firebase ist eine von Google betriebene BaaS-Plattform für Web- und Mobilanwendungen, die 2011 gegründet und 2014 von Google übernommen wurde \cite{firebase2025, chougale2021}. Abbildung~\ref{fig:firebase-dienste} gibt einen Überblick über die im Projekt eingesetzten Dienste und deren Zusammenspiel im Gesamtsystem.
 
-Die für dieses Projekt relevanten Firebase-Dienste werden im Folgenden vorgestellt:
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    node distance=0.5cm,
+    layer/.style={rectangle, rounded corners=5pt, draw=black!40,
+                  minimum width=13cm, minimum height=0.9cm,
+                  text centered, font=\small\bfseries},
+    service/.style={rectangle, rounded corners=3pt, draw=black!50, fill=blue!8,
+                    minimum width=2.1cm, minimum height=0.85cm,
+                    align=center, font=\footnotesize},
+    doublearrow/.style={{Stealth[length=5pt]}-{Stealth[length=5pt]}, thick, gray!70},
+]
+
+%% Schicht 1: Frontend
+\node[layer, fill=blue!12] (frontend) {Vue.js\,--\,Browser (SPA)};
+
+%% Schicht 2: Firebase-Dienste (zentriert bei xshift=-5.0cm)
+\node[service, below=1.2cm of frontend, xshift=-5.0cm] (auth)     {Firebase\\Authentication};
+\node[service, right=0.4cm of auth]                    (firestore){Cloud\\Firestore};
+\node[service, right=0.4cm of firestore]               (storage)  {Firebase\\Storage};
+\node[service, right=0.4cm of storage]                 (hosting)  {Firebase\\Hosting};
+\node[service, right=0.4cm of hosting]                 (functions){Cloud\\Functions};
+
+%% Firebase-Rahmen (Hintergrundebene)
+\begin{scope}[on background layer]
+    \node[layer, fill=orange!8,
+          fit=(auth)(firestore)(storage)(hosting)(functions),
+          inner sep=8pt,
+          label={[font=\footnotesize\bfseries]above:{Firebase (BaaS-Plattform)}}]
+          (firebaselayer) {};
+\end{scope}
+
+%% Schicht 3: Google Cloud (relativ zur Firebase-Ebene)
+\node[layer, fill=gray!15, below=0.6cm of firebaselayer] (gcloud)
+      {Google Cloud Infrastructure};
+
+%% Verbindungspfeile
+\draw[doublearrow] (frontend.south) -- (firebaselayer.north);
+\draw[doublearrow] (firebaselayer.south) -- (gcloud.north);
+
+\end{tikzpicture}
+\caption{Firebase-Dienste und ihre Rollen im Projektsystem}
+\label{fig:firebase-dienste}
+\end{figure}
+
+\subsection{Kernkomponenten der Firebase-Plattform}
+\label{subsec:firebase-dienste}
 
 \subsubsection{Firebase Authentication}
 
-Firebase Authentication bietet fertige Lösungen für die Benutzerauthentifizierung \cite{firebaseAuth2025}. Unterstützt werden:
-
-\begin{itemize}
-    \item E-Mail/Passwort-Authentifizierung
-    \item Social Login (Google, Facebook, Twitter, GitHub)
-    \item Telefonnummer-Authentifizierung
-    \item Anonyme Authentifizierung
-    \item Integration mit benutzerdefinierten Authentifizierungssystemen
-\end{itemize}
-
-Die Authentifizierung wird vollständig von Firebase verwaltet, einschließlich sicherer Passwortspeicherung, Token-Management und Session-Handling. Entwickler interagieren über ein einheitliches SDK mit dem Dienst.
+Firebase Authentication ist ein verwalteter Identitätsdienst, der Entwicklern eine einheitliche Abstraktion über verschiedene Anmeldemethoden bietet \cite{firebaseAuth2025, milojkovic2024}. Unterstützt werden E-Mail/Passwort, OAuth-basierte Social-Login-Anbieter sowie anonyme Sitzungen. Token-Management, sichere Passwortspeicherung und Session-Handling übernimmt der Dienst vollständig, sodass keine eigene Authentifizierungsinfrastruktur notwendig ist.
 
 \subsubsection{Cloud Firestore}
 
-Cloud Firestore ist eine NoSQL-Dokumentendatenbank, die für die Entwicklung skalierbarer Anwendungen konzipiert wurde \cite{firestore2025}. Die Datenbank organisiert Daten in Dokumenten, die in Sammlungen (Collections) gruppiert werden.
-
-Wesentliche Merkmale von Firestore sind:
-
-\textbf{Flexible Datenmodellierung:} Als schemalose Datenbank erlaubt Firestore die Speicherung beliebig strukturierter Dokumente. Dies ermöglicht agile Entwicklung ohne vorab definierte Datenbankschemas.
-
-\textbf{Echtzeit-Synchronisation:} Firestore unterstützt Echtzeit-Listener, die Clients automatisch über Datenänderungen informieren. Dies ermöglicht reaktive Benutzeroberflächen ohne manuelles Polling.
-
-\textbf{Offline-Unterstützung:} Die Client-SDKs von Firestore bieten integrierte Offline-Unterstützung. Änderungen werden lokal zwischengespeichert und bei Wiederherstellung der Verbindung synchronisiert.
-
-\textbf{Sicherheitsregeln:} Firestore Security Rules ermöglichen die deklarative Definition von Zugriffsrechten auf Dokumentenebene. Diese Regeln werden serverseitig durchgesetzt und bieten granulare Kontrolle über Lese- und Schreibzugriffe.
+Cloud Firestore ist eine schemalose NoSQL-Dokumentendatenbank, die Daten in hierarchisch organisierten Collections und Documents verwaltet \cite{firestore2025, kesavan2023}. Echtzeit-Listener benachrichtigen verbundene Clients automatisch bei Datenänderungen; die clientseitigen SDKs bieten zudem integrierte Offline-Unterstützung mit automatischer Synchronisation. Zugriffskontrolle wird über deklarative Security Rules auf Dokumentenebene durchgesetzt.
 
 \subsubsection{Firebase Storage}
 
-Firebase Storage ist ein Dienst zur Speicherung von Dateien wie Bildern, Videos und anderen Medien. Der Dienst basiert auf Google Cloud Storage und bietet:
-
-\begin{itemize}
-    \item Robuste Uploads und Downloads, auch bei instabilen Netzwerkverbindungen
-    \item Sicherheitsregeln analog zu Firestore
-    \item Integration mit Firebase Authentication für benutzerbezogene Speicherbereiche
-    \item CDN-Integration für schnelle Auslieferung weltweit
-\end{itemize}
+Firebase Storage stellt objektbasierte Dateispeicherung auf Basis von Google Cloud Storage bereit und ermöglicht die zuverlässige Speicherung und Auslieferung von Binärobjekten wie Bildern oder Videos \cite{firebase2025}. Zugriffskontrolle erfolgt über ein zu Firestore analoges Security-Rules-Modell; die Auslieferung erfolgt über ein globales CDN.
 
 \subsubsection{Firebase Hosting}
 
-Firebase Hosting ist ein Dienst für das Hosting statischer Webinhalte. Er bietet:
-
-\begin{itemize}
-    \item Automatische SSL-Zertifikate für HTTPS
-    \item Globales CDN für niedrige Latenzen
-    \item Einfaches Deployment über die Firebase CLI
-    \item Unterstützung für Single Page Applications mit URL-Rewriting
-    \item Rollback-Funktionalität für frühere Deployments
-\end{itemize}
+Firebase Hosting ist ein statischer Webhosting-Dienst, der Assets und SPAs über ein globales CDN mit automatischen SSL-Zertifikaten und versioniertem CLI-Deployment bereitstellt \cite{firebase2025}. URL-Rewriting ermöglicht clientseitige Navigation ohne serverseitige Konfiguration.
 
 \subsubsection{Cloud Functions for Firebase}
 
-Cloud Functions ermöglichen die Ausführung von serverseitigem Code ohne eigene Server. Funktionen können durch verschiedene Ereignisse ausgelöst werden:
-
-\begin{itemize}
-    \item HTTP-Anfragen
-    \item Änderungen in Firestore-Dokumenten
-    \item Benutzerregistrierungen in Firebase Auth
-    \item Datei-Uploads in Firebase Storage
-    \item Zeitgesteuerte Ausführung (Cron-Jobs)
-\end{itemize}
-
-Cloud Functions eignen sich für Aufgaben, die nicht im Client ausgeführt werden sollten, wie beispielsweise das Versenden von E-Mails, die Validierung von Bestellungen oder die Integration mit Drittanbietern.
+Cloud Functions for Firebase sind ein Serverless-Ausführungsmodell für ereignisgesteuerten serverseitigen Code ohne eigene Serverinfrastruktur \cite{firebase2025, kolesnikov2024}. Als Auslöser dienen HTTP-Anfragen, Firestore-Dokumentänderungen, Authentifizierungsereignisse oder zeitgesteuerte Jobs, womit serverseitige Logik nahtlos in das BaaS-Modell integriert werden kann.
 
 \section{Serverless Architecture}
 \label{sec:serverless}
@@ -252,50 +222,39 @@ Cloud Functions eignen sich für Aufgaben, die nicht im Client ausgeführt werde
 \subsection{Definition und Konzept}
 \label{subsec:serverless-definition}
 
-Serverless Computing bezeichnet ein Cloud-Ausführungsmodell, bei dem der Cloud-Anbieter die Serverinfrastruktur vollständig verwaltet \cite{newman2021}. Der Begriff „serverless" bedeutet nicht, dass keine Server existieren, sondern dass Entwickler sich nicht um deren Bereitstellung, Konfiguration und Wartung kümmern müssen.
+Serverless Computing bezeichnet ein Cloud-Ausführungsmodell, bei dem der Cloud-Anbieter die Serverinfrastruktur vollständig verwaltet \cite{newman2021, shafiei2022}. Der Begriff „serverless" bedeutet nicht, dass keine Server existieren, sondern dass Entwickler sich nicht um deren Bereitstellung, Konfiguration und Wartung kümmern müssen.
 
-Die wesentlichen Charakteristika von Serverless-Architekturen sind:
-
-\textbf{Event-driven Execution:} Code wird nur ausgeführt, wenn ein auslösendes Ereignis eintritt. Zwischen Ausführungen werden keine Ressourcen vorgehalten.
-
-\textbf{Automatische Skalierung:} Die Infrastruktur skaliert automatisch basierend auf der Anzahl eingehender Anfragen, von null bis zu Tausenden paralleler Ausführungen.
-
-\textbf{Pay-per-Use:} Die Abrechnung erfolgt auf Basis der tatsächlichen Ausführungszeit und des Ressourcenverbrauchs, nicht für reservierte Kapazitäten.
-
-\textbf{Managed Infrastructure:} Betriebssystem-Updates, Sicherheitspatches und Hardwarewartung werden vom Anbieter übernommen.
+Serverless-Architekturen zeichnen sich durch mehrere wesentliche Charakteristika aus \cite{shafiei2022}. Code wird ausschließlich ereignisgesteuert ausgeführt und verbraucht zwischen Aufrufen keinerlei Ressourcen. Die zugrunde liegende Infrastruktur skaliert dabei automatisch – von null bis zu Tausenden paralleler Ausführungen – ohne manuellen Eingriff seitens der Entwickler. Die Abrechnung erfolgt nutzungsbasiert auf Grundlage der tatsächlichen Ausführungszeit und des Ressourcenverbrauchs, nicht für dauerhaft reservierte Kapazitäten. Betriebssystem-Updates, Sicherheitspatches und Hardwarewartung werden vollständig vom Anbieter übernommen.
 
 \subsection{Vorteile und Herausforderungen}
 \label{subsec:serverless-vorteile}
 
-Die Serverless-Architektur bietet verschiedene Vorteile für die Entwicklung von Webanwendungen:
+Die Serverless-Architektur bietet mehrere Vorteile für die Entwicklung von Webanwendungen \cite{shafiei2022}. Da Infrastrukturthemen wie Kapazitätsplanung, Patching und Monitoring entfallen, können Entwickler sich vollständig auf die Implementierung der Geschäftslogik konzentrieren, was die operative Komplexität erheblich reduziert. Für Anwendungen mit stark schwankenden Nutzungsmustern ergeben sich darüber hinaus signifikante Kosteneinsparungen gegenüber traditionellen, dauerhaft bereitgestellten Server-Infrastrukturen. Der Wegfall von Infrastrukturaufgaben beschleunigt zudem die Entwicklungszyklen und ermöglicht häufigere Releases.
 
-\textbf{Reduzierte operative Komplexität:} Entwickler können sich auf die Implementierung von Geschäftslogik konzentrieren, ohne sich mit Infrastrukturthemen wie Kapazitätsplanung, Patching oder Monitoring auseinandersetzen zu müssen.
-
-\textbf{Kosteneffizienz bei variablen Lasten:} Für Anwendungen mit stark schwankenden Nutzungsmustern kann Serverless erhebliche Kosteneinsparungen gegenüber traditionellen Server-Infrastrukturen bieten.
-
-\textbf{Schnellere Entwicklungszyklen:} Der Wegfall von Infrastrukturaufgaben beschleunigt die Entwicklung und ermöglicht häufigere Releases.
-
-Den Vorteilen stehen jedoch auch Herausforderungen gegenüber:
-
-\textbf{Cold Starts:} Wenn eine Funktion längere Zeit nicht aufgerufen wurde, muss die Ausführungsumgebung erst initialisiert werden. Dies kann zu erhöhten Latenzzeiten führen.
-
-\textbf{Vendor Lock-in:} Die Nutzung spezifischer Cloud-Dienste kann die Portabilität der Anwendung einschränken.
-
-\textbf{Debugging und Monitoring:} Die verteilte Natur von Serverless-Anwendungen erschwert das Debugging und erfordert spezialisierte Monitoring-Tools.
-
-\textbf{Zustandslosigkeit:} Serverless-Funktionen sind zustandslos, was die Implementierung bestimmter Anwendungsmuster erschwert.
+Den Vorteilen stehen jedoch auch Herausforderungen gegenüber \cite{shafiei2022, thatikonda2023}. Sogenannte \textit{Cold Starts} entstehen, wenn eine Funktion längere Zeit nicht aufgerufen wurde und die Ausführungsumgebung zunächst initialisiert werden muss, was zu erhöhten Latenzzeiten führen kann. Die Bindung an spezifische Cloud-Dienste birgt zudem ein Vendor-Lock-in-Risiko und schränkt die Portabilität der Anwendung ein. Das Debugging gestaltet sich aufgrund der verteilten Natur von Serverless-Anwendungen komplex und erfordert spezialisierte Monitoring-Werkzeuge. Schließlich sind Serverless-Funktionen zustandslos, was die Implementierung bestimmter Anwendungsmuster erschwert.
 
 \subsection{Anwendung in diesem Projekt}
 \label{subsec:serverless-anwendung}
 
-Der in dieser Arbeit entwickelte Webshop nutzt eine Serverless-Architektur auf Basis von Firebase. Die Kombination aus Vue.js im Frontend und Firebase-Diensten im Backend ermöglicht eine vollständig serverlose Implementierung:
+Der in dieser Arbeit entwickelte Webshop nutzt eine Serverless-Architektur auf Basis von Firebase. Die Kombination aus Vue.js im Frontend und Firebase-Diensten im Backend ermöglicht eine vollständig serverlose Implementierung: Das Frontend wird als statische Single Page Application über Firebase Hosting ausgeliefert, während die Benutzerauthentifizierung über Firebase Authentication abgewickelt wird. Produkt-, Benutzer- und Bestelldaten werden in Cloud Firestore gespeichert, Produktbilder in Firebase Storage abgelegt, und serverseitige Logik wie der E-Mail-Versand wird über Cloud Functions realisiert. Diese Architektur ermöglicht die Entwicklung eines voll funktionsfähigen E-Commerce-Systems ohne eigene Server-Infrastruktur, wobei die automatische Skalierung von Firebase gewährleistet, dass die Anwendung auch bei steigenden Nutzerzahlen performant bleibt. Abbildung~\ref{fig:serverless-stack} veranschaulicht den resultierenden Technologie-Stack.
 
-\begin{itemize}
-    \item Das Frontend wird als statische Single Page Application über Firebase Hosting ausgeliefert.
-    \item Benutzerauthentifizierung erfolgt über Firebase Authentication.
-    \item Produkt-, Benutzer- und Bestelldaten werden in Cloud Firestore gespeichert.
-    \item Produktbilder werden in Firebase Storage abgelegt.
-    \item Serverseitige Logik wie E-Mail-Versand wird über Cloud Functions realisiert.
-\end{itemize}
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    node distance=0.35cm,
+    layer/.style={rectangle, rounded corners=4pt, draw=black!40,
+                  minimum width=10cm, minimum height=0.9cm,
+                  text centered, font=\small},
+]
 
-Diese Architektur ermöglicht die Entwicklung eines voll funktionsfähigen E-Commerce-Systems ohne eigene Server-Infrastruktur. Die automatische Skalierung von Firebase gewährleistet, dass die Anwendung auch bei steigenden Nutzerzahlen performant bleibt.
+\node[layer, fill=blue!12]  (l1) {\textbf{Präsentationsschicht:} Vue.js (SPA, Vite Build)};
+\node[layer, fill=blue!8,  below=0.35cm of l1] (l2) {\textbf{Auslieferung:} Firebase Hosting (CDN, HTTPS)};
+\node[layer, fill=blue!8,  below=0.35cm of l2] (l3) {\textbf{Authentifizierung:} Firebase Authentication};
+\node[layer, fill=blue!8,  below=0.35cm of l3] (l4) {\textbf{Datenpersistenz:} Cloud Firestore + Firebase Storage};
+\node[layer, fill=blue!8,  below=0.35cm of l4] (l5) {\textbf{Geschäftslogik:} Cloud Functions for Firebase};
+\node[layer, fill=gray!15, below=0.35cm of l5] (l6) {\textbf{Infrastruktur:} Google Cloud Platform (serverless)};
+
+\end{tikzpicture}
+\caption{Serverless-Technologie-Stack des Webshops}
+\label{fig:serverless-stack}
+\end{figure}

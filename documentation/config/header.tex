@@ -45,7 +45,6 @@
 \ifDocType{T3\_3100}{%
     \lohead{\includegraphics[height=1.5cm]{resources/images/logo-company.png}}
 }{%
-    \lohead{\includegraphics[height=1.5cm]{resources/images/logo-company.png}}
 }
 \chead{}
 \rohead{\includegraphics[height=1.6cm]{resources/images/logo-dhbw.png}}
@@ -90,7 +89,9 @@
 \graphicspath{{resources/images/}}  % Standard Bilderpfad
 \usepackage{subcaption}             % Mehrere Bilder/Tabllen in einer Figure
 \usepackage{tikz}                   % für komplexe Bilderstellung
+\usetikzlibrary{shapes.geometric, arrows.meta, positioning, fit, backgrounds, shadows, calc}
 \usepackage{tabularx}               % Tabellen
+\usepackage{booktabs}               % Professionelle Tabellenlinien
 \usepackage{pdfpages}               % PDF Dateien / Seiten
 \usepackage{float}                  % Floating Darstellung
 \usepackage{xcolor}                 % Farben
