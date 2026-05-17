@@ -2,7 +2,7 @@
 \chapter{Methodik}
 \label{ch:methodik}
 
-Dieses Kapitel beschreibt das methodische Vorgehen bei der Entwicklung des Webshops. Es werden das gewählte Vorgehensmodell, die durchgeführte Anforderungsanalyse sowie die daraus resultierende Konzeption und Architektur der Anwendung vorgestellt.
+Dieses Kapitel beschreibt das methodische Vorgehen bei der Entwicklung des Webshops. Ausgehend vom gewählten iterativ-inkrementellen Vorgehensmodell werden die erhobenen funktionalen und nicht-funktionalen Anforderungen systematisch dokumentiert, bevor die daraus abgeleitete Konzeption und Architektur der Anwendung vorgestellt wird. Die hier getroffenen Entscheidungen folgen etablierten Prinzipien des Software Engineerings und sind auf die spezifischen Rahmenbedingungen einer akademischen Studienarbeit abgestimmt.
 
 \section{Vorgehensmodell}
 \label{sec:vorgehensmodell}
@@ -10,15 +10,11 @@ Dieses Kapitel beschreibt das methodische Vorgehen bei der Entwicklung des Websh
 \subsection{Auswahl des Vorgehensmodells}
 \label{subsec:vorgehensmodell-auswahl}
 
-Für die Entwicklung des Webshops wurde ein iterativ-inkrementelles Vorgehensmodell gewählt, das Elemente aus agilen Methoden mit einer strukturierten Projektplanung kombiniert. Diese Entscheidung basiert auf mehreren Faktoren:
+Für die Entwicklung des Webshops wurde ein iterativ-inkrementelles Vorgehensmodell gewählt, das Elemente aus agilen Methoden mit einer strukturierten Projektplanung verbindet. Die iterativ-inkrementelle Entwicklung (IID) beschreibt Ansätze, bei denen das System schrittweise durch aufeinanderfolgende Iterationen wächst und jede Iteration ein lauffähiges Inkrement liefert \cite{larman2003}. Im Unterschied zu rein plan-getriebenen Modellen wie dem Wasserfallmodell ermöglichen iterative Ansätze frühzeitige Feedbackschleifen und eine kontinuierliche Qualitätssicherung \cite{yadav2015}.
 
-\textbf{Projektcharakteristik:} Als Studienarbeit mit definiertem Zeitrahmen und bekanntem Funktionsumfang eignet sich ein hybrides Vorgehen, das Flexibilität bei gleichzeitiger Planbarkeit bietet.
+Die Wahl dieses Modells ergab sich aus den konkreten Rahmenbedingungen der Studienarbeit: Das Projekt wurde von zwei Studenten über einen Zeitraum von 36 Wochen neben dem Studium durchgeführt. Ein vollständig agiles Vorgehen wie Scrum war daher nicht sinnvoll, da es einen dedizierten Product Owner und regelmäßige Sprint-Reviews mit externen Stakeholdern voraussetzt \cite{yadav2015}. Stattdessen wurde ein schlanker, meilensteinbasierter Ansatz gewählt, der klare Zwischenziele definiert und gleichzeitig Spielraum für iterative Anpassungen lässt.
 
-\textbf{Teamgröße:} Mit zwei Entwicklern ist ein schlankes Vorgehensmodell ohne übermäßigen Verwaltungsaufwand sinnvoll.
-
-\textbf{Technologische Unsicherheit:} Die Verwendung von Firebase als relativ neuer Technologie erfordert Raum für Experimente und iterative Verbesserungen.
-
-\textbf{Anforderungsstabilität:} Die grundlegenden Anforderungen an einen Webshop sind etabliert und stabil, was längerfristige Planung ermöglicht.
+Weitere Entscheidungsfaktoren waren die technologische Unsicherheit beim Einstieg in Firebase als Backend-as-a-Service-Plattform \cite{uunonen2023} sowie die weitgehend stabilen Anforderungen an einen B2C-Webshop, die eine vorausschauende Planung ermöglichten \cite{heinemann2024}.
 
 \subsection{Projektphasen}
 \label{subsec:projektphasen}
@@ -32,19 +28,21 @@ Das Projekt wurde in acht Meilensteine gegliedert, die über einen Zeitraum von 
     \label{fig:meilensteine}
 \end{figure}
 
-Die Meilensteine wurden so strukturiert, dass aufeinander aufbauende Funktionalitäten sequentiell entwickelt werden. Beispielsweise setzt der Warenkorb eine funktionierende Produktansicht voraus, und der Checkout erfordert ein implementiertes Authentifizierungssystem.
+Die Meilensteine orientieren sich am Prinzip der inkrementellen Systemerweiterung, bei der jede Phase auf den Ergebnissen der vorherigen aufbaut und ein funktional erweitertes Inkrement liefert \cite{larman2003}. Die ersten Phasen umfassten die Anforderungsanalyse sowie die Einrichtung der Entwicklungsumgebung einschließlich Firebase-Projektkonfiguration und Versionsverwaltung mit Git. In den mittleren Meilensteinen wurden die Kernkomponenten des Webshops realisiert -- zunächst Produktverwaltung und Benutzerauthentifizierung, da diese die funktionalen Voraussetzungen aller nachfolgenden Komponenten darstellen. Beispielsweise setzt der Warenkorb eine funktionierende Produktansicht voraus, und der Checkout-Prozess erfordert ein implementiertes Authentifizierungssystem. Die abschließenden Phasen widmeten sich dem Angebotssystem, der Administrationsoberfläche sowie dem systematischen Testing und der Deployment-Vorbereitung.
 
 \section{Anforderungsanalyse}
 \label{sec:anforderungsanalyse}
 
-Die Anforderungsanalyse bildet die Grundlage für die Entwicklung des Webshops. Sie unterscheidet zwischen funktionalen Anforderungen, die beschreiben was das System tun soll, und nicht-funktionalen Anforderungen, die beschreiben wie das System seine Aufgaben erfüllen soll.
+Die Anforderungsanalyse ist eine zentrale Disziplin des Software Engineerings und bildet die Grundlage für die gesamte Systementwicklung. Sie zielt auf eine vollständige, konsistente und verifizierbare Beschreibung aller Systemeigenschaften aus Nutzersicht ab und schafft damit die Basis für Entwurf, Implementierung und Qualitätssicherung. Grundlegend wird zwischen \textit{funktionalen Anforderungen}, die beschreiben \textit{was} das System leisten soll, und \textit{nicht-funktionalen Anforderungen}, die beschreiben \textit{wie} das System seine Aufgaben erfüllen soll, unterschieden. Für E-Commerce-Systeme ist diese Unterscheidung von besonderer Relevanz, da neben der Funktionalität insbesondere Qualitätsmerkmale wie Performance, Sicherheit und Benutzerfreundlichkeit maßgeblich über Nutzerakzeptanz und wirtschaftlichen Erfolg der Anwendung entscheiden \cite{garcialopez2020}.
 
 \subsection{Funktionale Anforderungen}
 \label{subsec:funktionale-anforderungen}
 
-Die funktionalen Anforderungen wurden auf Basis einer Analyse typischer E-Commerce-Systeme sowie der in der Disposition definierten Projektziele erhoben.
+Die funktionalen Anforderungen wurden auf Basis einer Analyse typischer E-Commerce-Systeme sowie der in der Disposition definierten Projektziele erhoben \cite{heinemann2024, garcialopez2020}. Zur strukturierten Priorisierung wurde das MoSCoW-Verfahren eingesetzt: \textit{Muss}-Anforderungen sind für die Grundfunktionalität zwingend erforderlich, \textit{Soll}-Anforderungen sind bedeutsam aber nicht zwingend, und \textit{Kann}-Anforderungen sind wünschenswert, ohne das Projektziel zu gefährden.
 
 \subsubsection{Benutzerverwaltung}
+
+Die Benutzerverwaltung umfasst alle Funktionen zur Registrierung, Anmeldung und Kontoverwaltung. Da der Webshop personalisierte Features wie gespeicherte Adressen und eine Bestellhistorie anbietet, ist eine zuverlässige Identitätsverwaltung eine zentrale Voraussetzung für den Betrieb. Die Passwort-Zurücksetzen-Funktion (FA-03) sowie die DSGVO-konforme Kontolöschung (FA-06) wurden ebenfalls aufgenommen, da sie für einen produktionsreifen Shop erwartet werden.
 
 \begin{table}[H]
 \centering
@@ -70,6 +68,8 @@ FA-06 & Benutzer können ihr Konto löschen & Soll \\
 \end{table}
 
 \subsubsection{Produktkatalog}
+
+Der Produktkatalog bildet den inhaltlichen Kern des Webshops. Die Anforderungen adressieren sowohl die Darstellung einzelner Produkte als auch die Navigation und Suche, da diese Funktionen direkt die Nutzerführung zum Kauf beeinflussen \cite{heinemann2024}. Die Wunschliste (FA-16) wurde bewusst als optionale \textit{Kann}-Anforderung eingestuft, da sie keinen direkten Einfluss auf den Kaufprozess hat.
 
 \begin{table}[H]
 \centering
@@ -97,6 +97,8 @@ FA-16 & Benutzer können Produkte auf eine Wunschliste setzen & Kann \\
 \end{table}
 
 \subsubsection{Warenkorb und Bestellung}
+
+Warenkorb und Bestellprozess sind die transaktionskritischen Komponenten des Webshops und decken den vollständigen Kauffluss von der Produktauswahl bis zur Bestellbestätigung ab. Empirische Studien zeigen, dass ein reibungsloser Checkout-Prozess maßgeblich die Abbruchrate beeinflusst \cite{butnampetch2020}. Die browserübergreifende Persistenz des Warenkorbs (FA-27) verbessert die Nutzererfahrung bei wiederkehrenden Besuchern und wurde daher als \textit{Soll}-Anforderung aufgenommen.
 
 \begin{table}[H]
 \centering
@@ -127,6 +129,8 @@ FA-27 & Der Warenkorb bleibt auch nach Schließen des Browsers erhalten & Soll \
 
 \subsubsection{Angebotssystem}
 
+Das Angebotssystem ermöglicht zeitlich begrenzte Rabattaktionen und ist ein typisches Werkzeug moderner E-Commerce-Plattformen zur Kundenbindung \cite{heinemann2024}. Da die Funktion inhaltlich auf einem funktionierenden Produktkatalog und Warenkorb aufbaut, wurden alle zugehörigen Anforderungen als \textit{Soll} priorisiert -- sie erweitern den Shop sinnvoll, sind aber nicht für den Grundbetrieb notwendig.
+
 \begin{table}[H]
 \centering
 \begin{tabularx}{\textwidth}{|c|X|c|}
@@ -147,6 +151,8 @@ FA-33 & Rabatte werden automatisch im Warenkorb angewendet & Soll \\
 \end{table}
 
 \subsubsection{Administration}
+
+Der Administrationsbereich stellt die Verwaltungsoberfläche für den Shopbetreiber bereit. Produktpflege, Kategorieverwaltung und Bestellstatus-Management (FA-41 bis FA-44) sind als \textit{Muss}-Anforderungen definiert, da ohne sie kein laufender Betrieb des Shops möglich wäre. Der Zugang zum Administrationsbereich ist auf Benutzer mit Admin-Rolle beschränkt (FA-40), was direkte Auswirkungen auf das Sicherheits- und Berechtigungskonzept hat.
 
 \begin{table}[H]
 \centering
@@ -176,7 +182,7 @@ FA-46 & Administratoren können Angebote erstellen und verwalten & Soll \\
 \subsection{Nicht-funktionale Anforderungen}
 \label{subsec:nichtfunktionale-anforderungen}
 
-Nicht-funktionale Anforderungen definieren Qualitätsmerkmale des Systems:
+Nicht-funktionale Anforderungen definieren die Qualitätsmerkmale des Systems und legen fest, unter welchen Bedingungen und mit welcher Güte die funktionalen Anforderungen erfüllt werden müssen \cite{garcialopez2020}. Sie umfassen Aspekte wie Performance, Sicherheit, Kompatibilität und Wartbarkeit und beeinflussen maßgeblich Architekturentscheidungen und Technologieauswahl. Besonders die Ladezeit-Anforderung (NFA-01) und die Responsive-Design-Anforderung (NFA-03) haben direkten Einfluss auf die Nutzerzufriedenheit und Conversion-Rate im E-Commerce \cite{peterson2018}.
 
 \begin{table}[H]
 \centering
@@ -208,7 +214,7 @@ NFA-08 & Die Anwendung ist ohne JavaScript-Kenntnisse bedienbar & Benutzerfreund
 \subsection{Abgrenzung}
 \label{subsec:abgrenzung}
 
-Zur Eingrenzung des Projektumfangs wurden bewusst bestimmte Funktionalitäten ausgeschlossen:
+Zur Eingrenzung des Projektumfangs auf die Kernfunktionalitäten eines E-Commerce-Systems wurden bewusst bestimmte Funktionalitäten ausgeschlossen. Diese Priorisierung folgt dem Prinzip der inkrementellen Systementwicklung, bei der zunächst ein stabiler funktionaler Kern realisiert wird, bevor optionale Erweiterungen in Betracht gezogen werden \cite{larman2003}:
 
 \begin{itemize}
     \item \textbf{Echte Zahlungsabwicklung:} Die Integration eines Zahlungsdienstleisters wie PayPal oder Stripe ist nicht Teil des Prototyps. Der Checkout-Prozess simuliert die Zahlungserfassung.
@@ -222,17 +228,17 @@ Zur Eingrenzung des Projektumfangs wurden bewusst bestimmte Funktionalitäten au
     \item \textbf{Newsletter:} Eine Newsletter-Funktionalität mit E-Mail-Marketing ist nicht vorgesehen.
 \end{itemize}
 
-Diese Abgrenzungen ermöglichen die Fokussierung auf die Kernfunktionalitäten eines E-Commerce-Systems im gegebenen Zeitrahmen.
+Diese Abgrenzungen spiegeln den Charakter der Arbeit als funktionalen Prototyp wider: Der Webshop demonstriert alle wesentlichen Abläufe eines B2C-Onlineshops, ohne den Rahmen einer Studienarbeit zu überschreiten.
 
 \section{Konzeption und Architektur}
 \label{sec:konzeption-architektur}
 
-Basierend auf den erhobenen Anforderungen wurde die Architektur des Webshops konzipiert. Dieser Abschnitt beschreibt die gewählte Systemarchitektur, die Datenbankstruktur und die Komponentenarchitektur des Frontends.
+Auf Basis der erhobenen Anforderungen wurde die Architektur des Webshops konzipiert. Die zentralen Entwurfsentscheidungen -- Systemarchitektur, Datenbankstruktur, Frontend-Komponentenmodell und Sicherheitskonzept -- werden in diesem Abschnitt erläutert und begründet.
 
 \subsection{Systemarchitektur}
 \label{subsec:systemarchitektur}
 
-Die Anwendung folgt einer Client-Server-Architektur, bei der das Frontend als Single Page Application im Browser des Benutzers ausgeführt wird und über APIs mit den Firebase-Backend-Diensten kommuniziert.
+Die Anwendung folgt einer Client-Server-Architektur, bei der das Frontend als Single Page Application im Browser des Benutzers ausgeführt wird und über wohldefinierte APIs mit den Firebase-Backend-Diensten kommuniziert. Dieses Architekturmuster ermöglicht eine klare Trennung von Präsentationslogik und Datenhaltung und bildet die Grundlage für eine unabhängige Weiterentwicklung beider Schichten \cite{newman2021}.
 
 \begin{figure}[H]
 \centering
@@ -266,16 +272,16 @@ Die Anwendung folgt einer Client-Server-Architektur, bei der das Frontend als Si
 
 Die Architektur zeichnet sich durch folgende Merkmale aus:
 
-\textbf{Lose Kopplung:} Frontend und Backend-Dienste kommunizieren ausschließlich über definierte APIs. Dies ermöglicht unabhängige Weiterentwicklung und einfachen Austausch einzelner Komponenten.
+\textbf{Lose Kopplung:} Frontend und Backend-Dienste kommunizieren ausschließlich über definierte APIs. Dieses Prinzip ermöglicht die unabhängige Weiterentwicklung und den Austausch einzelner Systemkomponenten ohne kaskadierende Auswirkungen auf andere Teile des Systems \cite{newman2021}.
 
-\textbf{Zustandslosigkeit:} Der Server speichert keinen Client-Zustand zwischen Anfragen. Session-Informationen werden im Client verwaltet, Authentifizierungstoken werden bei jeder Anfrage mitgesendet.
+\textbf{Zustandslosigkeit:} Der Server speichert keinen Client-Zustand zwischen Anfragen. Session-Informationen werden im Client verwaltet, und Authentifizierungstoken werden bei jeder Anfrage mitgesendet. Zustandslose Dienste lassen sich ohne Replika-Synchronisation horizontal skalieren und sind damit ein Grundprinzip moderner, hochverfügbarer Webarchitekturen.
 
-\textbf{Ereignisgesteuert:} Änderungen in der Datenbank können Cloud Functions auslösen, die serverseitige Logik ausführen. Dies ermöglicht reaktive Verarbeitung ohne aktives Polling.
+\textbf{Ereignisgesteuert:} Änderungen in der Datenbank können Cloud Functions auslösen, die serverseitige Logik ausführen. Dieses reaktive Verarbeitungsmodell ohne aktives Polling ist ein charakteristisches Merkmal serverloser Architekturen und ermöglicht eine ressourcenschonende, bedarfsgesteuerte Ausführung von Backend-Logik \cite{shafiei2022}.
 
 \subsection{Datenbankstruktur}
 \label{subsec:datenbankstruktur}
 
-Cloud Firestore organisiert Daten in Dokumenten und Collections. Für den Webshop wurden folgende Haupt-Collections definiert:
+Cloud Firestore ist eine dokumentenorientierte NoSQL-Datenbank, die Daten in Dokumenten und Collections organisiert \cite{kesavan2023}. Im Unterschied zu relationalen Datenbanken erlaubt dieses schemalose Modell eine flexible Datenstrukturierung, die sich besonders für die hierarchisch organisierten Datenobjekte eines Webshops eignet. Für den Webshop wurden folgende Haupt-Collections definiert:
 
 \textbf{users:} Speichert Benutzerdaten wie Name, E-Mail, Adresse und Rolle. Die Dokument-ID entspricht der Firebase Auth UID.
 
@@ -332,7 +338,7 @@ Cloud Firestore organisiert Daten in Dokumenten und Collections. Für den Websho
 \subsection{Frontend-Komponentenarchitektur}
 \label{subsec:komponentenarchitektur}
 
-Das Frontend ist nach dem Komponentenprinzip von Vue.js strukturiert. Die Komponenten sind hierarchisch organisiert und nach ihrer Funktion gruppiert:
+Das Frontend ist nach dem Komponentenprinzip von Vue.js strukturiert. Komponentenbasierte Architektur hat sich als dominantes Paradigma in der modernen Frontend-Entwicklung etabliert, da sie Wiederverwendbarkeit, Testbarkeit und eine klare Trennung von Verantwortlichkeiten fördert \cite{kothapalli2021}. Die Komponenten sind hierarchisch organisiert und nach ihrer Funktion gruppiert:
 
 \textbf{Views:} Seitenkomponenten, die über den Router angesteuert werden. Sie entsprechen den Hauptseiten der Anwendung wie Startseite, Produktübersicht oder Checkout.
 
@@ -353,15 +359,15 @@ Die Kommunikation zwischen Komponenten erfolgt über:
 \subsection{Sicherheitskonzept}
 \label{subsec:sicherheitskonzept}
 
-Die Sicherheit der Anwendung basiert auf mehreren Ebenen:
+Die Sicherheit der Anwendung basiert auf einem mehrschichtigen Sicherheitskonzept (\textit{Defense in Depth}), das Schutzmaßnahmen auf verschiedenen Ebenen des Systems kombiniert. Dieses Prinzip stellt sicher, dass das Kompromittieren einer einzelnen Schutzmaßnahme nicht zur vollständigen Kompromittierung des Systems führt, und entspricht den Empfehlungen der OWASP für moderne Webanwendungen \cite{fredj2020}:
 
-\textbf{Authentifizierung:} Firebase Authentication verwaltet die Benutzeridentität. Bei erfolgreicher Anmeldung erhält der Client ein JWT-Token, das bei allen Backend-Anfragen mitgesendet wird.
+\textbf{Authentifizierung:} Firebase Authentication verwaltet die Benutzeridentität und implementiert OAuth~2.0-kompatible Authentifizierungsabläufe. Bei erfolgreicher Anmeldung erhält der Client ein JSON Web Token (JWT) -- ein kryptographisch signiertes, selbst-beschreibendes Token mit begrenzter Gültigkeitsdauer, das bei allen Backend-Anfragen im Authorization-Header mitgesendet wird \cite{bucko2023}.
 
-\textbf{Autorisierung:} Firestore Security Rules definieren, welche Benutzer auf welche Daten zugreifen dürfen. Beispielsweise können Benutzer nur ihre eigenen Bestellungen lesen, während Administratoren Zugriff auf alle Daten haben.
+\textbf{Autorisierung:} Firestore Security Rules definieren deklarativ, welche authentifizierten Benutzer auf welche Daten zugreifen und welche Operationen sie ausführen dürfen. Diese serverseitige Durchsetzung stellt sicher, dass Zugriffskontrollen nicht durch clientseitige Manipulationen umgangen werden können \cite{firestore2025}. Beispielsweise können Benutzer ausschließlich ihre eigenen Bestellungen lesen, während Administratoren Zugriff auf alle Collections haben.
 
-\textbf{Datenverschlüsselung:} Alle Kommunikation zwischen Client und Firebase erfolgt über HTTPS. Firebase verschlüsselt gespeicherte Daten automatisch.
+\textbf{Datenverschlüsselung:} Alle Kommunikation zwischen Client und Firebase erfolgt über HTTPS mit TLS-Verschlüsselung. Firebase verschlüsselt darüber hinaus alle gespeicherten Daten automatisch, sodass die Anforderung NFA-04 ohne zusätzlichen Implementierungsaufwand erfüllt wird.
 
-\textbf{Input-Validierung:} Benutzereingaben werden sowohl im Frontend als auch durch Security Rules im Backend validiert, um Injection-Angriffe zu verhindern.
+\textbf{Input-Validierung:} Benutzereingaben werden sowohl im Frontend als auch durch Firestore Security Rules im Backend validiert, um Injection-Angriffe und fehlerhafte Datenzustände zu verhindern \cite{fredj2020}.
 
 Ein Beispiel für Firestore Security Rules:
 
@@ -393,7 +399,7 @@ service cloud.firestore {
 \subsection{Deployment-Konzept}
 \label{subsec:deployment-konzept}
 
-Das Deployment der Anwendung erfolgt über Firebase Hosting mit automatisierter CI/CD-Pipeline:
+Das Deployment der Anwendung erfolgt über Firebase Hosting mit automatisierter CI/CD-Pipeline (Continuous Integration~/ Continuous Deployment). Automatisierte Deployment-Pipelines reduzieren manuelle Fehlerquellen und stellen sicher, dass ausschließlich getesteter und verifizierter Code in die Produktionsumgebung gelangt \cite{chacon2014}.
 
 \begin{enumerate}
     \item \textbf{Build:} Der Vue.js-Quellcode wird durch Vite zu optimierten statischen Dateien kompiliert.
