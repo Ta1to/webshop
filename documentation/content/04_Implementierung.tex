@@ -1,84 +1,191 @@
-%!TEX root = ../main.tex
+﻿%!TEX root = ../main.tex
 \chapter{Implementierung}
 \label{ch:implementierung}
 
-Dieses Kapitel dokumentiert die praktische Umsetzung des Webshops. Ausgehend von der Projektstruktur werden die einzelnen Funktionsbereiche systematisch beschrieben. Der Fokus liegt auf den technischen Lösungsansätzen und deren Begründung.
+Dieses Kapitel dokumentiert die technische Umsetzung des Webshops anhand der architektonisch bedeutsamen Entwurfsentscheidungen und zentralen Implementierungsmuster. Rein technische Details ohne konzeptionellen Mehrwert werden dabei ausgeklammert.
 
 \section{Projektstruktur und Frontend-Gerüst}
 \label{sec:projektstruktur}
 
-% TODO: Beschreibung der Projektstruktur
-% - Vite als Build-Tool
-% - Ordnerstruktur (src/, components/, views/, services/, stores/)
-% - Konfigurationsdateien (vite.config.js, package.json)
-% - Routing-Konzept mit Vue Router
+Als Build-Tool kommt Vite zum Einsatz. Gegenüber klassischen Bundlern bietet Vite einen nativen ES-Module-Dev-Server, der Module erst bei Bedarf transformiert und damit nahezu sofortige Startzeiten sowie reaktives Hot Module Replacement erreicht \cite{vite2025}. Produktionsbuilds werden über Rollup mit Tree-Shaking und automatischem Code-Splitting erzeugt.
+
+Die Verzeichnisstruktur orientiert sich am Feature-orientierten Prinzip und trennt klar nach Verantwortlichkeiten: \texttt{views/} enthält die den Routen zugeordneten Seitenkomponenten, \texttt{components/} die kontextbezogen untergliederten UI-Bausteine, \texttt{services/} die zweischichtige Serviceschicht aus Firebase-SDK-Abstraktion (\texttt{firebase/}) und Domänenlogik (\texttt{business/}), sowie \texttt{models/} die Domänenmodelle mit eingebetteter Validierungslogik. Diese Gliederung nach fachlicher Verantwortlichkeit verbessert Testbarkeit und reduziert strukturelle Kopplung \cite{kothapalli2021, kothapalli2022}.
+
+Das Routing ist über Vue Router mit \texttt{createWebHistory()} realisiert. Schutzbedürftige Routen werden über die Metafelder \texttt{requiresAuth} und \texttt{requiresAdmin} deklarativ markiert und zur Laufzeit durch einen globalen Navigation Guard ausgewertet.
 
 \section{Integration von Firebase-Diensten}
 \label{sec:firebase-integration}
 
-% TODO: Firebase-Integration beschreiben
-% - Firebase SDK Einbindung
-% - Konfiguration und Initialisierung
-% - Service-Abstraktion
+Sämtliche Firebase-Verbindungsparameter werden über Vite-Umgebungsvariablen eingelesen -- kein Credential ist im Quellcode hart kodiert. Dies verhindert die unbeabsichtigte Exponierung von API-Schlüsseln im Versionskontrollsystem und entspricht einer grundlegenden Sicherheitsempfehlung für Web-Anwendungen \cite{fredj2020}:
+
+\begin{lstlisting}[language=Java, morekeywords={const, export}, caption=Firebase-Konfiguration über Umgebungsvariablen (config.js)]
+const firebaseConfig = {
+  apiKey:    import.meta.env.VITE_FIREBASE_API_KEY,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  // ...weitere Parameter
+}
+export const { db, auth, storage } = initFirebase(firebaseConfig)
+\end{lstlisting}
+
+Die Datenbankschicht (\texttt{db.js}) implementiert ein generisches CRUD-Muster: Fünf universelle Funktionen abstrahieren den Firestore-Zugriff collectionübergreifend. Jeder Schreibvorgang erhält automatisch einen \texttt{serverTimestamp()}, und dynamische Abfragen werden als Constraint-Array übergeben \cite{firestore2025}:
+
+\begin{lstlisting}[language=Java, morekeywords={const, await}, caption=Beispielaufruf der generischen Abfragefunktion]
+// Alle Produkte einer Kategorie, nach Preis sortiert
+const result = await queryDocuments('products',
+  [['category', '==', slug]],
+  'price'
+)
+\end{lstlisting}
+
+Auf dieser Basis bauen domänenspezifische Funktionen auf, die zusätzlich Modellinstanziierung und Validierung übernehmen. Die resultierende Schichtung der Anwendung ist in Abbildung~\ref{fig:service-architektur} dargestellt und entspricht dem empfohlenen Service-Layer-Pattern für BaaS-Anwendungen \cite{uunonen2023}.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    box/.style={rectangle, draw, rounded corners=3pt, align=center, font=\small},
+    arrow/.style={->, >=stealth, thick}
+]
+    \node[box, fill=blue!15, minimum width=11cm, minimum height=1cm] (ui)
+        at (0,0) {\textbf{UI-Schicht} \quad \texttt{views/} $\cdot$ \texttt{components/}};
+    \node[box, fill=green!15, minimum width=5cm, minimum height=1cm] (biz)
+        at (-2.8,-2) {\textbf{Domänendienste} \; \texttt{business/}};
+    \node[box, fill=yellow!20, minimum width=5cm, minimum height=1cm] (sto)
+        at (2.8,-2) {\textbf{Zustandsverwaltung} \; \texttt{stores/}};
+    \node[box, fill=orange!15, minimum width=11cm, minimum height=1cm] (abs)
+        at (0,-4) {\textbf{Firebase-Abstraktion} \quad \texttt{firebase/} $\cdot$ auth $\cdot$ db $\cdot$ storage};
+    \node[box, fill=orange!35, minimum width=11cm, minimum height=1cm] (back)
+        at (0,-6) {\textbf{Firebase Backend} \quad Authentication $|$ Firestore $|$ Storage};
+
+    \draw[arrow] ([xshift=-2.8cm]ui.south) -- (biz.north);
+    \draw[arrow] ([xshift= 2.8cm]ui.south) -- (sto.north);
+    \draw[arrow] (biz.south) -- ([xshift=-2.8cm]abs.north);
+    \draw[arrow] (sto.south) -- ([xshift= 2.8cm]abs.north);
+    \draw[arrow] (abs.south) -- (back.north);
+\end{tikzpicture}
+\caption{Zweischichtige Servicearchitektur der Anwendung}
+\label{fig:service-architektur}
+\end{figure}
 
 \section{Benutzerkonten- und Authentifizierungssystem}
 \label{sec:authentifizierung}
 
-% TODO: Auth-System beschreiben
-% - Registrierung
-% - Login/Logout
-% - Passwort-Reset
-% - Session-Management
-% - Route Guards
+Das Authentifizierungssystem unterstützt E-Mail-/Passwort-Registrierung sowie Google-Anmeldung via OAuth~2.0 \cite{hardt2012}. Firebase Authentication übernimmt dabei das vollständige Credential-Management inklusive JWT-Ausstellung und automatischer Token-Erneuerung \cite{firebaseAuth2025, bucko2023}.
+
+Für beide Methoden wird ein \textit{Dual-Write-Pattern} angewendet: Authentifizierungsdaten verbleiben in Firebase Auth, während Profilinformationen (Anzeigename, Adresse, Systemrolle) in einem korrespondierenden Dokument der Firestore-Collection \texttt{users} persistiert werden. Diese Trennung ermöglicht beliebige Profilerweiterungen ohne Einschränkungen durch das Firebase-Auth-Schema \cite{milojkovic2024}.
+
+Der globale Route Guard löst eine potenzielle Race Condition zwischen Seitenaufruf und asynchroner Auth-Initialisierung durch eine einmalig abonnierte Promise auf, die den Auth-State abwartet, bevor die Navigationsentscheidung getroffen wird \cite{vuejs2025}:
+
+\begin{lstlisting}[language=Java, morekeywords={const, async, await, return, new, if}, caption=Route Guard mit Auth-Initialisierung und RBAC-Prüfung]
+const waitForAuthInit = () => new Promise(resolve => {
+  const unsub = onAuthStateChanged(auth, user => { unsub(); resolve(user) })
+})
+
+router.beforeEach(async (to, _, next) => {
+  const user = await waitForAuthInit()
+  if (to.meta.requiresAuth  && !user)              return next('/login')
+  if (to.meta.requiresAdmin && !await isAdmin(user)) return next('/')
+  next()
+})
+\end{lstlisting}
+
+Die Administratorrolle ist als \texttt{role: 'admin'} im Firestore-Benutzerdokument gespeichert und wird über \texttt{isAdmin()} im \texttt{User}-Modell ausgewertet. Der Zugriffsschutz erfolgt zweistufig -- clientseitig durch den Router Guard, serverseitig durch Firestore Security Rules -- und realisiert damit das \textit{Defense-in-Depth}-Prinzip \cite{fredj2020}. Abbildung~\ref{fig:auth-flow} stellt beide Abläufe -- Anmeldung und Navigation -- gegenüber.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    cbox/.style={rectangle, draw, rounded corners=3pt, fill=blue!10,   minimum width=3cm, minimum height=0.9cm, align=center, font=\small},
+    fbox/.style={rectangle, draw, rounded corners=3pt, fill=orange!20, minimum width=3cm, minimum height=0.9cm, align=center, font=\small},
+    dbox/.style={rectangle, draw, rounded corners=3pt, fill=green!15,  minimum width=3cm, minimum height=0.9cm, align=center, font=\small},
+    arrow/.style={->, >=stealth, thick}
+]
+    % Zeile 1: Anmeldung / Dual-Write
+    \node[cbox] (reg)  at (0,  0) {Nutzer\\(Anmeldung)};
+    \node[fbox] (auth) at (4.5,0) {Firebase Auth\\JWT};
+    \node[dbox] (fsw)  at (9,  0) {Firestore \texttt{users}\\Dual-Write};
+
+    \draw[arrow] (reg)  -- (auth) node[above, font=\footnotesize, midway] {credentials};
+    \draw[arrow] (auth) -- (fsw)  node[above, font=\footnotesize, midway] {UID};
+
+    % Trennlinie
+    \draw[dashed, gray!60] (-1.8,-1.3) -- (10.8,-1.3);
+
+    % Zeile 2: Route Guard
+    \node[cbox] (nav) at (0,  -2.6) {Navigation zu\\geschützter Route};
+    \node[cbox] (wfa) at (4.5,-2.6) {\texttt{waitForAuth}\\Init()};
+    \node[dbox] (adm) at (9,  -2.6) {\texttt{isAdmin()}\\RBAC};
+
+    \draw[arrow] (nav) -- (wfa) node[above, font=\footnotesize, midway] {beforeEach};
+    \draw[arrow] (wfa) -- (adm) node[above, font=\footnotesize, midway] {Auth-State};
+    \draw[arrow] (adm.east)  -- ++(0.8, 0)  node[right,  font=\footnotesize] {next()};
+    \draw[arrow] (adm.south) -- ++(0, -0.5) node[below,  font=\footnotesize] {redirect};
+
+    % Zeilenbeschriftung
+    \node[font=\footnotesize\itshape, gray] at (-1.1,  0)    {(1)};
+    \node[font=\footnotesize\itshape, gray] at (-1.1, -2.6)  {(2)};
+\end{tikzpicture}
+\caption{(1) Anmeldung mit Dual-Write-Muster; (2) Route Guard mit RBAC-Prüfung}
+\label{fig:auth-flow}
+\end{figure}
 
 \section{Produktkatalog und Such-/Filterfunktion}
 \label{sec:produktkatalog}
 
-% TODO: Produktkatalog beschreiben
-% - Produktdarstellung
-% - Kategorien
-% - Suchfunktion
-% - Filteroptionen
-% - Lagerbestandsanzeige
+Produkte werden als Instanzen der \texttt{Product}-Modellklasse verwaltet. Vor jedem Schreibvorgang prüft \texttt{validate()} Pflichtfelder und Wertebereichsbedingungen; nur bei positivem Ergebnis wird \texttt{createDocument()} aufgerufen. Das Kapseln von Validierungslogik im Modell verhindert inkonsistente Datenbankzustände und entspricht dem Prinzip der Verantwortlichkeitstrennung \cite{kesavan2023}.
+
+Kategoriefilterung erfolgt serverseitig über Firestore-\texttt{where()}-Constraints, die direkt auf dem Datenbankindex ausgeführt werden. Die Freitextsuche ist hingegen client-seitig implementiert: Produktname und Beschreibung werden lokal geprüft. Dieser Ansatz ist für den vorliegenden Katalogsumfang ausreichend, skaliert jedoch nicht für sehr große Sortimente -- eine bekannte Limitation client-seitiger Suchimplementierungen gegenüber dedizierten Indizierungsdiensten \cite{kothapalli2022}.
 
 \section{Warenkorb und Bestellprozess}
 \label{sec:warenkorb}
 
-% TODO: Warenkorb beschreiben
-% - Warenkorb-Store (Pinia)
-% - Persistenz
-% - Checkout-Prozess
-% - Bestellbestätigung
+Die Warenkorbverwaltung basiert auf einem Pinia-Store, der reaktive Referenzen auf Artikel und Gesamtanzahl komponentenübergreifend bereitstellt. Pinia ist die offizielle State-Management-Lösung für Vue~3 und löst das ältere Vuex durch eine leichtgewichtige, Composition-API-basierte API ab \cite{pinia2025}.
+
+Nicht-angemeldete Nutzer erhalten einen cookie-basierten Gast-Warenkorb. Bei der Anmeldung führt \texttt{mergeGuestCart()} eine verlustfreie Zusammenführung durch: Vorhandene Mengen werden addiert, neue Artikel übernommen; der Cookie wird anschließend bereinigt:
+
+\begin{lstlisting}[language=Java, morekeywords={const, if, forEach}, caption=Kern der Warenkorb-Zusammenführung beim Login]
+guestCart.forEach(item => {
+  const existing = userCart.find(i => i.productId === item.productId)
+  if (existing) existing.quantity += item.quantity
+  else          userCart.push(item)
+})
+\end{lstlisting}
+
+Der Checkout-Prozess ist dreistufig: Adresseingabe, Bestellübersicht und Bestätigung. Bei Abschluss wird ein \texttt{Order}-Dokument in Firestore angelegt. Eine strukturierte Checkout-Führung reduziert nachweislich Kaufabbrüche \cite{butnampetch2020}. Den resultierenden Status-Lifecycle zeigt Abbildung~\ref{fig:order-lifecycle}.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    st/.style={rectangle, draw, rounded corners=3pt, fill=blue!10, minimum width=2.3cm, minimum height=0.9cm, align=center, font=\small},
+    arrow/.style={->, >=stealth, thick}
+]
+    \node[circle, fill=black, minimum size=5pt, inner sep=0pt] (start) at (-2.2,0) {};
+    \node[st]                (p)  at (0,   0) {pending};
+    \node[st]                (pr) at (3.2, 0) {processing};
+    \node[st]                (sh) at (6.4, 0) {shipped};
+    \node[st, fill=green!20] (d)  at (9.6, 0) {delivered};
+
+    \draw[arrow] (start) -- (p)  node[above, font=\footnotesize, midway] {Checkout};
+    \draw[arrow] (p)  -- (pr) node[above, font=\footnotesize, midway] {Admin};
+    \draw[arrow] (pr) -- (sh) node[above, font=\footnotesize, midway] {Admin};
+    \draw[arrow] (sh) -- (d)  node[above, font=\footnotesize, midway] {Admin};
+
+    \node[font=\footnotesize, text=gray!70] at (1.6,  -0.65) {$\rightarrow$ E-Mail};
+    \node[font=\footnotesize, text=gray!70] at (4.8,  -0.65) {$\rightarrow$ E-Mail};
+    \node[font=\footnotesize, text=gray!70] at (8.0,  -0.65) {$\rightarrow$ E-Mail};
+\end{tikzpicture}
+\caption{Status-Lifecycle einer Bestellung mit automatischer Kundenbenachrichtigung}
+\label{fig:order-lifecycle}
+\end{figure}
 
 \section{Angebots- und Rabattsystem}
 \label{sec:angebotssystem}
 
-% TODO: Angebotssystem beschreiben
-% - Angebotsmodell
-% - Zeitliche Begrenzung
-% - Rabattberechnung
+Das \texttt{Offer}-Modell bildet zeitlich begrenzte Rabattaktionen ab. Die Methode \texttt{isActive()} vergleicht \texttt{startDate} und \texttt{endDate} mit dem aktuellen Zeitstempel; fehlende Felder gelten als unbegrenzt. Der Rabatt wird prozentual über \texttt{discountPercentage} auf den Listenpreis angewendet und bereits beim Laden des Warenkorbs in den \texttt{finalPrice} eingerechnet.
+
+Das System wird durch zwei Cloud Functions ergänzt: \texttt{weeklyOffers.js} versendet wöchentlich per \texttt{pubsub.schedule}-Trigger einen Newsletter mit aktiven Angeboten an abonnierte Nutzer. \texttt{orderStatusChanged.js} reagiert ereignisgesteuert auf Bestellstatusänderungen und benachrichtigt Kunden automatisch per E-Mail. Beide Funktionen illustrieren das Event-Driven-Muster serverloser Architekturen, bei dem Logik auf Datenbankereignisse reagiert statt direkt aufgerufen zu werden \cite{thatikonda2023, firebase2025}.
 
 \section{Administrationsoberfläche}
 \label{sec:admin}
 
-% TODO: Admin-Bereich beschreiben
-% - Produktverwaltung
-% - Kategorienverwaltung
-% - Bestellübersicht
-% - Benutzerverwaltung
-% - Angebotsverwaltung
+Der Administrationsbereich (\texttt{/admin/*}) ist zweistufig abgesichert: Der Vue-Router-Guard prüft \texttt{isAdmin()} auf Clientseite, Firestore Security Rules erzwingen dieselbe Bedingung serverseitig. Diese Redundanz eliminiert den Single Point of Failure, der bei rein clientseitigem Schutz entstünde \cite{fredj2020}.
 
-\subsection{Produktverwaltung}
-\label{subsec:admin-produkte}
-
-% TODO: Admin Products
-
-\subsection{Bestellübersicht}
-\label{subsec:admin-bestellungen}
-
-% TODO: Admin Orders
-
-\subsection{Benutzerverwaltung}
-\label{subsec:admin-benutzer}
-
-% TODO: Admin Users
+Der Bereich umfasst fünf Module (Produkte, Kategorien, Bestellungen, Nutzer, Angebote) als eigenständige Views mit vollständigen CRUD-Operationen. Drei wiederverwendbare Komponenten -- \texttt{AdminFilters}, \texttt{AdminTablePagination} und \texttt{AdminPageHeader} -- gewährleisten ein konsistentes UI-Muster und vermeiden Codeduplizierung \cite{kothapalli2021}. Statusänderungen an Bestellungen lösen über \texttt{orderStatusChanged.js} automatische Kundenbenachrichtigungen aus und entkoppeln die UI-Aktion von der Benachrichtigungslogik \cite{milojkovic2024}.
