@@ -2,11 +2,179 @@
 \chapter{Deployment und CI/CD}
 \label{ch:deployment}
 
-% TODO: Deployment beschreiben
-% - Firebase Hosting Konfiguration
-% - firebase.json Konfiguration
-% - Rewrites für SPA
-% - Build-Prozess mit Vite
-% - Umgebungsvariablen
-% - GitHub Actions Workflow
-% - Automatisiertes Deployment
+Die Überführung einer lokal entwickelten Webanwendung in eine produktionsbereite, öffentlich zugängliche Umgebung umfasst neben dem eigentlichen Build-Vorgang auch die Absicherung der Lieferkette durch automatisierte Qualitätssicherung. Das Konzept \textit{Continuous Integration/Continuous Deployment} (CI/CD) beschreibt eine Praxis, bei der Codeänderungen unmittelbar nach einem Commit automatisiert gebaut, getestet und bereitgestellt werden \cite{jani2023}. Fehler werden dadurch frühzeitig erkannt, manuelle Fehlerquellen im Auslieferungsprozess eliminiert und die Lieferfrequenz nachweislich gesteigert \cite{ugwueze2024}.
+
+Für den Webshop kommt ein vollständig automatisierter Pipeline-Ansatz zum Einsatz: GitHub Actions orchestriert den Workflow, Vite erstellt den Produktions-Build, und Firebase Hosting übernimmt die globale Auslieferung. Der gesamte Prozess ist darauf ausgelegt, dass ein einziger \texttt{git push} auf den Hauptzweig ausreicht, um die Anwendung reproduzierbar, sicher und ohne manuelle Eingriffe in die Produktionsumgebung zu überführen.
+
+\section{Continuous Integration und Continuous Deployment}
+\label{sec:cicd-konzept}
+
+CI/CD ist ein zentrales Element moderner DevOps-Kultur. \textit{Continuous Integration} (CI) bezeichnet die Praxis, Codeänderungen mehrerer Entwickler regelmäßig in einen gemeinsamen Hauptzweig zu integrieren und dabei automatisch einen Build- und Testlauf auszulösen, um Integrationsprobleme frühzeitig aufzudecken \cite{makani2022}. \textit{Continuous Deployment} (CD) erweitert diesen Gedanken: Jeder Commit, der alle automatisierten Qualitätsschranken passiert, wird ohne manuelle Freigabe direkt in die Produktionsumgebung überführt \cite{ugwueze2024}.
+
+Studien belegen, dass Teams mit etablierten CI/CD-Pipelines signifikant kürzere Fehlerkorrekturzyklen aufweisen und die Deploymentfrequenz gegenüber rein manuellen Prozessen deutlich erhöhen können \cite{james2025, patel2025}. Für einen E-Commerce-Webshop ist diese unmittelbare Rückkopplung besonders wertvoll, da sowohl die Verfügbarkeit des Dienstes als auch die Korrektheit aller Bestell- und Zahlungsfunktionen jederzeit sichergestellt sein müssen.
+
+\section{GitHub Actions Workflow}
+\label{sec:github-actions}
+
+GitHub Actions ist eine direkt in die GitHub-Plattform integrierte CI/CD-Automatisierungslösung, die Workflows als YAML-Dateien im Verzeichnis \texttt{.github/workflows/} definiert \cite{makani2022}. Gegenüber klassischen CI-Servern wie Jenkins entfällt die eigenständige Serverinfrastruktur vollständig; stattdessen stellt GitHub kostenlose \textit{Hosted Runner} bereit, auf denen Workflow-Jobs in isolierten Ubuntu-Containern ausgeführt werden.
+
+Der für den Webshop definierte Workflow \texttt{firebase-hosting-merge.yml} wird bei jedem Push auf den \texttt{main}-Branch ausgelöst (\texttt{on: push: branches: [main]}) und durchläuft sechs sequenzielle Schritte:
+
+\begin{lstlisting}[language={}, caption=GitHub Actions Workflow -- Trigger und Job-Konfiguration, label=lst:workflow-trigger]
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: code/package-lock.json
+\end{lstlisting}
+
+\paragraph{Checkout und Node-Setup.}
+Im ersten Schritt wird der Repository-Inhalt mit \texttt{actions/checkout@v4} ausgecheckt. Anschließend richtet \texttt{actions/setup-node@v4} Node.js 20 LTS ein und aktiviert den npm-Cache basierend auf der \texttt{package-lock.json}. Durch das Caching werden unveränderte Abhängigkeiten aus dem Cache wiederhergestellt statt erneut heruntergeladen, was die Pipeline-Laufzeit spürbar reduziert.
+
+\paragraph{Reproduzierbarer Abhängigkeits-Install.}
+Die Installation erfolgt mit \texttt{npm ci} (Clean Install) statt \texttt{npm install}. \texttt{npm ci} löscht zunächst den \texttt{node\_modules}-Ordner vollständig und installiert dann exakt die in \texttt{package-lock.json} fixierten Versionen, ohne implizite Aktualisierungen \cite{jani2023}. Dies garantiert eine byte-genaue Reproduzierbarkeit zwischen der Entwicklungsumgebung und dem CI-Runner.
+
+\paragraph{Unit-Tests.}
+Mit \texttt{npm run test:run} werden die Vitest-Unit-Tests im Non-Watch-Modus ausgeführt. Schlägt auch nur ein einzelner Test fehl, bricht die Pipeline unmittelbar ab; kein Build und kein Deployment folgt.
+
+\paragraph{End-to-End-Tests.}
+Im nächsten Schritt wird der Vite-Entwicklungsserver im Hintergrundprozess gestartet (\texttt{npm run dev \&}). Das Hilfsprogramm \texttt{wait-on} wartet blockierend, bis Port \texttt{5173} erreichbar ist. Erst danach startet Cypress im Headless-Modus und führt alle E2E-Testsuiten aus. Dieses Muster stellt sicher, dass die Anwendung in einer laufenden Umgebung vollständig validiert wird, bevor der Produktions-Build beginnt \cite{esther2024}.
+
+\begin{lstlisting}[language={}, caption=E2E-Test-Schritt im GitHub Actions Workflow, label=lst:workflow-e2e]
+- name: Run e2e tests
+  working-directory: ./code
+  env:
+    VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
+    # ... weitere Secrets
+  run: |
+    npm run dev &
+    npx wait-on http://localhost:5173
+    npm run e2e:headless
+\end{lstlisting}
+
+\paragraph{Produktions-Build und Deployment.}
+Erst nach erfolgreichem Durchlaufen beider Teststufen wird \texttt{npm run build} aufgerufen. Die offizielle GitHub Action \texttt{FirebaseExtended/action-hosting-deploy@v0} überträgt das \texttt{dist}-Verzeichnis anschließend direkt an Firebase Hosting und aktiviert den Produktions-Channel (\texttt{channelId: live}).
+
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}[
+  node distance=0.5cm and 0.3cm,
+  box/.style={rectangle, rounded corners=3pt, draw=black!60, fill=gray!10,
+              minimum width=1.9cm, minimum height=0.9cm,
+              font=\scriptsize\sffamily, align=center, drop shadow},
+  failbox/.style={rectangle, rounded corners=3pt, draw=red!60, fill=red!8,
+              minimum width=2.0cm, minimum height=0.8cm,
+              font=\scriptsize\sffamily, align=center},
+  arrow/.style={->, >=Stealth, thick},
+  failarrow/.style={->, >=Stealth, dashed, red!60, thick}
+]
+  \node[box] (push)     {Git Push\\{\tiny main}};
+  \node[box, right=of push]     (checkout) {Checkout\\Node 20};
+  \node[box, right=of checkout] (install)  {npm ci};
+  \node[box, right=of install]  (unit)     {Unit-Tests\\{\tiny Vitest}};
+  \node[box, right=of unit]     (e2e)      {E2E-Tests\\{\tiny Cypress}};
+  \node[box, right=of e2e]      (build)    {Vite\\Build};
+  \node[box, right=of build]    (deploy)   {Firebase\\Deploy};
+  \node[failbox, below=0.9cm of unit] (fail) {Pipeline\\abgebrochen};
+
+  \draw[arrow] (push) -- (checkout);
+  \draw[arrow] (checkout) -- (install);
+  \draw[arrow] (install) -- (unit);
+  \draw[arrow] (unit) -- (e2e);
+  \draw[arrow] (e2e) -- (build);
+  \draw[arrow] (build) -- (deploy);
+  \draw[failarrow] (unit.south) -- (fail.north);
+  \draw[failarrow] (e2e.south) -| (fail.north east);
+\end{tikzpicture}
+\caption{CI/CD-Pipeline des Webshops von Git Push bis zum produktiven Deployment}
+\label{fig:cicd-pipeline}
+\end{figure}
+
+\section{Secrets und Umgebungsvariablen}
+\label{sec:secrets}
+
+Firebase-Konfigurationsparameter wie \texttt{apiKey}, \texttt{projectId} oder \texttt{messagingSenderId} sind keine klassischen Passwörter, dürfen jedoch nicht im Quellcode hart kodiert sein. Das unbeabsichtigte Einbetten von Zugangsdaten in Versionskontrollsysteme stellt eine der häufigsten Sicherheitsschwachstellen in modernen Softwareprojekten dar \cite{chornii2025}. Untersuchungen zur Sicherheit von CI/CD-Pipelines belegen, dass exponierte Secrets in öffentlichen Repositories regelmäßig innerhalb weniger Minuten nach einem Commit von automatisierten Scannern gefunden und missbraucht werden \cite{saleh2025}.
+
+GitHub bietet mit \textit{Repository Secrets} eine integrierte Lösung: Secrets werden verschlüsselt gespeichert, stehen ausschließlich autorisierten Workflows zur Verfügung und werden in Log-Ausgaben automatisch maskiert. Im Workflow werden sie als Umgebungsvariablen in die Build- und Testschritte injiziert:
+
+\begin{lstlisting}[language={}, caption=Secrets-Injektion als Umgebungsvariablen im Workflow, label=lst:secrets]
+env:
+  VITE_FIREBASE_API_KEY:            ${{ secrets.VITE_FIREBASE_API_KEY }}
+  VITE_FIREBASE_AUTH_DOMAIN:        ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
+  VITE_FIREBASE_PROJECT_ID:         ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
+  VITE_FIREBASE_STORAGE_BUCKET:     ${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
+  VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
+  VITE_FIREBASE_APP_ID:             ${{ secrets.VITE_FIREBASE_APP_ID }}
+\end{lstlisting}
+
+Vite liest zur Build-Zeit ausschließlich Variablen mit dem \texttt{VITE\_}-Präfix aus der Prozessumgebung und bündelt sie in den statischen Bundle-Output \cite{vite2025}. Serverseitige Credentials, die nicht im Browser-Bundle erscheinen dürfen -- insbesondere der Firebase Service-Account-Schlüssel für das Deployment (\texttt{FIREBASE\_SERVICE\_ACCOUNT\_WEBSHOP\_37AC2}) -- werden ausschließlich als GitHub Secret übergeben und sind im fertigen Artefakt nicht enthalten. Diese strikte Trennung zwischen clientseitigen Konfigurationsparametern und serverseitigen Privilegien entspricht dem Prinzip der minimalen Rechtevergabe (Principle of Least Privilege) \cite{fredj2020}.
+
+\section{Build-Prozess mit Vite}
+\label{sec:vite-build}
+
+Der Produktions-Build des Webshops basiert auf Vite, das intern Rollup als Bundler einsetzt \cite{vite2025}. Im Vergleich zu klassischen Webpack-basierten Toolchains zeichnet sich Vite durch deutlich kürzere Build-Zeiten aus -- Nguyen (2024) belegt in einer empirischen Vergleichsstudie messbare Vorteile bei Kaltstart-Build-Zeiten zugunsten von Vite \cite{nguyen2024vite}. Für CI/CD-Pipelines ist dies relevant, da jede Sekunde Laufzeitreduktion die Feedback-Latenz für Entwickler verringert und die Gesamtdurchlaufzeit der Pipeline senkt.
+
+In \texttt{vite.config.js} sind explizite Code-Splitting-Regeln für Vendor-Bundles definiert:
+
+\begin{lstlisting}[language=Java, morekeywords={import, export, const, from, default, defineConfig}, caption=Vite-Konfiguration mit manuellem Chunk-Splitting (vite.config.js), label=lst:vite-config]
+export default defineConfig({
+  plugins: [vue()],
+  resolve: { alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) } },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'firebase':   ['firebase/app', 'firebase/auth',
+                         'firebase/firestore', 'firebase/storage'],
+          'vue-vendor': ['vue', 'vue-router']
+        }
+      }
+    }
+  }
+})
+\end{lstlisting}
+
+Durch die explizite Trennung der Firebase-SDK-Module und der Vue-Kernbibliotheken in eigenständige Chunks können Browser und CDN-Knoten diese Dateien langfristig im Cache halten: Da sich Vendor-Bibliotheken zwischen Deployments kaum ändern, laden Nutzer bei einer Anwendungsaktualisierung lediglich die veränderten Applikations-Chunks neu, nicht jedoch die stabilen Vendor-Bundles \cite{nguyen2024vite}. Tree-Shaking eliminiert zusätzlich nicht referenzierten Code und reduziert die initiale Bundle-Größe weiter \cite{vite2025}.
+
+\section{Firebase Hosting Konfiguration}
+\label{sec:firebase-hosting}
+
+Firebase Hosting ist ein global verteilter statischer Hosting-Dienst von Google, der Assets über ein Content Delivery Network (CDN) mit automatischer SSL/TLS-Verschlüsselung ausliefert \cite{ayezabu2022, nguyen_ecom2022}. Die Konfigurationsdatei \texttt{firebase.json} steuert alle relevanten Aspekte des Hosting-Verhaltens:
+
+\begin{lstlisting}[language={}, caption=Firebase Hosting Konfiguration (firebase.json), label=lst:firebase-json]
+{
+  "hosting": {
+    "public": "dist",
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "rewrites": [
+      { "source": "**", "destination": "/index.html" }
+    ]
+  }
+}
+\end{lstlisting}
+
+\paragraph{Dist-Verzeichnis.}
+Das Attribut \texttt{"public": "dist"} referenziert den von Vite erzeugten Output-Ordner. Firebase Hosting stellt ausschließlich diesen Inhalt bereit; Quellcode, \texttt{node\_modules} und Konfigurationsdateien verbleiben auf dem CI-Runner und werden niemals publiziert.
+
+\paragraph{SPA-Rewrite-Regel.}
+Der Webshop ist als Single-Page Application realisiert und implementiert clientseitiges Routing via \texttt{createWebHistory()}. Da der Webserver keine physischen Dateien für Routen wie \texttt{/shop/produkt/123} kennt, würde ein direkter Aufruf einer Unterseite ohne Rewrite-Konfiguration mit einem HTTP-404-Fehler scheitern. Die Catch-All-Regel \texttt{"source": "**", "destination": "/index.html"} leitet sämtliche Anfragen, die keiner statischen Datei entsprechen, an die \texttt{index.html} weiter; Vue Router übernimmt anschließend die clientseitige Routenauflösung \cite{kowalczyk2024}.
+
+\paragraph{CDN und Performance.}
+Firebase Hosting verteilt die statischen Assets automatisch auf CDN-Knoten im Google-Netzwerk. Anfragen werden vom geographisch nächstgelegenen Knoten beantwortet, was Netzwerklatenz minimiert und die wahrgenommene Ladegeschwindigkeit verbessert \cite{ayezabu2022}. Für E-Commerce-Anwendungen ist die Ladezeit ein wirtschaftlich relevanter Faktor: Bereits eine Sekunde zusätzliche Ladezeit kann die Konversionsrate messbar senken \cite{peterson2018}.
+
+\section{Zusammenfassung des Deployment-Prozesses}
+\label{sec:deployment-zusammenfassung}
+
+Der vollständige Deployment-Prozess des Webshops folgt einem \enquote{Push-to-Deploy}-Paradigma, bei dem ein einziger \texttt{git push} auf den \texttt{main}-Branch die gesamte Pipeline auslöst. Die in Abbildung~\ref{fig:cicd-pipeline} dargestellte Sequenz durchläuft sechs Stufen, wobei ein Fehler in jeder Teststufe den Prozess sofort abbricht -- kein fehlerhafter Code erreicht das Produktionssystem. Nur vollständig validierter, auf dem CI-Runner reproduzierbar gebauter Code wird über Firebase Hosting global ausgeliefert.
+
+Dieser Ansatz reduziert manuelle Eingriffe auf ein Minimum und erhöht gleichzeitig die Zuverlässigkeit jeder Softwareauslieferung. Nach \citeauthor{james2025} (\citeyear{james2025}) ist die Automatisierung des Build-, Test- und Deployment-Zyklus ein zentraler Hebel zur Steigerung der Softwarezuverlässigkeit, da sie menschliche Fehlerquellen systematisch ausschließt und konsistente, nachvollziehbare Auslieferungsprozesse garantiert \cite{james2025}.
