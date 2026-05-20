@@ -2,12 +2,20 @@
 \chapter{Zusammenfassung und Ausblick}
 \label{ch:zusammenfassung}
 
-% TODO: Zusammenfassung schreiben
-% - Ausgangssituation und Zielsetzung
-% - Umsetzung und Ergebnisse
-% - Fazit
+\section{Zusammenfassung}
+\label{sec:zusammenfassung}
 
-% TODO: Ausblick schreiben
-% - Mögliche Erweiterungen (Zahlungsintegration, Versand, Bewertungen, Newsletter)
-% - Technische Verbesserungen (TypeScript, Tests, PWA)
-% - Skalierung für Produktivbetrieb
+Ziel dieser Studienarbeit war die Konzeption und Implementierung eines vollständigen E-Commerce-Webshops auf Basis von Vue.js und Google Firebase. Ausgangspunkt war die Frage, ob eine Backend-as-a-Service-Plattform den klassischen Spagat zwischen schnellem Markteinstieg und individueller Anpassbarkeit überbrücken kann -- ohne den infrastrukturellen Aufwand einer Eigenentwicklung.
+
+Das Ergebnis bestätigt diese Eignung. Alle definierten Anforderungen wurden erfüllt: Authentifizierung, Produktkatalog, Warenkorb, Checkout, Angebotssystem und Administrationsbereich stehen als lauffähiger Prototyp zur Verfügung. Die Anwendung ist vollständig responsiv, via CI/CD-Pipeline automatisiert deployed und durch Unit- sowie End-to-End-Tests abgesichert. Mit Lighthouse-Scores von 91 (Startseite) und 88 (Produktdetailseite) erfüllt sie die gesetzten Performance-Anforderungen.
+
+Der Firebase-Vue.js-Stack hat sich für Projekte mit kleinem Team als praktisch tragfähig erwiesen: Infrastrukturaufgaben werden vollständig abstrahiert, die Entwicklerproduktivität ist hoch und die laufenden Betriebskosten bleiben gering. Die wesentlichen Kompromisse -- Vendor Lock-in und eingeschränkte Volltext\-suche -- sind bekannt und für den Prototypen akzeptabel.
+
+\section{Ausblick}
+\label{sec:ausblick}
+
+Für eine produktionsreife Weiterentwicklung bieten sich mehrere Ansätze an. Der naheliegendste Schritt ist die Integration eines echten Zahlungsdienstleisters wie Stripe, da der aktuelle Checkout-Prozess die Zahlungsabwicklung simuliert. Ebenso fehlt eine Versandschnittstelle, die Bestellungen automatisch an Logistikdienstleister übergibt.
+
+Auf technischer Seite würde eine Migration zu TypeScript die Codequalität langfristig verbessern, da Typfehler zur Entwicklungszeit erkannt werden. Wächst der Produktkatalog über einige Hundert Artikel hinaus, sollte ein dedizierter Suchdienst wie Algolia die clientseitige Filterung ersetzen. Ist SEO ein relevantes Ziel, bietet Nuxt.js Server-Side Rendering auf Basis der bestehenden Vue-Komponenten.
+
+Darüber hinaus sind Produktbewertungen, ein erweitertes Newsletter-System sowie Push-Benachrichtigungen über die bereits vorhandene Firebase Cloud Messaging-Infrastruktur realisierbar, ohne die bestehende Architektur grundlegend zu ändern.
