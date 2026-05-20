@@ -2,30 +2,97 @@
 \chapter{Testing und Qualitätssicherung}
 \label{ch:testing}
 
-% TODO: Testing beschreiben
-% - Testkonzept und Teststrategie
-% - Manuelle Funktionstests
-% - Cross-Browser-Testing
-% - Responsive Design Testing
-% - Performance-Analyse (Lighthouse)
-% - Sicherheitsüberprüfung
+Softwarequalität ergibt sich aus einem systematisch geplanten Testprozess, der verschiedene Prüfebenen kombiniert. Dieses Kapitel beschreibt die Teststrategie des Projekts, die eingesetzten Werkzeuge sowie die Ergebnisse der automatisierten Tests, der manuellen Verifikation, der Performance-Analyse und der Sicherheitsüberprüfung.
 
-% TODO: Load time
+\section{Testkonzept und Teststrategie}
+\label{sec:testkonzept}
+
+Als konzeptioneller Rahmen dient die \textit{Testpyramide}: Sie empfiehlt, den größten Anteil der Tests auf der schnellen, isolierten Unit-Ebene anzusiedeln und den Anteil aufwendiger End-to-End-Tests auf ein notwendiges Minimum zu beschränken \cite{contan2018}. Eine invertierte Pyramide erzeugt lange Feedback-Zyklen und hohe Wartungskosten \cite{kralik2025}. Abbildung~\ref{fig:testpyramide} zeigt die resultierende Drei-Ebenen-Struktur des Projekts.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[font=\small]
+  \fill[orange!30] (0,0) -- (2,2) -- (-2,2) -- cycle;
+  \node at (0, 1.3) {\textbf{E2E}};
+  \node at (0, 0.85) {Cypress};
+  \fill[yellow!40] (-3.6,2) rectangle (3.6,3.5);
+  \fill[orange!30] (0,0) -- (2,2) -- (-2,2) -- cycle;
+  \node at (0, 2.75) {\textbf{Integrations-/Servicetests}};
+  \node at (0, 2.35) {Vitest mit gemockten Services};
+  \fill[green!25] (-4.5,3.5) rectangle (4.5,5.2);
+  \node at (0, 4.55) {\textbf{Unit-Tests}};
+  \node at (0, 4.1) {Vitest -- Hilfsfunktionen, Store-Logik};
+  \draw[thick] (-4.5,5.2) -- (-4.5,3.5) -- (4.5,3.5) -- (4.5,5.2) -- cycle;
+  \draw[thick] (-3.6,3.5) -- (-3.6,2) -- (3.6,2) -- (3.6,3.5);
+  \draw[thick] (-2,2) -- (0,0) -- (2,2);
+  \node[right] at (4.6, 4.35) {schnell, isoliert};
+  \node[right] at (3.7, 2.75) {moderat};
+  \node[right] at (2.1, 1.0) {langsam};
+\end{tikzpicture}
+\caption{Testpyramide des Projekts nach \cite{contan2018}}
+\label{fig:testpyramide}
+\end{figure}
+
+Die automatisierten Tests stützen sich auf zwei Frameworks. \textbf{Vitest} ist ein Vite-natives Test-Framework, das ESM nativ unterstützt und dank \texttt{happy-dom} Vue-Komponenten ohne Browser-Prozess rendern kann \cite{vitest2025}. Alle Unit-Tests folgen dem \textit{Arrange-Act-Assert}-Muster (AAA), das jeden Testfall in Vorbereitung, Ausführung und Überprüfung gliedert \cite{osherove2024}. \textbf{Cypress} führt Browserinteraktionen direkt im selben Laufzeitkontext wie die Applikation aus und bietet automatische Warte-Mechanismen sowie Selector-basierte DOM-Interaktion \cite{mwaura2021, cypress2025}. Die CI-Pipeline führt beide Suiten sequenziell aus: erst \texttt{vitest run}, dann \texttt{cypress run --e2e} im Headless-Modus.
+
+\section{Unit-Tests}
+\label{sec:unit-tests}
+
+Die Unit-Tests sind in vier Dateien unter \texttt{tests/unit/} organisiert und prüfen drei Schichten der Anwendung. Reine Hilfsfunktionen aus \texttt{src/utils/index.js} -- darunter Preisformatierung, E-Mail-Validierung und Rabattberechnung -- lassen sich vollständig ohne Mocking testen. Store-Funktionen aus \texttt{cartStore} und \texttt{wishlistStore} rufen intern die Serviceschicht auf; diese wird über \texttt{vi.mock()} ersetzt, sodass die Tests ausschließlich die Zustandslogik prüfen und keine Firebase-Verbindung benötigen \cite{osherove2024}. Die Suchdienste \texttt{searchProducts} und \texttt{getSearchSuggestions} werden ebenfalls isoliert mit einem kontrollierbaren Mock-Produktportfolio getestet, das verschiedene Kategorien und Lagerzustände abbildet.
+
+\section{End-to-End-Tests}
+\label{sec:e2e-tests}
+
+Die acht Cypress-Spec-Dateien unter \texttt{tests/e2e/} decken alle kritischen Nutzungsflüsse ab: Authentifizierung, Warenkorb, Checkout, Navigation, Angebote, Produktbrowsing, Suche und Wunschliste. Wiederkehrende Operationen wie \texttt{cy.login()}, \texttt{cy.clearCart()} oder \texttt{cy.acceptCookies()} sind in Custom Commands in \texttt{tests/support/commands.js} gekapselt \cite{cypress2025}. Jede Spec-Datei stellt per \texttt{beforeEach}-Hook einen sauberen Ausgangszustand her und prüft neben dem Erfolgsfall auch Fehlerfälle -- etwa dass der Checkout-Button bei leerem Warenkorb nicht erscheint oder dass der Aufruf einer geschützten Route ohne Anmeldung auf \texttt{/login} weiterleitet.
+
+\section{Manuelle Funktionstests}
+\label{sec:manuelle-tests}
+
+Ergänzend zu den automatisierten Tests wurden manuelle Funktionstests durchgeführt, um Aspekte wie visuelle Konsistenz, den Google-OAuth-Fluss, das Admin-Dashboard sowie Cookie-Einstellungen zu prüfen -- Bereiche, die sich einer vollständigen Automatisierung entziehen. Die Tests erfolgten iterativ während der Implementierungsphase.
+
+\section{Cross-Browser-Testing und Responsive Design}
+\label{sec:browser-responsive}
+
+Cross-Browser-Inkompatibilitäten entstehen durch unterschiedliche Rendering-Engines und können zu abweichenden Layouts oder Funktionsstörungen führen \cite{watanabe2023}. Alle wesentlichen Benutzerflüsse wurden daher manuell in Google Chrome (Blink), Mozilla Firefox (Gecko) und Safari (WebKit) verifiziert. Herstellerspezifische CSS-Präfixe ergänzt der Vite-interne PostCSS-Prozessor automatisch. Das Mobile-First-Layout mit Breakpoints bei 768\,px und 1024\,px wurde mit den Chrome DevTools sowie dem Cypress-Viewport-Befehl \texttt{cy.viewport('iphone-x')} getestet.
+
+\section{Performance-Analyse}
+\label{sec:performance}
+
+Die Performance-Analyse wurde mit Google Lighthouse auf dem produktiven Firebase-Hosting-Endpunkt nach einem vollständigen Produktionsbuild durchgeführt. Lighthouse bewertet Webseiten anhand der \textit{Core Web Vitals} -- Largest Contentful Paint (LCP, Zielwert $\leq$ 2,5\,s), Interaction to Next Paint (INP, $\leq$ 200\,ms) und Cumulative Layout Shift (CLS, $\leq$ 0,1) \cite{jainweb2023, dobbala2022}. Die Startseite erzielte einen Performance-Score von 91, die Produktdetailseite von 88; beide Seiten erreichten 100 Punkte in Best Practices. Die hohen Werte sind auf Vites Tree-Shaking und Code-Splitting, die CDN-basierte Auslieferung über Firebase Hosting mit HTTP/2 und Gzip sowie das Lazy-Loading der Produktbilder zurückzuführen. Der minimal niedrigere Performance-Score der Produktdetailseite ist auf den Firestore-Datenabruf zurückzuführen, da der Hauptinhalt erst nach dem Datenbankaufruf gerendert werden kann.
 
 \section{Sicherheitsüberprüfung}
 \label{sec:sicherheit-test}
 
-% TODO: Sicherheitstests beschreiben
-% - Authentifizierung
-% - Autorisierung
-% - Firestore Rules Testing
+Unzureichende Authentifizierung und fehlerhafte Zugriffskontrolle zählen laut OWASP Top 10 zu den kritischsten Sicherheitsrisiken für Webanwendungen \cite{wen2023, fredj2020}. Die nachfolgenden Abschnitte beschreiben, wie der Webshop diesen Risiken begegnet.
 
 \subsection{Authentifizierungstests}
 \label{subsec:auth-tests}
 
-% TODO: Auth tests
+Firebase Authentication übernimmt das vollständige Credential-Management: Passwörter werden ausschließlich serverseitig gehasht gespeichert, clientseitig sind zu keinem Zeitpunkt Klartextpasswörter oder Hashes zugänglich. JWTs werden von Firebase automatisch ausgestellt, signiert und nach Ablauf (Standard: 1\,h) erneuert \cite{bucko2023, firebaseAuth2025}. Die clientseitige Zugriffskontrolle ist über einen globalen Route Guard realisiert, der die \texttt{requiresAuth}- und \texttt{requiresAdmin}-Metafelder der Routendefinition auswertet: Ein direkter Aufruf von \texttt{/profile} oder einer Admin-Route ohne aktive Sitzung löst eine sofortige Weiterleitung auf \texttt{/login} aus.
 
 \subsection{Firestore Security Rules}
 \label{subsec:rules-tests}
 
-% TODO: Rules tests
+Da Firebase-Projekte ohne serverseitige Applikationsschicht direkt aus dem Browser auf Firestore zugreifen, bilden die \textit{Security Rules} die einzige Zugriffskontroll-Schranke zwischen Client und Datenbank -- fehlerhafte Rules können dazu führen, dass beliebige Nutzer fremde Daten lesen oder schreiben \cite{milojkovic2024}. Die Rules des Projekts definieren vier Hilfsfunktionen, die von allen Kollektionsregeln gemeinsam genutzt werden:
+
+\begin{lstlisting}[language=Java, morekeywords={function,return,allow,match,if,true,false}, caption=Hilfsfunktionen der Firestore Security Rules (firestore.rules)]
+function isAuthenticated() {
+  return request.auth != null;
+}
+function isOwner(userId) {
+  return isAuthenticated() && request.auth.uid == userId;
+}
+function isAdmin() {
+  return isAuthenticated() &&
+    get(/databases/$(database)/documents/users/$(request.auth.uid))
+      .data.role == 'admin';
+}
+function noRoleEscalation() {
+  return !('role' in request.resource.data) ||
+    request.resource.data.role == resource.data.role;
+}
+\end{lstlisting}
+
+Die Funktion \texttt{noRoleEscalation()} verhindert, dass ein angemeldeter Nutzer beim Update des eigenen Dokuments das \texttt{role}-Feld von \texttt{'user'} auf \texttt{'admin'} eskalieren kann -- ein klassisches Privilege-Escalation-Szenario, das zur OWASP-Kategorie \textit{Broken Access Control} zählt \cite{wen2023}. Öffentlich lesbare Kollektionen wie \texttt{products}, \texttt{categories} und \texttt{offers} erlauben Schreibzugriff ausschließlich für Admins. Die \texttt{users}-Kollektion schützt Nutzer vor gegenseitigen Zugriffen: Lesen und Schreiben sind auf das eigene Dokument beschränkt, wobei \texttt{noRoleEscalation} Rollenerweiterungen verhindert. Besonders die \texttt{orders}-Kollektion ist sorgfältig abgesichert: Neue Bestellungen müssen zwingend den Status \texttt{'pending'} erhalten, sodass ein Angreifer keine Bestellung mit dem Status \texttt{'shipped'} oder \texttt{'paid'} direkt einschleusen kann -- Statusübergänge sind ausschließlich dem Admin-Dashboard und den Cloud Functions via Admin SDK vorbehalten. Die Kollektion \texttt{newsletterLogs} ist für Clientzugriffe vollständig gesperrt.
+
+Die Korrektheit der Rules wurde manuell im Firebase Emulator verifiziert: Zugriffe nicht authentifizierter Nutzer auf \texttt{/users}-Dokumente wurden mit \texttt{PERMISSION\_DENIED} abgelehnt, und der Versuch einer Rollenänderung durch einen regulären Nutzer wurde korrekt blockiert.
