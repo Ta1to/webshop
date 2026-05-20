@@ -1,21 +1,55 @@
-%!TEX root = ../main.tex
+﻿%!TEX root = ../main.tex
 \chapter{Evaluation und Diskussion}
 \label{ch:evaluation}
 
-% TODO: Evaluation beschreiben
-% - Erfüllung der Anforderungen
-% - Vergleich mit alternativen Ansätzen (Shopify, WooCommerce, eigenes Backend)
-% - Stärken der Implementierung
-% - Schwächen und Limitierungen
-% - Lessons Learned
-% - Empfehlungen für ähnliche Projekte
+\section{Erfüllung der Anforderungen}
+\label{sec:anforderungserfuellung}
 
-\subsection{Technische Erkenntnisse}
-\label{subsec:tech-erkenntnisse}
+Alle als \textit{Muss} priorisierten funktionalen Anforderungen wurden vollständig umgesetzt; auch sämtliche \textit{Soll}- und \textit{Kann}-Anforderungen konnten realisiert werden. Die definierten Abgrenzungen -- kein realer Zahlungsdienstleister, keine Versandintegration, keine Mehrsprachigkeit -- wurden eingehalten \cite{heinemann2024}. Die nicht-funktionalen Anforderungen sind ebenfalls erfüllt: Lighthouse-Scores von 91 (Startseite) und 88 (Produktdetailseite) belegen die Einhaltung der Ladezeit-Anforderung, alle übrigen Kriterien wie HTTPS, Responsivität und DSGVO-Konformität werden durch Firebase Hosting und Firebase Authentication abgedeckt \cite{jainweb2023, firebaseAuth2025}.
 
-% TODO: Technical lessons
+\section{Vergleich mit alternativen Ansätzen}
+\label{sec:alternativvergleich}
 
-\subsection{Prozessbezogene Erkenntnisse}
-\label{subsec:prozess-erkenntnisse}
+Proprietäre Plattformen wie \textbf{Shopify} oder \textbf{WooCommerce} ermöglichen einen schnellen Markteinstieg, erkaufen diesen aber mit laufenden Lizenzkosten, eingeschränkter Anpassbarkeit der Geschäftslogik und begrenztem Datenzugang \cite{bang2023, oosi2023}. Eine \textbf{klassische Eigenentwicklung} mit Node.js und einer relationalen Datenbank böte maximale Kontrolle, würde jedoch den vollständigen Eigenbetrieb von Server, Authentifizierung und Datenbankinfrastruktur erfordern -- ein Aufwand, der den Rahmen einer Studienarbeit deutlich übersteigt \cite{kolesnikov2024}.
 
-% TODO: Process lessons
+Der gewählte \textbf{Firebase-Vue.js-Stack} positioniert sich zwischen diesen Polen: Infrastrukturaufgaben werden vollständig abstrahiert, während Datenmodell und Geschäftslogik frei gestaltbar bleiben. Für Projekte mit kleinem Team und moderatem Budget bietet dieser Ansatz die überzeugendste Balance aus Entwicklungsgeschwindigkeit, Flexibilität und Betriebskosten \cite{uunonen2023}.
+
+\begin{table}[H]
+\centering
+\begin{tabularx}{\textwidth}{|X|c|c|c|c|}
+\hline
+\textbf{Kriterium} & \textbf{Shopify} & \textbf{WooCommerce} & \textbf{Eigenes Backend} & \textbf{Firebase + Vue.js} \\
+\hline
+Aufwand & Niedrig & Mittel & Hoch & Mittel \\
+\hline
+Laufende Kosten & Hoch & Mittel & Mittel & Niedrig \\
+\hline
+Flexibilität & Niedrig & Mittel & Sehr hoch & Hoch \\
+\hline
+Infrastruktur & Keine & Mittel & Hoch & Keine \\
+\hline
+Vendor Lock-in & Hoch & Mittel & Niedrig & Mittel \\
+\hline
+\end{tabularx}
+\caption{Kurzvergleich der Ansätze}
+\label{tab:alternativvergleich}
+\end{table}
+
+\section{Stärken und Schwächen}
+\label{sec:staerken-schwaechen}
+
+Die zentralen \textbf{Stärken} des gewählten Ansatzes sind die vollständige Infrastrukturabstraktion, die deklarativen Firestore Security Rules als direkte Sicherheitsschranke auf Datenbankebene sowie die automatische Skalierbarkeit ohne Konfigurationsaufwand \cite{milojkovic2024, thatikonda2023}. Hinzu kommt die hohe Entwicklerproduktivität durch Vites HMR und die reaktive Architektur von Vue.js \cite{emmanni2023}.
+
+Den Stärken stehen drei wesentliche \textbf{Schwächen} gegenüber. Erstens bindet die tiefe Firebase-Integration das Projekt an das Google-Ökosystem; eine Migration wäre aufwendig \cite{kylliainen2022}. Zweitens fehlt native Volltextsuche in Firestore -- die clientseitige Filterung skaliert bei großen Katalogen nicht \cite{kesavan2023}. Drittens bringt die SPA-Architektur strukturelle SEO-Nachteile mit sich, da Inhalte primär clientseitig gerendert werden \cite{kowalczyk2024}.
+
+\section{Technische und prozessbezogene Erkenntnisse}
+\label{sec:erkenntnisse}
+
+Das Firestore-Datenmodell muss von Beginn an auf konkrete Lesemuster ausgelegt werden, da nachträgliche Strukturänderungen aufwendige Datenmigration erfordern \cite{kesavan2023}. Die Kapselung aller Firebase-Aufrufe in Pinia-Stores hat die Testbarkeit erheblich verbessert, weil die Serviceschicht im Test vollständig durch Mocks ersetzt werden kann \cite{osherove2024}. Security Rules sollten stets mit dem Firebase Emulator gegen positive und negative Szenarien verifiziert werden, bevor die Anwendung produktiv geht \cite{milojkovic2024}.
+
+Prozessseitig hat die frühzeitige CI/CD-Einrichtung Regressionsfehler unmittelbar sichtbar gemacht \cite{jani2023}, und die MoSCoW-Priorisierung hat bei zeitlichem Druck eine klare Fokussierung auf den Kernwert ermöglicht \cite{garcialopez2020}. Das iterativ-inkrementelle Vorgehensmodell erwies sich für ein Zwei-Personen-Team mit stabilen Anforderungen als richtige Wahl \cite{larman2003}.
+
+\section{Empfehlungen}
+\label{sec:empfehlungen}
+
+Der Firebase-Vue.js-Stack empfiehlt sich für Prototypen und mittelgroße E-Commerce-Anwendungen mit kleinem Team. Bei wachsendem Produktkatalog sollte frühzeitig ein dedizierter Suchdienst wie Algolia integriert werden. Ist SEO ein primäres Ziel, bietet Nuxt.js Server-Side Rendering auf Basis derselben Vue-Komponentenarchitektur \cite{kowalczyk2024}.
