@@ -4,7 +4,7 @@ import {
   signOut,
   onAuthStateChanged,
   updateProfile,
-  verifyBeforeUpdateEmail,
+  updateEmail,
   reload,
   sendEmailVerification,
   GoogleAuthProvider,
@@ -97,7 +97,7 @@ export const signInWithGoogle = async () => {
     // Check if user document exists in Firestore
     const userDoc = await getUserDocument(user.uid)
     
-    if (!userDoc.success) {
+    if (!userDoc) {
       // Create user document for new Google users
       await createUserDocument(user.uid, {
         email: user.email,
@@ -162,7 +162,7 @@ export const updateUserProfile = async (profileUpdates = {}) => {
     }
 
     if (email !== undefined && email !== user.email) {
-      await verifyBeforeUpdateEmail(user, email)
+      await updateEmail(user, email)
     }
 
     const firestoreUpdates = {}
