@@ -23,7 +23,7 @@ Das Projekt wurde in acht Meilensteine gegliedert, die über einen Zeitraum von 
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=1\textwidth]{meilenstein.png}
+    \includegraphics[width=1\textwidth]{resources/images/meilenstein}
     \caption{Meilensteine und Zeitplan der Projektphasen}
     \label{fig:meilensteine}
 \end{figure}
@@ -224,8 +224,6 @@ Zur Eingrenzung des Projektumfangs auf die Kernfunktionalitäten eines E-Commerc
     \item \textbf{Mehrsprachigkeit:} Die Anwendung wird ausschließlich in deutscher Sprache entwickelt.
     
     \item \textbf{Produktbewertungen:} Ein System für Kundenbewertungen und -rezensionen ist nicht Teil des Projektumfangs.
-    
-    \item \textbf{Newsletter:} Eine Newsletter-Funktionalität mit E-Mail-Marketing ist nicht vorgesehen.
 \end{itemize}
 
 Diese Abgrenzungen spiegeln den Charakter der Arbeit als funktionalen Prototyp wider: Der Webshop demonstriert alle wesentlichen Abläufe eines B2C-Onlineshops, ohne den Rahmen einer Studienarbeit zu überschreiten.
@@ -371,7 +369,7 @@ Die Sicherheit der Anwendung basiert auf einem mehrschichtigen Sicherheitskonzep
 
 Ein Beispiel für Firestore Security Rules:
 
-\begin{lstlisting}[language=Java, caption=Firestore Security Rules (Auszug)]
+\begin{lstlisting}[language={}, caption=Firestore Security Rules (Auszug -- vereinfacht; vollständige Implementierung siehe Kapitel~6)]
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {

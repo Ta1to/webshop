@@ -102,6 +102,7 @@
 \usepackage{xurl}                   % URL Umbruch
 \usepackage{pdflscape}              % Querformat
 \usepackage{enumitem}               % Aufzählungsstile
+\usepackage{microtype}              % Besserer Randausgleich, reduziert Overfull-Warnungen
 
 %% Bibliographie
 \usepackage[
@@ -153,17 +154,31 @@
     commentstyle=\color{comment},
     keepspaces=true,
     keywordstyle=\color{keyword},
-    morekeywords={var}
+    morekeywords={var},
+    columns=fullflexible,
     numbers=left,
     numbersep=1em,
     numberstyle=\tiny,
-    postbreak=\space,
+    postbreak=\mbox{\textcolor{gray}{$\hookrightarrow$}\space},
     showspaces=false,
     showstringspaces=false,
     showtabs=false,
     stepnumber=1,
     stringstyle=\color{string},
     tabsize=2,
+}
+\lstdefinelanguage{JavaScript}{%
+  keywords={break, case, catch, class, const, continue, debugger, default,
+            delete, do, else, export, extends, false, finally, for, from,
+            function, if, import, in, instanceof, let, new, null, of, return,
+            static, super, switch, this, throw, true, try, typeof, var, void,
+            while, with, yield, async, await, defineConfig, resolve},
+  morecomment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  morestring=[b]',
+  morestring=[b]",
+  morestring=[b]`,
+  sensitive=true
 }
 \lstloadlanguages{PHP,python,java,C,C++,bash}
 \renewcommand\lstlistingname{Skript}

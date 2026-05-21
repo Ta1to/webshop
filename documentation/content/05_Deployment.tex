@@ -107,7 +107,7 @@ Firebase-Konfigurationsparameter wie \texttt{apiKey}, \texttt{projectId} oder \t
 
 GitHub bietet mit \textit{Repository Secrets} eine integrierte Lösung: Secrets werden verschlüsselt gespeichert, stehen ausschließlich autorisierten Workflows zur Verfügung und werden in Log-Ausgaben automatisch maskiert. Im Workflow werden sie als Umgebungsvariablen in die Build- und Testschritte injiziert:
 
-\begin{lstlisting}[language={}, caption=Secrets-Injektion als Umgebungsvariablen im Workflow, label=lst:secrets]
+\begin{lstlisting}[language={}, basicstyle=\ttfamily\scriptsize, caption=Secrets-Injektion als Umgebungsvariablen im Workflow, label=lst:secrets]
 env:
   VITE_FIREBASE_API_KEY:            ${{ secrets.VITE_FIREBASE_API_KEY }}
   VITE_FIREBASE_AUTH_DOMAIN:        ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
@@ -126,7 +126,7 @@ Der Produktions-Build des Webshops basiert auf Vite, das intern Rollup als Bundl
 
 In \texttt{vite.config.js} sind explizite Code-Splitting-Regeln für Vendor-Bundles definiert:
 
-\begin{lstlisting}[language=Java, morekeywords={import, export, const, from, default, defineConfig}, caption=Vite-Konfiguration mit manuellem Chunk-Splitting (vite.config.js), label=lst:vite-config]
+\begin{lstlisting}[language=JavaScript, caption=Vite-Konfiguration mit manuellem Chunk-Splitting (vite.config.js), label=lst:vite-config]
 export default defineConfig({
   plugins: [vue()],
   resolve: { alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) } },

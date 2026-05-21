@@ -75,7 +75,7 @@ Firebase Authentication übernimmt das vollständige Credential-Management: Pass
 
 Da Firebase-Projekte ohne serverseitige Applikationsschicht direkt aus dem Browser auf Firestore zugreifen, bilden die \textit{Security Rules} die einzige Zugriffskontroll-Schranke zwischen Client und Datenbank -- fehlerhafte Rules können dazu führen, dass beliebige Nutzer fremde Daten lesen oder schreiben \cite{milojkovic2024}. Die Rules des Projekts definieren vier Hilfsfunktionen, die von allen Kollektionsregeln gemeinsam genutzt werden:
 
-\begin{lstlisting}[language=Java, morekeywords={function,return,allow,match,if,true,false}, caption=Hilfsfunktionen der Firestore Security Rules (firestore.rules)]
+\begin{lstlisting}[language={}, morekeywords={function,return,allow,match,if,true,false,write,read,get,create,update,delete,request,resource,auth,data,databases,documents}, caption=Hilfsfunktionen der Firestore Security Rules (firestore.rules)]
 function isAuthenticated() {
   return request.auth != null;
 }

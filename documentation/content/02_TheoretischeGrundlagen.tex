@@ -2,7 +2,7 @@
 \chapter{Theoretische Grundlagen}
 \label{ch:grundlagen}
 
-Dieses Kapitel legt die theoretischen Grundlagen für die Entwicklung des Webshops. Es werden zunächst die wesentlichen Konzepte des E-Commerce erläutert, bevor die technologischen Grundlagen der verwendeten Frontend- und Backend-Technologien vorgestellt werden. Das Verständnis dieser Grundlagen ist essentiell für die nachfolgende Konzeption und Implementierung der Anwendung.
+Dieses Kapitel legt die theoretischen Grundlagen für die Entwicklung des Webshops fest. Es werden zunächst die wesentlichen Konzepte des E-Commerce erläutert, bevor die technologischen Grundlagen der verwendeten Frontend- und Backend-Technologien vorgestellt werden. Das Verständnis dieser Grundlagen ist essenziell für die nachfolgende Konzeption und Implementierung der Anwendung.
 
 \section{E-Commerce Grundlagen}
 \label{sec:ecommerce-grundlagen}
@@ -12,14 +12,7 @@ Dieses Kapitel legt die theoretischen Grundlagen für die Entwicklung des Websho
 
 Der Begriff E-Commerce, kurz für Electronic Commerce, bezeichnet den elektronischen Handel von Waren und Dienstleistungen über digitale Netzwerke, insbesondere das Internet \cite{heinemann2024, jain2021}. Im engeren Sinne umfasst E-Commerce alle Transaktionen, bei denen der Kaufvertrag auf elektronischem Wege zustande kommt. Im weiteren Sinne schließt der Begriff auch vorgelagerte Prozesse wie Produktpräsentation, Kundenberatung und Bestellabwicklung sowie nachgelagerte Prozesse wie Zahlungsabwicklung und Kundenservice ein.
 
-E-Commerce lässt sich anhand der beteiligten Akteure in verschiedene Kategorien einteilen \cite{jain2021}. Die bekannteste Form ist das \textit{Business-to-Consumer (B2C)}-Modell, das Geschäftsbeziehungen zwischen Unternehmen und Endverbrauchern beschreibt und klassische Online-Shops wie Amazon oder Zalando umfasst. Davon abzugrenzen ist der \textit{Business-to-Business (B2B)}-Bereich, in dem Unternehmen untereinander handeln und der sich durch komplexere Preisstrukturen, individuelle Konditionen und größere Bestellmengen auszeichnet. Das \textit{Consumer-to-Consumer (C2C)}-Modell bezeichnet Transaktionen zwischen Privatpersonen, wie sie auf Plattformen wie eBay oder Kleinanzeigen stattfinden, während das \textit{Consumer-to-Business (C2B)}-Modell als seltenste Form die umgekehrte Richtung beschreibt, bei der Privatpersonen Leistungen an Unternehmen verkaufen. Der in dieser Arbeit entwickelte Webshop fällt in die Kategorie B2C und richtet sich an Endverbraucher, die nachhaltige Produkte erwerben möchten:
-
-\begin{itemize}
-    \item \textbf{B2C (Business-to-Consumer):} Unternehmen verkaufen direkt an Endverbraucher – klassische Online-Shops wie Amazon oder Zalando.
-    \item \textbf{B2B (Business-to-Business):} Handel zwischen Unternehmen, geprägt durch Individualkonditionen, Rahmenverträge und größere Bestellmengen.
-    \item \textbf{C2C (Consumer-to-Consumer):} Privatpersonen handeln untereinander über Plattformen wie eBay oder Kleinanzeigen.
-    \item \textbf{C2B (Consumer-to-Business):} Privatpersonen bieten Leistungen an Unternehmen an – etwa auf Freelancer-Plattformen wie Fiverr.
-\end{itemize}
+E-Commerce lässt sich anhand der beteiligten Akteure in verschiedene Kategorien einteilen \cite{jain2021}. Die bekannteste Form ist das \textit{Business-to-Consumer (B2C)}-Modell, das Geschäftsbeziehungen zwischen Unternehmen und Endverbrauchern beschreibt und klassische Online-Shops wie Amazon oder Zalando umfasst. Davon abzugrenzen ist der \textit{Business-to-Business (B2B)}-Bereich, in dem Unternehmen untereinander handeln und der sich durch komplexere Preisstrukturen, individuelle Konditionen und größere Bestellmengen auszeichnet. Das \textit{Consumer-to-Consumer (C2C)}-Modell bezeichnet Transaktionen zwischen Privatpersonen, wie sie auf Plattformen wie eBay oder Kleinanzeigen stattfinden, während das \textit{Consumer-to-Business (C2B)}-Modell als seltenste Form die umgekehrte Richtung beschreibt, bei der Privatpersonen Leistungen an Unternehmen verkaufen. Der in dieser Arbeit entwickelte Webshop fällt in die Kategorie B2C und richtet sich an Endverbraucher, die nachhaltige Produkte erwerben möchten.
 
 \subsection{Komponenten eines E-Commerce-Systems}
 \label{subsec:ecommerce-komponenten}
@@ -118,7 +111,6 @@ Im Vergleich zu anderen populären Frontend-Frameworks wie React und Angular pos
 
 \begin{table}[H]
 \centering
-\label{tab:framework-vergleich}
 \begin{tabular}{lllll}
 \toprule
 \textbf{Kriterium} & \textbf{Vue.js} & \textbf{React} & \textbf{Angular} \\
@@ -131,6 +123,7 @@ State-Mgmt.  & Pinia       & Redux / Context & Services / RxJS \\
 \bottomrule
 \end{tabular}
 \caption{Vergleich von Frontend-Frameworks}
+\label{tab:framework-vergleich}
 \end{table}
 
 Messungen von \textcite{diniz2022} belegen darüber hinaus, dass Vue bei Rendering-Operationen gegenüber Angular und React konkurrenzfähige Performance aufweist. Die Entscheidung für Vue.js in diesem Projekt basiert auf der flachen Lernkurve, der ausgezeichneten Dokumentation und der guten Integration mit Firebase.

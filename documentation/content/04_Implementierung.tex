@@ -18,7 +18,7 @@ Das Routing ist über Vue Router mit \texttt{createWebHistory()} realisiert. Sch
 
 Sämtliche Firebase-Verbindungsparameter werden über Vite-Umgebungsvariablen eingelesen -- kein Credential ist im Quellcode hart kodiert. Dies verhindert die unbeabsichtigte Exponierung von API-Schlüsseln im Versionskontrollsystem und entspricht einer grundlegenden Sicherheitsempfehlung für Web-Anwendungen \cite{fredj2020}:
 
-\begin{lstlisting}[language=Java, morekeywords={const, export}, caption=Firebase-Konfiguration über Umgebungsvariablen (config.js)]
+\begin{lstlisting}[language=JavaScript, caption=Firebase-Konfiguration über Umgebungsvariablen (config.js)]
 const firebaseConfig = {
   apiKey:    import.meta.env.VITE_FIREBASE_API_KEY,
   projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
@@ -29,7 +29,7 @@ export const { db, auth, storage } = initFirebase(firebaseConfig)
 
 Die Datenbankschicht (\texttt{db.js}) implementiert ein generisches CRUD-Muster: Fünf universelle Funktionen abstrahieren den Firestore-Zugriff collectionübergreifend. Jeder Schreibvorgang erhält automatisch einen \texttt{serverTimestamp()}, und dynamische Abfragen werden als Constraint-Array übergeben \cite{firestore2025}:
 
-\begin{lstlisting}[language=Java, morekeywords={const, await}, caption=Beispielaufruf der generischen Abfragefunktion]
+\begin{lstlisting}[language=JavaScript, caption=Beispielaufruf der generischen Abfragefunktion]
 // Alle Produkte einer Kategorie, nach Preis sortiert
 const result = await queryDocuments('products',
   [['category', '==', slug]],
@@ -75,7 +75,7 @@ Für beide Methoden wird ein \textit{Dual-Write-Pattern} angewendet: Authentifiz
 
 Der globale Route Guard löst eine potenzielle Race Condition zwischen Seitenaufruf und asynchroner Auth-Initialisierung durch eine einmalig abonnierte Promise auf, die den Auth-State abwartet, bevor die Navigationsentscheidung getroffen wird \cite{vuejs2025}:
 
-\begin{lstlisting}[language=Java, morekeywords={const, async, await, return, new, if}, caption=Route Guard mit Auth-Initialisierung und RBAC-Prüfung]
+\begin{lstlisting}[language=JavaScript, caption=Route Guard mit Auth-Initialisierung und RBAC-Prüfung]
 const waitForAuthInit = () => new Promise(resolve => {
   const unsub = onAuthStateChanged(auth, user => { unsub(); resolve(user) })
 })
@@ -141,7 +141,7 @@ Die Warenkorbverwaltung basiert auf einem Pinia-Store, der reaktive Referenzen a
 
 Nicht-angemeldete Nutzer erhalten einen cookie-basierten Gast-Warenkorb. Bei der Anmeldung führt \texttt{mergeGuestCart()} eine verlustfreie Zusammenführung durch: Vorhandene Mengen werden addiert, neue Artikel übernommen; der Cookie wird anschließend bereinigt:
 
-\begin{lstlisting}[language=Java, morekeywords={const, if, forEach}, caption=Kern der Warenkorb-Zusammenführung beim Login]
+\begin{lstlisting}[language=JavaScript, caption=Kern der Warenkorb-Zusammenführung beim Login]
 guestCart.forEach(item => {
   const existing = userCart.find(i => i.productId === item.productId)
   if (existing) existing.quantity += item.quantity
