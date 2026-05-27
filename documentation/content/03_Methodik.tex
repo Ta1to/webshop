@@ -28,7 +28,7 @@ Das Projekt wurde in acht Meilensteine gegliedert, die über einen Zeitraum von 
     \label{fig:meilensteine}
 \end{figure}
 
-Die Meilensteine orientieren sich am Prinzip der inkrementellen Systemerweiterung, bei der jede Phase auf den Ergebnissen der vorherigen aufbaut und ein funktional erweitertes Inkrement liefert \cite{larman2003}. Die ersten Phasen umfassten die Anforderungsanalyse sowie die Einrichtung der Entwicklungsumgebung einschließlich Firebase-Projektkonfiguration und Versionsverwaltung mit Git. In den mittleren Meilensteinen wurden die Kernkomponenten des Webshops realisiert -- zunächst Produktverwaltung und Benutzerauthentifizierung, da diese die funktionalen Voraussetzungen aller nachfolgenden Komponenten darstellen. Beispielsweise setzt der Warenkorb eine funktionierende Produktansicht voraus, und der Checkout-Prozess erfordert ein implementiertes Authentifizierungssystem. Die abschließenden Phasen widmeten sich dem Angebotssystem, der Administrationsoberfläche sowie dem systematischen Testing und der Deployment-Vorbereitung.
+Die Meilensteine orientieren sich am Prinzip der inkrementellen Systemerweiterung, bei der jede Phase auf den Ergebnissen der vorherigen aufbaut und ein funktional erweitertes Inkrement liefert \cite{larman2003}. Die ersten Phasen umfassten die Anforderungsanalyse sowie die Einrichtung der Entwicklungsumgebung einschließlich Firebase-Projektkonfiguration und Versionsverwaltung mit Git. In den mittleren Meilensteinen wurden die Kernkomponenten des Webshops realisiert, beginnend mit Produktverwaltung und Benutzerauthentifizierung, da diese die funktionalen Voraussetzungen aller nachfolgenden Komponenten darstellen. Beispielsweise setzt der Warenkorb eine funktionierende Produktansicht voraus, und der Checkout-Prozess erfordert ein implementiertes Authentifizierungssystem. Die abschließenden Phasen widmeten sich dem Angebotssystem, der Administrationsoberfläche sowie dem systematischen Testing und der Deployment-Vorbereitung.
 
 \section{Anforderungsanalyse}
 \label{sec:anforderungsanalyse}
@@ -38,7 +38,7 @@ Die Anforderungsanalyse ist eine zentrale Disziplin des Software Engineerings un
 \subsection{Funktionale Anforderungen}
 \label{subsec:funktionale-anforderungen}
 
-Die funktionalen Anforderungen wurden auf Basis einer Analyse typischer E-Commerce-Systeme sowie der in der Disposition definierten Projektziele erhoben \cite{heinemann2024, garcialopez2020}. Zur strukturierten Priorisierung wurde das MoSCoW-Verfahren eingesetzt: \textit{Muss}-Anforderungen sind für die Grundfunktionalität zwingend erforderlich, \textit{Soll}-Anforderungen sind bedeutsam aber nicht zwingend, und \textit{Kann}-Anforderungen sind wünschenswert, ohne das Projektziel zu gefährden.
+Die funktionalen Anforderungen wurden auf Basis einer Analyse typischer E-Commerce-Systeme sowie der in der Disposition definierten Projektziele erhoben \cite{heinemann2024, garcialopez2020}. Zur strukturierten Priorisierung wurde das MoSCoW-Verfahren eingesetzt, das sich in der Praxis als bewährtes Werkzeug zur transparenten Klassifikation von Anforderungen etabliert hat \cite{kravchenko2022}. Dabei sind \textit{Muss}-Anforderungen für die Grundfunktionalität zwingend erforderlich, \textit{Soll}-Anforderungen bedeutsam aber nicht zwingend, und \textit{Kann}-Anforderungen wünschenswert, ohne das Projektziel zu gefährden.
 
 \subsubsection{Benutzerverwaltung}
 
@@ -129,7 +129,7 @@ FA-27 & Der Warenkorb bleibt auch nach Schließen des Browsers erhalten & Soll \
 
 \subsubsection{Angebotssystem}
 
-Das Angebotssystem ermöglicht zeitlich begrenzte Rabattaktionen und ist ein typisches Werkzeug moderner E-Commerce-Plattformen zur Kundenbindung \cite{heinemann2024}. Da die Funktion inhaltlich auf einem funktionierenden Produktkatalog und Warenkorb aufbaut, wurden alle zugehörigen Anforderungen als \textit{Soll} priorisiert -- sie erweitern den Shop sinnvoll, sind aber nicht für den Grundbetrieb notwendig.
+Das Angebotssystem ermöglicht zeitlich begrenzte Rabattaktionen und ist ein typisches Werkzeug moderner E-Commerce-Plattformen zur Kundenbindung \cite{heinemann2024}. Da die Funktion inhaltlich auf einem funktionierenden Produktkatalog und Warenkorb aufbaut, wurden alle zugehörigen Anforderungen als \textit{Soll} priorisiert, denn sie erweitern den Shop sinnvoll, sind aber nicht für den Grundbetrieb notwendig.
 
 \begin{table}[H]
 \centering
@@ -231,7 +231,7 @@ Diese Abgrenzungen spiegeln den Charakter der Arbeit als funktionalen Prototyp w
 \section{Konzeption und Architektur}
 \label{sec:konzeption-architektur}
 
-Auf Basis der erhobenen Anforderungen wurde die Architektur des Webshops konzipiert. Die zentralen Entwurfsentscheidungen -- Systemarchitektur, Datenbankstruktur, Frontend-Komponentenmodell und Sicherheitskonzept -- werden in diesem Abschnitt erläutert und begründet.
+Auf Basis der erhobenen Anforderungen wurde die Architektur des Webshops konzipiert. Die zentralen Entwurfsentscheidungen zu Systemarchitektur, Datenbankstruktur, Frontend-Komponentenmodell und Sicherheitskonzept werden in diesem Abschnitt erläutert und begründet.
 
 \subsection{Systemarchitektur}
 \label{subsec:systemarchitektur}
@@ -268,28 +268,12 @@ Die Anwendung folgt einer Client-Server-Architektur, bei der das Frontend als Si
 \label{fig:systemarchitektur}
 \end{figure}
 
-Die Architektur zeichnet sich durch folgende Merkmale aus:
-
-\textbf{Lose Kopplung:} Frontend und Backend-Dienste kommunizieren ausschließlich über definierte APIs. Dieses Prinzip ermöglicht die unabhängige Weiterentwicklung und den Austausch einzelner Systemkomponenten ohne kaskadierende Auswirkungen auf andere Teile des Systems \cite{newman2021}.
-
-\textbf{Zustandslosigkeit:} Der Server speichert keinen Client-Zustand zwischen Anfragen. Session-Informationen werden im Client verwaltet, und Authentifizierungstoken werden bei jeder Anfrage mitgesendet. Zustandslose Dienste lassen sich ohne Replika-Synchronisation horizontal skalieren und sind damit ein Grundprinzip moderner, hochverfügbarer Webarchitekturen.
-
-\textbf{Ereignisgesteuert:} Änderungen in der Datenbank können Cloud Functions auslösen, die serverseitige Logik ausführen. Dieses reaktive Verarbeitungsmodell ohne aktives Polling ist ein charakteristisches Merkmal serverloser Architekturen und ermöglicht eine ressourcenschonende, bedarfsgesteuerte Ausführung von Backend-Logik \cite{shafiei2022}.
+Die gewählte Architektur zeichnet sich durch drei wesentliche Eigenschaften aus, die zusammen die fachlichen und nicht-funktionalen Anforderungen des Webshops adressieren. Ein erstes prägendes Merkmal ist die \textit{lose Kopplung} zwischen Frontend und Backend-Diensten, da die Kommunikation ausschließlich über klar definierte APIs erfolgt. Auf diese Weise lassen sich einzelne Systemkomponenten unabhängig voneinander weiterentwickeln oder austauschen, ohne dass sich Änderungen kaskadierend auf andere Teile des Systems auswirken \cite{newman2021}. Eng damit verbunden ist die \textit{Zustandslosigkeit} der Backend-Dienste: Da der Server keinen clientbezogenen Zustand zwischen einzelnen Anfragen speichert, sondern Session-Informationen im Client verwaltet und Authentifizierungstoken bei jeder Anfrage erneut mitgesendet werden, lassen sich die Dienste ohne aufwendige Replika-Synchronisation horizontal skalieren. Dieses Vorgehen gilt als Grundprinzip moderner, hochverfügbarer Webarchitekturen. Ergänzt werden diese Eigenschaften durch einen \textit{ereignisgesteuerten} Verarbeitungsansatz, bei dem Änderungen in der Datenbank automatisch Cloud Functions auslösen, die serverseitige Logik ausführen. Dieses reaktive Modell ohne aktives Polling ist charakteristisch für serverlose Architekturen und ermöglicht eine ressourcenschonende, bedarfsgesteuerte Ausführung von Backend-Logik \cite{shafiei2022}.
 
 \subsection{Datenbankstruktur}
 \label{subsec:datenbankstruktur}
 
-Cloud Firestore ist eine dokumentenorientierte NoSQL-Datenbank, die Daten in Dokumenten und Collections organisiert \cite{kesavan2023}. Im Unterschied zu relationalen Datenbanken erlaubt dieses schemalose Modell eine flexible Datenstrukturierung, die sich besonders für die hierarchisch organisierten Datenobjekte eines Webshops eignet. Für den Webshop wurden folgende Haupt-Collections definiert:
-
-\textbf{users:} Speichert Benutzerdaten wie Name, E-Mail, Adresse und Rolle. Die Dokument-ID entspricht der Firebase Auth UID.
-
-\textbf{products:} Enthält alle Produktinformationen einschließlich Name, Beschreibung, Preis, Kategorie und Lagerbestand. Produktbilder werden als URLs zu Firebase Storage gespeichert.
-
-\textbf{categories:} Definiert die verfügbaren Produktkategorien mit Name und optionaler Beschreibung.
-
-\textbf{orders:} Speichert Bestellungen mit Referenz zum Benutzer, bestellten Produkten, Gesamtbetrag, Lieferadresse und Bestellstatus.
-
-\textbf{offers:} Enthält Sonderangebote mit Gültigkeitszeitraum, Rabatttyp und -höhe sowie Referenzen zu betroffenen Produkten.
+Cloud Firestore ist eine dokumentenorientierte NoSQL-Datenbank, die Daten in Dokumenten und Collections organisiert \cite{kesavan2023}. Im Unterschied zu relationalen Datenbanken erlaubt dieses schemalose Modell eine flexible Datenstrukturierung, die sich besonders für die hierarchisch organisierten Datenobjekte eines Webshops eignet. Für die Anwendung wurden fünf zentrale Haupt-Collections definiert, deren Zuschnitt sich unmittelbar aus den fachlichen Anforderungen ableitet. Die Collection \texttt{users} speichert die Stammdaten der registrierten Benutzer wie Name, E-Mail-Adresse, Lieferanschrift und die zugewiesene Rolle, wobei die Dokument-ID bewusst der Firebase-Auth-UID entspricht, um eine eindeutige Verknüpfung zwischen Authentifizierung und Profildaten ohne zusätzlichen Index zu gewährleisten. Den inhaltlichen Kern bildet die Collection \texttt{products}, die sämtliche Produktinformationen einschließlich Name, Beschreibung, Preis, Kategorie und Lagerbestand enthält; Produktbilder werden nicht direkt in Firestore abgelegt, sondern als URL-Referenzen auf den zugehörigen Eintrag in Firebase Storage gespeichert, um die Dokumentgröße gering zu halten. Ergänzend dazu definiert die Collection \texttt{categories} die verfügbaren Produktkategorien mit Name und optionaler Beschreibung. Bestellungen werden in der Collection \texttt{orders} mit Referenz auf den Benutzer, den bestellten Produkten, dem Gesamtbetrag, der Lieferadresse sowie dem aktuellen Bestellstatus persistiert. Die fünfte Collection \texttt{offers} schließlich verwaltet zeitlich begrenzte Sonderangebote mit Gültigkeitszeitraum, Rabatttyp und -höhe sowie Referenzen zu den betroffenen Produkten.
 
 \begin{figure}[H]
 \centering
@@ -336,40 +320,22 @@ Cloud Firestore ist eine dokumentenorientierte NoSQL-Datenbank, die Daten in Dok
 \subsection{Frontend-Komponentenarchitektur}
 \label{subsec:komponentenarchitektur}
 
-Das Frontend ist nach dem Komponentenprinzip von Vue.js strukturiert. Komponentenbasierte Architektur hat sich als dominantes Paradigma in der modernen Frontend-Entwicklung etabliert, da sie Wiederverwendbarkeit, Testbarkeit und eine klare Trennung von Verantwortlichkeiten fördert \cite{kothapalli2021}. Die Komponenten sind hierarchisch organisiert und nach ihrer Funktion gruppiert:
+Das Frontend ist nach dem Komponentenprinzip von Vue.js strukturiert. Die komponentenbasierte Architektur hat sich als dominantes Paradigma in der modernen Frontend-Entwicklung etabliert, da sie Wiederverwendbarkeit, Testbarkeit und eine klare Trennung von Verantwortlichkeiten fördert \cite{kothapalli2021}. Die Komponenten der Anwendung sind hierarchisch organisiert und nach ihrer fachlichen Funktion in vier Ebenen gruppiert. Die oberste Ebene bilden die \textit{Views}, also jene Seitenkomponenten, die über den Router direkt angesteuert werden und den Hauptseiten der Anwendung wie Startseite, Produktübersicht oder Checkout entsprechen. Unterhalb der Views kommen \textit{Layout-Komponenten} zum Einsatz, die strukturelle Elemente wie Header, Footer und Navigation kapseln und seitenübergreifend wiederverwendet werden. Die fachliche Logik wird in \textit{Feature-Komponenten} gebündelt, etwa in der Produktkarte, im Warenkorb-Dialog oder in der Bestellübersicht. Generische UI-Bausteine wie Buttons, Eingabefelder oder Benachrichtigungen werden hingegen als \textit{Utility-Komponenten} bereitgestellt und stellen damit die Konsistenz des Erscheinungsbilds über die gesamte Anwendung hinweg sicher.
 
-\textbf{Views:} Seitenkomponenten, die über den Router angesteuert werden. Sie entsprechen den Hauptseiten der Anwendung wie Startseite, Produktübersicht oder Checkout.
-
-\textbf{Layout-Komponenten:} Strukturelle Komponenten wie Header, Footer und Navigation, die auf mehreren Seiten verwendet werden.
-
-\textbf{Feature-Komponenten:} Fachliche Komponenten wie Produktkarte, Warenkorb-Dialog oder Bestellübersicht, die spezifische Funktionalitäten kapseln.
-
-\textbf{Utility-Komponenten:} Wiederverwendbare UI-Elemente wie Buttons, Eingabefelder oder Benachrichtigungen.
-
-Die Kommunikation zwischen Komponenten erfolgt über:
-
-\begin{itemize}
-    \item \textbf{Props:} Datenübergabe von Eltern- an Kind-Komponenten
-    \item \textbf{Events:} Kommunikation von Kind- zu Eltern-Komponenten
-    \item \textbf{Stores:} Zentraler Zustand für komponentenübergreifende Daten (Pinia)
-\end{itemize}
+Die Kommunikation zwischen den Komponenten folgt den von Vue.js etablierten Mustern und kombiniert drei Mechanismen: Props übergeben Daten gerichtet von Eltern- an Kind-Komponenten, Events ermöglichen die umgekehrte Kommunikation von Kind- zu Eltern-Komponenten, und für komponentenübergreifenden Zustand wie den Warenkorb oder die Wunschliste kommt der zentrale Pinia-Store zum Einsatz. Diese klare Trennung zwischen lokalem Komponentenzustand und globalem Anwendungszustand verhindert eine unkontrollierte Verflechtung der Komponenten und erleichtert sowohl das Testen einzelner Bausteine als auch das spätere Refactoring.
 
 \subsection{Sicherheitskonzept}
 \label{subsec:sicherheitskonzept}
 
-Die Sicherheit der Anwendung basiert auf einem mehrschichtigen Sicherheitskonzept (\textit{Defense in Depth}), das Schutzmaßnahmen auf verschiedenen Ebenen des Systems kombiniert. Dieses Prinzip stellt sicher, dass das Kompromittieren einer einzelnen Schutzmaßnahme nicht zur vollständigen Kompromittierung des Systems führt, und entspricht den Empfehlungen der OWASP für moderne Webanwendungen \cite{fredj2020}:
+Die Sicherheit der Anwendung basiert auf einem mehrschichtigen Sicherheitskonzept (\textit{Defense in Depth}), das Schutzmaßnahmen auf verschiedenen Ebenen des Systems kombiniert \cite{stytz2004}. Dieses Prinzip stellt sicher, dass das Kompromittieren einer einzelnen Schutzmaßnahme nicht zur vollständigen Kompromittierung des Systems führt, und entspricht den Empfehlungen der OWASP für moderne Webanwendungen \cite{fredj2020}.
 
-\textbf{Authentifizierung:} Firebase Authentication verwaltet die Benutzeridentität und implementiert OAuth~2.0-kompatible Authentifizierungsabläufe. Bei erfolgreicher Anmeldung erhält der Client ein JSON Web Token (JWT) -- ein kryptographisch signiertes, selbst-beschreibendes Token mit begrenzter Gültigkeitsdauer, das bei allen Backend-Anfragen im Authorization-Header mitgesendet wird \cite{bucko2023}.
+Den Einstiegspunkt bildet die \textit{Authentifizierung} über Firebase Authentication, die die Benutzeridentität verwaltet und OAuth~2.0-kompatible Authentifizierungsabläufe implementiert. Bei erfolgreicher Anmeldung erhält der Client ein JSON Web Token (JWT), also ein kryptographisch signiertes, selbst-beschreibendes Token mit begrenzter Gültigkeitsdauer, das bei allen Backend-Anfragen im Authorization-Header mitgesendet wird \cite{bucko2023}. Auf der nachgelagerten Ebene der \textit{Autorisierung} definieren Firestore Security Rules deklarativ, welche authentifizierten Benutzer auf welche Daten zugreifen und welche Operationen sie ausführen dürfen. Diese serverseitige Durchsetzung ist entscheidend, da clientseitige Berechtigungsprüfungen prinzipiell umgangen werden können \cite{firestore2025}: Benutzer können beispielsweise ausschließlich ihre eigenen Bestellungen lesen, während Administratoren systemweit Zugriff auf alle Collections haben.
 
-\textbf{Autorisierung:} Firestore Security Rules definieren deklarativ, welche authentifizierten Benutzer auf welche Daten zugreifen und welche Operationen sie ausführen dürfen. Diese serverseitige Durchsetzung stellt sicher, dass Zugriffskontrollen nicht durch clientseitige Manipulationen umgangen werden können \cite{firestore2025}. Beispielsweise können Benutzer ausschließlich ihre eigenen Bestellungen lesen, während Administratoren Zugriff auf alle Collections haben.
-
-\textbf{Datenverschlüsselung:} Alle Kommunikation zwischen Client und Firebase erfolgt über HTTPS mit TLS-Verschlüsselung. Firebase verschlüsselt darüber hinaus alle gespeicherten Daten automatisch, sodass die Anforderung NFA-04 ohne zusätzlichen Implementierungsaufwand erfüllt wird.
-
-\textbf{Input-Validierung:} Benutzereingaben werden sowohl im Frontend als auch durch Firestore Security Rules im Backend validiert, um Injection-Angriffe und fehlerhafte Datenzustände zu verhindern \cite{fredj2020}.
+Ergänzt werden diese identitätsbezogenen Maßnahmen durch eine durchgängige \textit{Datenverschlüsselung}. Sämtliche Kommunikation zwischen Client und Firebase erfolgt über HTTPS mit TLS-Verschlüsselung, und Firebase verschlüsselt darüber hinaus alle gespeicherten Daten automatisch, sodass die Anforderung NFA-04 ohne zusätzlichen Implementierungsaufwand erfüllt wird. Die letzte Schutzschicht bildet schließlich die \textit{Input-Validierung}: Benutzereingaben werden sowohl im Frontend als unmittelbare Rückmeldung an den Nutzer als auch durch Firestore Security Rules im Backend geprüft, um Injection-Angriffe und fehlerhafte Datenzustände zuverlässig zu verhindern \cite{fredj2020}.
 
 Ein Beispiel für Firestore Security Rules:
 
-\begin{lstlisting}[language={}, caption=Firestore Security Rules (Auszug -- vereinfacht; vollständige Implementierung siehe Kapitel~6)]
+\begin{lstlisting}[language={}, caption={Firestore Security Rules (vereinfachter Auszug, vollständige Implementierung siehe Kapitel~6)}]
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -397,13 +363,4 @@ service cloud.firestore {
 \subsection{Deployment-Konzept}
 \label{subsec:deployment-konzept}
 
-Das Deployment der Anwendung erfolgt über Firebase Hosting mit automatisierter CI/CD-Pipeline (Continuous Integration~/ Continuous Deployment). Automatisierte Deployment-Pipelines reduzieren manuelle Fehlerquellen und stellen sicher, dass ausschließlich getesteter und verifizierter Code in die Produktionsumgebung gelangt \cite{chacon2014}.
-
-\begin{enumerate}
-    \item \textbf{Build:} Der Vue.js-Quellcode wird durch Vite zu optimierten statischen Dateien kompiliert.
-    \item \textbf{Test:} Automatisierte Tests prüfen die Funktionalität der Anwendung.
-    \item \textbf{Deploy:} Die Build-Artefakte werden zu Firebase Hosting hochgeladen.
-    \item \textbf{Aktivierung:} Firebase aktiviert die neue Version und routet Traffic automatisch um.
-\end{enumerate}
-
-Firebase Hosting bietet dabei Features wie automatische SSL-Zertifikate, globales CDN und atomare Deployments mit Rollback-Möglichkeit.
+Das Deployment der Anwendung erfolgt über Firebase Hosting und ist in eine automatisierte CI/CD-Pipeline (Continuous Integration~/ Continuous Deployment) eingebettet. Automatisierte Deployment-Pipelines reduzieren manuelle Fehlerquellen und stellen sicher, dass ausschließlich getesteter und verifizierter Code in die Produktionsumgebung gelangt \cite{chacon2014}. Der Ablauf folgt dabei vier aufeinanderfolgenden Schritten: Im \textit{Build}-Schritt kompiliert Vite den Vue.js-Quellcode zu optimierten statischen Dateien, anschließend prüfen im \textit{Test}-Schritt automatisierte Unit- und End-to-End-Tests die Funktionalität der Anwendung. Erst nach erfolgreichem Testlauf werden die Build-Artefakte im \textit{Deploy}-Schritt zu Firebase Hosting hochgeladen, bevor Firebase im abschließenden \textit{Aktivierungsschritt} die neue Version freischaltet und den Traffic automatisch auf das aktuelle Release umleitet. Ergänzend stellt Firebase Hosting Funktionen wie automatisch verwaltete SSL-Zertifikate, ein globales Content Delivery Network sowie atomare Deployments mit jederzeitiger Rollback-Möglichkeit bereit, sodass auch im Fehlerfall ein schneller Rückfall auf eine zuvor stabile Version möglich ist.
