@@ -2,10 +2,12 @@
 \chapter{Evaluation und Diskussion}
 \label{ch:evaluation}
 
+Die Einleitung dieser Arbeit stellte die Frage, ob eine BaaS-Plattform den klassischen Spagat zwischen schnellem Markteinstieg und individueller Anpassbarkeit überbrücken kann -- ohne den infrastrukturellen Aufwand einer Eigenentwicklung. Dieses Kapitel beantwortet diese Frage auf Basis der tatsächlichen Projekterfahrungen: zunächst durch eine Überprüfung der definierten Anforderungen, dann durch einen Alternativenvergleich und schließlich durch eine strukturierte Analyse von Stärken, Schwächen und Empfehlungen.
+
 \section{Erfüllung der Anforderungen}
 \label{sec:anforderungserfuellung}
 
-Alle als \textit{Muss} priorisierten funktionalen Anforderungen wurden vollständig umgesetzt; auch sämtliche \textit{Soll}- und \textit{Kann}-Anforderungen konnten realisiert werden. Die definierten Abgrenzungen -- kein realer Zahlungsdienstleister, keine Versandintegration, keine Mehrsprachigkeit -- wurden eingehalten \cite{heinemann2024}. Die nicht-funktionalen Anforderungen sind ebenfalls erfüllt: Lighthouse-Scores von 91 (Startseite) und 88 (Produktdetailseite) belegen die Einhaltung der Ladezeit-Anforderung, alle übrigen Kriterien wie HTTPS, Responsivität und DSGVO-Konformität werden durch Firebase Hosting und Firebase Authentication abgedeckt \cite{jainweb2023, firebaseAuth2025}.
+Alle als \textit{Muss} priorisierten funktionalen Anforderungen wurden vollständig umgesetzt; auch sämtliche \textit{Soll}- und \textit{Kann}-Anforderungen konnten realisiert werden. Die definierten Abgrenzungen -- kein realer Zahlungsdienstleister, keine Versandintegration, keine Mehrsprachigkeit -- wurden eingehalten \cite{heinemann2024}. Die nicht-funktionalen Anforderungen sind ebenfalls erfüllt: Die in Abschnitt~\ref{sec:performance} erhobenen Lighthouse-Scores von 91 (Startseite) und 88 (Produktdetailseite) belegen die Einhaltung der Ladezeit-Anforderung (NFA-01) und liegen im \textit{Good}-Bereich der Google Core Web Vitals; alle übrigen Kriterien wie HTTPS, Responsivität und DSGVO-Konformität werden durch Firebase Hosting und Firebase Authentication abgedeckt \cite{jainweb2023, firebaseAuth2025}.
 
 \section{Vergleich mit alternativen Ansätzen}
 \label{sec:alternativvergleich}
@@ -52,4 +54,4 @@ Prozessseitig hat die frühzeitige CI/CD-Einrichtung Regressionsfehler unmittelb
 \section{Empfehlungen}
 \label{sec:empfehlungen}
 
-Der Firebase-Vue.js-Stack empfiehlt sich für Prototypen und mittelgroße E-Commerce-Anwendungen mit kleinem Team. Bei wachsendem Produktkatalog sollte frühzeitig ein dedizierter Suchdienst wie Algolia integriert werden. Ist SEO ein primäres Ziel, bietet Nuxt.js Server-Side Rendering auf Basis derselben Vue-Komponentenarchitektur \cite{kowalczyk2024}.
+Damit lässt sich die eingangs gestellte Frage beantworten: BaaS ist für den E-Commerce-Kontext geeignet -- im Bereich von Prototypen und mittelgroßen Anwendungen mit kleinem Team. Die Firebase-Vue.js-Kombination hat im Projektverlauf gezeigt, dass sich alle wesentlichen E-Commerce-Anforderungen realisieren lassen, ohne eine eigene Serverinfrastruktur zu betreiben. Der Stack empfiehlt sich konkret dort, wo schnelle Entwicklungsgeschwindigkeit und geringe Betriebskosten im Vordergrund stehen und die bekannten Einschränkungen -- Vendor Lock-in und fehlende native Volltextsuche -- akzeptiert werden können. Bei wachsendem Produktkatalog sollte frühzeitig ein dedizierter Suchdienst wie Algolia integriert werden. Ist SEO ein primäres Ziel, bietet Nuxt.js Server-Side Rendering auf Basis derselben Vue-Komponentenarchitektur \cite{kowalczyk2024}.

@@ -2,21 +2,21 @@
 \chapter{Implementierung}
 \label{ch:implementierung}
 
-Dieses Kapitel dokumentiert die technische Umsetzung des Webshops anhand der architektonisch bedeutsamen Entwurfsentscheidungen und zentralen Implementierungsmuster. Rein technische Details ohne konzeptionellen Mehrwert werden dabei ausgeklammert.
+Jede Komponente des Webshops spiegelt eine zentrale Grundentscheidung dieser Arbeit wider: Infrastrukturverantwortung wird an Firebase abgegeben, damit der eigentliche Entwicklungsaufwand auf Domänenlogik und Nutzererlebnis konzentriert werden kann. Dieses Kapitel zeigt, wie sich diese Entscheidung konkret niederschlägt -- von der Projektstruktur und dem Datenbankdesign über Authentifizierung, Produktkatalog und Bestellprozess bis zur Administrationsoberfläche. Im Vordergrund steht dabei nicht der Code selbst, sondern die Frage, warum welche Lösung gewählt wurde und welche Abwägungen dabei eine Rolle spielten.
 
 \section{Projektstruktur und Frontend-Gerüst}
 \label{sec:projektstruktur}
 
-Als Build-Tool kommt Vite zum Einsatz. Gegenüber klassischen Bundlern bietet Vite einen nativen ES-Module-Dev-Server, der Module erst bei Bedarf transformiert und damit nahezu sofortige Startzeiten sowie reaktives Hot Module Replacement erreicht \cite{vite2025}. Produktionsbuilds werden über Rollup mit Tree-Shaking und automatischem Code-Splitting erzeugt.
+Die Wahl des Build-Werkzeugs orientiert sich an dem in \autoref{ch:grundlagen} beschriebenen Paradigma nativ-modularer Entwicklungsumgebungen. Vite setzt konsequent auf den ES-Module-Standard des Browsers: Im Entwicklungsbetrieb werden Module erst auf Anfrage transformiert, was nahezu sofortige Kaltstart\-zeiten und reaktives Hot Module Replacement ermöglicht \cite{vite2025}. Für den Produktionsbuild erzeugt das zugrunde liegende Rollup-Werkzeug optimierte Bundles mittels Tree-Shaking und automatischem Code-Splitting -- eine Technik, die nachweislich die initiale Ladezeit von SPAs reduziert und damit einen messbaren Einfluss auf Conversion-Raten hat \cite{peterson2018, kothapalli2022}.
 
-Die Verzeichnisstruktur orientiert sich am Feature-orientierten Prinzip und trennt klar nach Verantwortlichkeiten: \texttt{views/} enthält die den Routen zugeordneten Seitenkomponenten, \texttt{components/} die kontextbezogen untergliederten UI-Bausteine, \texttt{services/} die zweischichtige Serviceschicht aus Firebase-SDK-Abstraktion (\texttt{firebase/}) und Domänenlogik (\texttt{business/}), sowie \texttt{models/} die Domänenmodelle mit eingebetteter Validierungslogik. Diese Gliederung nach fachlicher Verantwortlichkeit verbessert Testbarkeit und reduziert strukturelle Kopplung \cite{kothapalli2021, kothapalli2022}.
+Die Verzeichnisstruktur folgt dem Prinzip der \textit{Separation of Concerns} \cite{kothapalli2021}: Seitenkomponenten, UI-Bausteine, eine zweischichtige Serviceschicht aus Backend-Abstraktion und Domänenlogik sowie Domänenmodelle mit eingebetteter Validierung bilden klar abgegrenzte Verantwortlichkeitsbereiche. Diese fachlich motivierte Gliederung minimiert strukturelle Kopplung und verbessert die Testbarkeit einzelner Schichten, da Abhängigkeiten ausschließlich in eine Richtung verlaufen \cite{kothapalli2022}.
 
-Das Routing ist über Vue Router mit \texttt{createWebHistory()} realisiert. Schutzbedürftige Routen werden über die Metafelder \texttt{requiresAuth} und \texttt{requiresAdmin} deklarativ markiert und zur Laufzeit durch einen globalen Navigation Guard ausgewertet.
+Das clientseitige Routing nutzt die HTML5-History-API, um saubere URL-Pfade ohne Hash-Fragment bereitzustellen und das Navigationsmodell traditioneller Mehrseitenanwendungen zu emulieren \cite{kothapalli2022}. Schutzbedürftige Routen werden deklarativ über Metadatenfelder ausgezeichnet und zur Laufzeit durch einen globalen Navigations-Guard ausgewertet, der Zugriffsrechte vor jeder Routenänderung überprüft -- ein Muster, das Autorisierungslogik von der eigentlichen Komponentenimplementierung entkoppelt.
 
 \section{Integration von Firebase-Diensten}
 \label{sec:firebase-integration}
 
-Sämtliche Firebase-Verbindungsparameter werden über Vite-Umgebungsvariablen eingelesen -- kein Credential ist im Quellcode hart kodiert. Dies verhindert die unbeabsichtigte Exponierung von API-Schlüsseln im Versionskontrollsystem und entspricht einer grundlegenden Sicherheitsempfehlung für Web-Anwendungen \cite{fredj2020}:
+Ein zentrales Sicherheitsprinzip moderner Web-Anwendungen ist die strikte Trennung von Quellcode und Konfiguration \cite{fredj2020}. Sämtliche Verbindungsparameter des Backend-as-a-Service-Systems werden daher ausschließlich über build-zeit\-liche Umgebungsvariablen bezogen; kein Credential ist im Versionskontrollsystem hinterlegt. Dieses Vorgehen entspricht dem \textit{Twelve-Factor-App}-Prinzip der Konfigurationstrennung und schützt vor unbeabsichtigter Offenlegung sensibler Schlüssel \cite{fredj2020}:
 
 \begin{lstlisting}[language=JavaScript, caption=Firebase-Konfiguration über Umgebungsvariablen (config.js)]
 const firebaseConfig = {
@@ -27,7 +27,7 @@ const firebaseConfig = {
 export const { db, auth, storage } = initFirebase(firebaseConfig)
 \end{lstlisting}
 
-Die Datenbankschicht (\texttt{db.js}) implementiert ein generisches CRUD-Muster: Fünf universelle Funktionen abstrahieren den Firestore-Zugriff collectionübergreifend. Jeder Schreibvorgang erhält automatisch einen \texttt{serverTimestamp()}, und dynamische Abfragen werden als Constraint-Array übergeben \cite{firestore2025}:
+Die Datenbankschicht realisiert ein generisches \textit{Repository-Pattern}: Eine kleine Menge universeller Funktionen abstrahiert den Datenbankzugriff über alle Collections hinweg, erzwingt konsistente serverseitige Zeitstempel bei Schreibvorgängen und erlaubt die deklarative Komposition dynamischer Abfragen \cite{firestore2025}:
 
 \begin{lstlisting}[language=JavaScript, caption=Beispielaufruf der generischen Abfragefunktion]
 // Alle Produkte einer Kategorie, nach Preis sortiert
@@ -37,7 +37,7 @@ const result = await queryDocuments('products',
 )
 \end{lstlisting}
 
-Auf dieser Basis bauen domänenspezifische Funktionen auf, die zusätzlich Modellinstanziierung und Validierung übernehmen. Die resultierende Schichtung der Anwendung ist in Abbildung~\ref{fig:service-architektur} dargestellt und entspricht dem empfohlenen Service-Layer-Pattern für BaaS-Anwendungen \cite{uunonen2023}.
+Auf dieser generischen Schicht bauen domänenspezifische Funktionen auf, die zusätzlich Modellinstanziierung und Eingabevalidierung übernehmen. Die resultierende Mehrschichtarchitektur ist in Abbildung~\ref{fig:service-architektur} dargestellt. Sie entspricht dem für BaaS-Anwendungen empfohlenen Service-Layer-Pattern und entkoppelt die Domänenlogik vollständig von den Besonderheiten des konkreten Backend-Providers -- ein wesentlicher Faktor für langfristige Wartbarkeit \cite{uunonen2023}.
 
 \begin{figure}[H]
 \centering
@@ -66,14 +66,23 @@ Auf dieser Basis bauen domänenspezifische Funktionen auf, die zusätzlich Model
 \label{fig:service-architektur}
 \end{figure}
 
+\section{Datenbankdesign und Datenmodell}
+\label{sec:datenbankdesign}
+
+Bei dokumentenorientierten Datenbanken wie Firestore bestimmen die konkreten Lesemuster die Struktur -- nicht umgekehrt. Anders als in relationalen Systemen, wo Normalisierung die Regel ist, erfordert Firestore eine vorausschauende Modellierung: Welche Daten werden gemeinsam gelesen? Eine nachträgliche Umstrukturierung würde aufwendige Datenmigration nach sich ziehen \cite{kesavan2023}.
+
+Die Anwendung verwendet fünf zentrale Collections. Die Produktkollektion enthält Produktdaten einschließlich Kategorie, Preis und Lagerbestand; die Kategorienkollektion verwaltet die Navigationshierarchie unabhängig davon, da Kategorien getrennt gepflegt werden. Die Bestellkollektion speichert jede abgeschlossene Bestellung als eigenständiges Dokument -- inklusive einer eingebetteten Momentaufnahme der bestellten Artikel, sodass spätere Preisänderungen die Bestellhistorie nicht verfälschen. Die Angebotskollektion hält zeitlich begrenzte Rabattaktionen vor. Im Nutzerdokument schließlich werden Profilinformationen, Warenkorb und Wunschliste gemeinsam abgelegt: Da diese Daten stets zusammen benötigt werden, reduziert die Einbettung die Anzahl der Datenbankzugriffe im Vergleich zu separaten Collections.
+
+Diese Entscheidungen verdeutlichen einen grundlegenden Unterschied zum relationalen Modell: Denormalisierung ist in dokumentenorientierten Systemen kein Fehler, sondern eine bewusste Entwurfsstrategie, die Leseperformance gegen Schreibkomplexität abwägt.
+
 \section{Benutzerkonten- und Authentifizierungssystem}
 \label{sec:authentifizierung}
 
-Das Authentifizierungssystem unterstützt E-Mail-/Passwort-Registrierung sowie Google-Anmeldung via OAuth~2.0 \cite{hardt2012}. Firebase Authentication übernimmt dabei das vollständige Credential-Management inklusive JWT-Ausstellung und automatischer Token-Erneuerung \cite{firebaseAuth2025, bucko2023}.
+Das Authentifizierungssystem unterstützt zwei Anmeldemethoden: E-Mail-/Passwort-Registrierung sowie föderierte Identität über OAuth~2.0 mit Google als Identity Provider \cite{hardt2012}. Die Auslagerung des Credential-Managements -- einschließlich JWT-Ausstellung und automatischer Token-Erneuerung -- an einen spezialisierten Authentifizierungsdienst entspricht dem Prinzip der \textit{Least Privilege} und eliminiert das Risiko unsachgemäßer Passwortspeicherung im eigenen Datenbankschema \cite{firebaseAuth2025, bucko2023}.
 
-Für beide Methoden wird ein \textit{Dual-Write-Pattern} angewendet: Authentifizierungsdaten verbleiben in Firebase Auth, während Profilinformationen (Anzeigename, Adresse, Systemrolle) in einem korrespondierenden Dokument der Firestore-Collection \texttt{users} persistiert werden. Diese Trennung ermöglicht beliebige Profilerweiterungen ohne Einschränkungen durch das Firebase-Auth-Schema \cite{milojkovic2024}.
+Für beide Anmeldemethoden wird ein \textit{Dual-Write-Pattern} angewendet: Authentifizierungsdaten verbleiben im Identity-Provider-System, während erweiterbare Profilinformationen (Anzeigename, Lieferadresse, Systemrolle) in einem korrespondierenden Dokument der Nutzerdatenbank persistiert werden. Diese Trennung der Zuständigkeiten ermöglicht beliebige Profilerweiterungen ohne Einschränkungen durch das fest vorgegebene Schema des Identitätssystems und entspricht dem Prinzip der \textit{Separation of Concerns} auf Datenhaltungsebene \cite{milojkovic2024}.
 
-Der globale Route Guard löst eine potenzielle Race Condition zwischen Seitenaufruf und asynchroner Auth-Initialisierung durch eine einmalig abonnierte Promise auf, die den Auth-State abwartet, bevor die Navigationsentscheidung getroffen wird \cite{vuejs2025}:
+Ein inhärentes Problem reaktiver Authentifizierungssysteme ist die Race Condition zwischen initialem Seitenaufruf und der asynchronen Initialisierung des Auth-Zustands. Der globale Navigations-Guard löst dieses Problem durch eine einmalig abonnierte Promise, die den Auth-Zustand genau einmal abwartet und danach die Navigationsentscheidung auf Basis des verifizierten Benutzerzustands trifft \cite{vuejs2025}:
 
 \begin{lstlisting}[language=JavaScript, caption=Route Guard mit Auth-Initialisierung und RBAC-Prüfung]
 const waitForAuthInit = () => new Promise(resolve => {
@@ -88,7 +97,7 @@ router.beforeEach(async (to, _, next) => {
 })
 \end{lstlisting}
 
-Die Administratorrolle ist als \texttt{role: 'admin'} im Firestore-Benutzerdokument gespeichert und wird über \texttt{isAdmin()} im \texttt{User}-Modell ausgewertet. Der Zugriffsschutz erfolgt zweistufig -- clientseitig durch den Router Guard, serverseitig durch Firestore Security Rules -- und realisiert damit das \textit{Defense-in-Depth}-Prinzip \cite{fredj2020}. Abbildung~\ref{fig:auth-flow} stellt beide Abläufe -- Anmeldung und Navigation -- gegenüber.
+Die rollenbasierte Zugriffskontrolle (RBAC) wird zweistufig durchgesetzt: Der clientseitige Navigations-Guard verhindert das Rendern geschützter Ansichten, während serverseitige Security Rules denselben Zugriffsschutz auf Datenbankebene erzwingen. Diese Redundanz realisiert das \textit{Defense-in-Depth}-Prinzip \cite{fredj2020} und eliminiert den Single Point of Failure, der bei rein clientseitiger Prüfung entstünde. Abbildung~\ref{fig:auth-flow} stellt beide Abläufe gegenüber.
 
 \begin{figure}[H]
 \centering
@@ -130,16 +139,23 @@ Die Administratorrolle ist als \texttt{role: 'admin'} im Firestore-Benutzerdokum
 \section{Produktkatalog und Such-/Filterfunktion}
 \label{sec:produktkatalog}
 
-Produkte werden als Instanzen der \texttt{Product}-Modellklasse verwaltet. Vor jedem Schreibvorgang prüft \texttt{validate()} Pflichtfelder und Wertebereichsbedingungen; nur bei positivem Ergebnis wird \texttt{createDocument()} aufgerufen. Das Kapseln von Validierungslogik im Modell verhindert inkonsistente Datenbankzustände und entspricht dem Prinzip der Verantwortlichkeitstrennung \cite{kesavan2023}.
+Produkte werden als Instanzen einer dedizierten Modellklasse verwaltet, die Validierungslogik und Zustandsprüfungen kapselt. Vor jedem Schreibvorgang werden Pflichtfelder und Wertebereichsbedingungen geprüft; Persistierung findet ausschließlich bei positivem Validierungsergebnis statt. Das Verlagern der Validierungsverantwortung in das Domänenmodell verhindert inkonsistente Datenbankzustände und entspricht dem Prinzip der \textit{Single Responsibility} \cite{kesavan2023}.
 
-Kategoriefilterung erfolgt serverseitig über Firestore-\texttt{where()}-Constraints, die direkt auf dem Datenbankindex ausgeführt werden. Die Freitextsuche ist hingegen client-seitig implementiert: Produktname und Beschreibung werden lokal geprüft. Dieser Ansatz ist für den vorliegenden Katalogsumfang ausreichend, skaliert jedoch nicht für sehr große Sortimente -- eine bekannte Limitation client-seitiger Suchimplementierungen gegenüber dedizierten Indizierungsdiensten \cite{kothapalli2022}.
+Die Such- und Filterarchitektur kombiniert zwei komplementäre Ansätze: Kategorie-basiertes Filtern wird serverseitig durch indexgestützte Datenbankabfragen realisiert, die ausschließlich den relevanten Datensatz übertragen. Die Freitextsuche über Produktname und Beschreibung ist hingegen clientseitig implementiert. Diese Hybridstrategie ist für den vorliegenden Katalogsumfang effizient, da serverseitige Indexabfragen die Datenmenge vor dem Ladevorgang reduzieren. Als bekannte Limitation skaliert rein clientseitige Volltextsuche nicht auf sehr große Sortimente; bei wachsendem Datenbestand wäre ein dedizierter Indizierungsdienst mit invertiertem Index erforderlich \cite{kothapalli2022}.
+
+\section{Wunschliste}
+\label{sec:wunschliste}
+
+Die Wunschliste ermöglicht angemeldeten Nutzern, Produkte für einen späteren Kauf vorzumerken, ohne sie sofort in den Warenkorb zu legen. Sie folgt demselben State-Management-Muster wie der Warenkorb: Ein dedizierter Pinia-Store verwaltet den Zustand reaktiv und synchronisiert ihn mit dem Nutzerdokument in Firestore, sodass die Vormerkliste geräte- und sitzungsübergreifend erhalten bleibt.
+
+Im Unterschied zum Warenkorb unterstützt die Wunschliste bewusst keinen Gast-Zustand. Da das Vormerken kein unmittelbares Kaufhindernis darstellt, wurde auf die Komplexität eines cookie-basierten Fallbacks verzichtet -- ein Kompromiss, der die Implementierung schlank hält, ohne den eigentlichen Kaufprozess zu beeinträchtigen. Nicht-angemeldete Nutzer werden stattdessen zur Anmeldung aufgefordert.
 
 \section{Warenkorb und Bestellprozess}
 \label{sec:warenkorb}
 
-Die Warenkorbverwaltung basiert auf einem Pinia-Store, der reaktive Referenzen auf Artikel und Gesamtanzahl komponentenübergreifend bereitstellt. Pinia ist die offizielle State-Management-Lösung für Vue~3 und löst das ältere Vuex durch eine leichtgewichtige, Composition-API-basierte API ab \cite{pinia2025}.
+Die Warenkorbverwaltung basiert auf dem \textit{Centralized State Management}-Muster: Ein dedizierter Store verwaltet den Anwendungszustand komponentenübergreifend und stellt reaktive Referenzen auf Artikelliste und Gesamtanzahl bereit. Gegenüber dem älteren Flux-basierten Vuex-Ansatz bietet die verwendete Composition-API-native State-Management-Bibliothek eine leichtgewichtigere API mit besserem TypeScript-Support und verbesserter Modularisierbarkeit \cite{pinia2025}.
 
-Nicht-angemeldete Nutzer erhalten einen cookie-basierten Gast-Warenkorb. Bei der Anmeldung führt \texttt{mergeGuestCart()} eine verlustfreie Zusammenführung durch: Vorhandene Mengen werden addiert, neue Artikel übernommen; der Cookie wird anschließend bereinigt:
+Ein besonderes Entwurfsproblem ergibt sich aus dem Übergang zwischen nicht-authentifiziertem und authentifiziertem Zustand: Nicht-angemeldete Nutzer erhalten einen cookie-basierten Gast-Warenkorb, damit Produktauswahlen über Seitenneuladungen hinweg erhalten bleiben. Bei der Anmeldung führt eine dedizierte Zusammenführungsoperation einen verlustfreien Merge durch -- bestehende Mengen werden summiert, neue Artikel übernommen, und der temporäre Gast-Zustand wird anschließend bereinigt:
 
 \begin{lstlisting}[language=JavaScript, caption=Kern der Warenkorb-Zusammenführung beim Login]
 guestCart.forEach(item => {
@@ -149,7 +165,7 @@ guestCart.forEach(item => {
 })
 \end{lstlisting}
 
-Der Checkout-Prozess ist dreistufig: Adresseingabe, Bestellübersicht und Bestätigung. Bei Abschluss wird ein \texttt{Order}-Dokument in Firestore angelegt. Eine strukturierte Checkout-Führung reduziert nachweislich Kaufabbrüche \cite{butnampetch2020}. Den resultierenden Status-Lifecycle zeigt Abbildung~\ref{fig:order-lifecycle}.
+Der Checkout-Prozess ist als mehrstufiger geführter Ablauf (Adresseingabe, Bestellübersicht, Bestätigung) realisiert. Eine strukturierte, schrittweise Checkout-Führung reduziert nachweislich kognitive Last und Kaufabbrüche, da Nutzer zu jedem Zeitpunkt den eigenen Fortschritt im Prozess einordnen können \cite{butnampetch2020}. Bei Abschluss wird ein persistentes Bestelldokument angelegt; den resultierenden Status-Lifecycle zeigt Abbildung~\ref{fig:order-lifecycle}.
 
 \begin{figure}[H]
 \centering
@@ -179,13 +195,15 @@ Der Checkout-Prozess ist dreistufig: Adresseingabe, Bestellübersicht und Bestä
 \section{Angebots- und Rabattsystem}
 \label{sec:angebotssystem}
 
-Das \texttt{Offer}-Modell bildet zeitlich begrenzte Rabattaktionen ab. Die Methode \texttt{isActive()} vergleicht \texttt{startDate} und \texttt{endDate} mit dem aktuellen Zeitstempel; fehlende Felder gelten als unbegrenzt. Der Rabatt wird prozentual über \texttt{discountPercentage} auf den Listenpreis angewendet und bereits beim Laden des Warenkorbs in den \texttt{finalPrice} eingerechnet.
+Das Angebotsmodell bildet zeitlich begrenzte Rabattaktionen ab. Die Aktivitätsprüfung vergleicht Start- und Endzeitpunkt mit dem aktuellen Zeitstempel; fehlende Begrenzungen werden als unbegrenzt gültig interpretiert. Der Rabattbetrag wird prozentual auf den Listenpreis angewendet und bereits bei der Warenkorbberechnung in den Endpreis eingerechnet, sodass konsistente Preisangaben über alle Ansichten gewährleistet sind.
 
-Das System wird durch zwei Cloud Functions ergänzt: \texttt{weeklyOffers.js} versendet wöchentlich per \texttt{pubsub.schedule}-Trigger einen Newsletter mit aktiven Angeboten an abonnierte Nutzer. \texttt{orderStatusChanged.js} reagiert ereignisgesteuert auf Bestellstatusänderungen und benachrichtigt Kunden automatisch per E-Mail. Beide Funktionen illustrieren das Event-Driven-Muster serverloser Architekturen, bei dem Logik auf Datenbankereignisse reagiert statt direkt aufgerufen zu werden \cite{thatikonda2023, firebase2025}.
+Das System wird durch zwei ereignisgesteuerte Cloud Functions ergänzt. Eine zeitgesteuerte Funktion versendet wöchentlich einen Newsletter mit aktiven Angeboten an abonnierte Nutzer; eine zweite reagiert auf Zustandsänderungen in der Bestelldatenbank und löst automatische Kundenbenachrichtigungen aus. Beide Funktionen illustrieren das \textit{Event-Driven Architecture}-Muster serverloser Systeme, bei dem Verarbeitungslogik nicht imperativ aufgerufen wird, sondern deklarativ auf Datenereignisse reagiert \cite{thatikonda2023, shafiei2022}. Dieses Paradigma entkoppelt Zustandsänderungen im Datenspeicher von nachgelagerten Aktionen und verbessert dadurch die Wartbarkeit sowie die unabhängige Skalierbarkeit einzelner Funktionseinheiten \cite{firebase2025}.
 
 \section{Administrationsoberfläche}
 \label{sec:admin}
 
-Der Administrationsbereich (\texttt{/admin/*}) ist zweistufig abgesichert: Der Vue-Router-Guard prüft \texttt{isAdmin()} auf Clientseite, Firestore Security Rules erzwingen dieselbe Bedingung serverseitig. Diese Redundanz eliminiert den Single Point of Failure, der bei rein clientseitigem Schutz entstünde \cite{fredj2020}.
+Der Administrationsbereich ist durch dieselbe zweistufige Zugriffskontrolle abgesichert, die in Abschnitt~\ref{sec:authentifizierung} beschrieben wurde: Navigations-Guard und Firestore Security Rules greifen unabhängig voneinander. Im Admin-Kontext ist diese Redundanz besonders bedeutsam, da die verwalteten Operationen -- Produkte anlegen, Bestellungen ändern, Nutzerdaten einsehen -- direkten Einfluss auf den laufenden Geschäftsbetrieb haben.
 
-Der Bereich umfasst fünf Module (Produkte, Kategorien, Bestellungen, Nutzer, Angebote) als eigenständige Views mit vollständigen CRUD-Operationen. Drei wiederverwendbare Komponenten -- \texttt{AdminFilters}, \texttt{AdminTablePagination} und \texttt{AdminPageHeader} -- gewährleisten ein konsistentes UI-Muster und vermeiden Codeduplizierung \cite{kothapalli2021}. Statusänderungen an Bestellungen lösen über \texttt{orderStatusChanged.js} automatische Kundenbenachrichtigungen aus und entkoppeln die UI-Aktion von der Benachrichtigungslogik \cite{milojkovic2024}.
+Der Bereich umfasst fünf fachlich motivierte Module (Produkte, Kategorien, Bestellungen, Nutzer, Angebote) mit vollständigen CRUD-Operationen. Zur Vermeidung von Codeduplizierung und zur Sicherstellung eines konsistenten Interaktionsmusters wurden drei wiederverwendbare Komponenten für Filterung, Paginierung und Seitenheader abstrahiert \cite{kothapalli2021}. Statusänderungen an Bestellungen werden nicht direkt mit Benachrichtigungslogik verknüpft, sondern lösen über die ereignisgesteuerte Cloud-Function-Infrastruktur automatisch Kundenbenachrichtigungen aus -- ein Entkopplungsmuster, das die Administrationsoberfläche von Kommunikationsverantwortlichkeiten befreit und diese in eigenständige, testbare Funktionseinheiten verlagert \cite{milojkovic2024}.
+
+Die beschriebenen Implementierungsentscheidungen folgen durchgehend demselben Grundprinzip: Firebase übernimmt Persistierung, Authentifizierung und Skalierung -- die Anwendungsschicht konzentriert sich auf Domänenlogik, Validierung und Nutzererlebnis. Ob diese Arbeitsteilung im Projektergebnis trägt und wo ihre Grenzen liegen, wird in Kapitel~\ref{ch:evaluation} bewertet.
