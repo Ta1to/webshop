@@ -45,45 +45,7 @@ Single Page Applications (SPAs) sind Webanwendungen, die nach dem initialen Lade
 
 \begin{figure}[H]
 \centering
-\begin{tikzpicture}[
-    node distance=0.55cm and 1.8cm,
-    box/.style={rectangle, rounded corners=3pt, draw=black!60, fill=white,
-                minimum width=3.0cm, minimum height=0.65cm, text centered,
-                font=\small, drop shadow},
-    server/.style={box, fill=gray!15},
-    browser/.style={box, fill=blue!10},
-    arrow/.style={-{Stealth[length=5pt]}, thick, gray!70},
-]
-
-%% --- MPA (linke Hälfte) ---
-\node[browser] (mpa-b1) {Browser};
-\node[server,  below=of mpa-b1] (mpa-s1) {Server};
-\node[browser, below=of mpa-s1] (mpa-b2) {Browser};
-
-\draw[arrow]  (mpa-b1.south) -- node[right, font=\footnotesize]{HTML-Anfrage} (mpa-s1.north);
-\draw[arrow]  (mpa-s1.south) -- node[right, font=\footnotesize]{Vollst. HTML-Seite} (mpa-b2.north);
-\node[font=\footnotesize\itshape, below=0.25cm of mpa-b2] {Vollst. Seitenneuladen};
-
-%% --- SPA (rechte Hälfte) ---
-\node[browser, right=3.5cm of mpa-b1] (spa-b1) {Browser};
-\node[server,  below=of spa-b1] (spa-s1) {Server};
-\node[browser, below=of spa-s1] (spa-b2) {Browser};
-\node[server,  right=1.5cm of spa-b2] (spa-api) {API};
-
-\draw[arrow] (spa-b1.south) -- node[right, font=\footnotesize]{Einmaliger Bundle-Request} (spa-s1.north);
-\draw[arrow] (spa-s1.south) -- node[right, font=\footnotesize]{HTML + JS-Bundle} (spa-b2.north);
-\draw[arrow] (spa-b2.east)  -- node[above, font=\footnotesize]{JSON} (spa-api.west);
-\draw[arrow] (spa-api.west) -- node[below, font=\footnotesize]{Daten} (spa-b2.east);
-\node[font=\footnotesize\itshape, below=0.25cm of spa-b2] {Partielles DOM-Update};
-
-%% Beschriftungen
-\node[font=\small\bfseries, above=0.3cm of mpa-b1] {Multi-Page Application (MPA)};
-\node[font=\small\bfseries, above=0.3cm of spa-b1] {Single Page Application (SPA)};
-
-%% Trennlinie
-\draw[dashed, gray!50] ($(mpa-b1.north east)!0.5!(spa-b1.north west)$) ++(0, 0.5cm)
-    -- ($(mpa-b2.south east)!0.5!(spa-b2.south west)$) ++(0,-0.6cm);
-\end{tikzpicture}
+\includegraphics[width=\textwidth]{resources/images/MPAvsSPA.drawio.png}
 \caption{Vergleich des Anfrageverhaltens von MPA und SPA}
 \label{fig:spa-vs-mpa}
 \end{figure}
@@ -143,45 +105,7 @@ Firebase ist eine von Google betriebene BaaS-Plattform für Web- und Mobilanwend
 
 \begin{figure}[H]
 \centering
-\begin{tikzpicture}[
-    node distance=0.5cm,
-    layer/.style={rectangle, rounded corners=5pt, draw=black!40,
-                  minimum width=13cm, minimum height=0.9cm,
-                  text centered, font=\small\bfseries},
-    service/.style={rectangle, rounded corners=3pt, draw=black!50, fill=blue!8,
-                    minimum width=2.1cm, minimum height=0.85cm,
-                    align=center, font=\footnotesize},
-    doublearrow/.style={{Stealth[length=5pt]}-{Stealth[length=5pt]}, thick, gray!70},
-]
-
-%% Schicht 1: Frontend
-\node[layer, fill=blue!12] (frontend) {Vue.js\,--\,Browser (SPA)};
-
-%% Schicht 2: Firebase-Dienste (zentriert bei xshift=-5.0cm)
-\node[service, below=1.2cm of frontend, xshift=-5.0cm] (auth)     {Firebase\\Authentication};
-\node[service, right=0.4cm of auth]                    (firestore){Cloud\\Firestore};
-\node[service, right=0.4cm of firestore]               (storage)  {Firebase\\Storage};
-\node[service, right=0.4cm of storage]                 (hosting)  {Firebase\\Hosting};
-\node[service, right=0.4cm of hosting]                 (functions){Cloud\\Functions};
-
-%% Firebase-Rahmen (Hintergrundebene)
-\begin{scope}[on background layer]
-    \node[layer, fill=orange!8,
-          fit=(auth)(firestore)(storage)(hosting)(functions),
-          inner sep=8pt,
-          label={[font=\footnotesize\bfseries]above:{Firebase (BaaS-Plattform)}}]
-          (firebaselayer) {};
-\end{scope}
-
-%% Schicht 3: Google Cloud (relativ zur Firebase-Ebene)
-\node[layer, fill=gray!15, below=0.6cm of firebaselayer] (gcloud)
-      {Google Cloud Infrastructure};
-
-%% Verbindungspfeile
-\draw[doublearrow] (frontend.south) -- (firebaselayer.north);
-\draw[doublearrow] (firebaselayer.south) -- (gcloud.north);
-
-\end{tikzpicture}
+\includegraphics[width=0.7\textwidth]{resources/images/Firebase.drawio.png}
 \caption{Firebase-Dienste und ihre Rollen im Projektsystem}
 \label{fig:firebase-dienste}
 \end{figure}
