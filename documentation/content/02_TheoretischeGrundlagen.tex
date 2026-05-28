@@ -140,21 +140,7 @@ Der resultierende vollständig serverlose Technologie-Stack ist in Abbildung~\re
 
 \begin{figure}[H]
 \centering
-\begin{tikzpicture}[
-    node distance=0.35cm,
-    layer/.style={rectangle, rounded corners=4pt, draw=black!40,
-                  minimum width=10cm, minimum height=0.9cm,
-                  text centered, font=\small},
-]
-
-\node[layer, fill=blue!12]  (l1) {\textbf{Präsentationsschicht:} Vue.js (SPA, Vite Build)};
-\node[layer, fill=blue!8,  below=0.35cm of l1] (l2) {\textbf{Auslieferung:} Firebase Hosting (CDN, HTTPS)};
-\node[layer, fill=blue!8,  below=0.35cm of l2] (l3) {\textbf{Authentifizierung:} Firebase Authentication};
-\node[layer, fill=blue!8,  below=0.35cm of l3] (l4) {\textbf{Datenpersistenz:} Cloud Firestore + Firebase Storage};
-\node[layer, fill=blue!8,  below=0.35cm of l4] (l5) {\textbf{Geschäftslogik:} Cloud Functions for Firebase};
-\node[layer, fill=gray!15, below=0.35cm of l5] (l6) {\textbf{Infrastruktur:} Google Cloud Platform (serverless)};
-
-\end{tikzpicture}
+\includegraphics[width=0.6\textwidth]{resources/images/Techstack.png}
 \caption{Serverless-Technologie-Stack des Webshops}
 \label{fig:serverless-stack}
 \end{figure}
