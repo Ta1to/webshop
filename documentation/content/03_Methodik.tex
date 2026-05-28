@@ -240,35 +240,12 @@ Die Anwendung folgt einer Client-Server-Architektur, bei der das Frontend als Si
 
 \begin{figure}[H]
 \centering
-\begin{tikzpicture}[
-    box/.style={rectangle, draw, minimum width=3cm, minimum height=1cm, align=center},
-    arrow/.style={->, >=stealth, thick}
-]
-    % Client
-    \node[box, fill=blue!20] (client) at (0,0) {Vue.js\\Frontend};
-    
-    % Firebase Services
-    \node[box, fill=orange!20] (auth) at (5,2) {Firebase\\Authentication};
-    \node[box, fill=orange!20] (firestore) at (5,0) {Cloud\\Firestore};
-    \node[box, fill=orange!20] (storage) at (5,-2) {Firebase\\Storage};
-    \node[box, fill=orange!20] (functions) at (9,0) {Cloud\\Functions};
-    
-    % Hosting
-    \node[box, fill=green!20] (hosting) at (0,-3) {Firebase\\Hosting};
-    
-    % Arrows
-    \draw[arrow] (client) -- (auth);
-    \draw[arrow] (client) -- (firestore);
-    \draw[arrow] (client) -- (storage);
-    \draw[arrow] (firestore) -- (functions);
-    \draw[arrow] (hosting) -- (client) node[midway, right] {liefert};
-    
-\end{tikzpicture}
+\includegraphics[width=1\textwidth]{resources/images/Systemarchitektur.png}
 \caption{Systemarchitektur des Webshops}
 \label{fig:systemarchitektur}
 \end{figure}
 
-Die gewählte Architektur zeichnet sich durch drei wesentliche Eigenschaften aus, die zusammen die fachlichen und nicht-funktionalen Anforderungen des Webshops adressieren. Ein erstes prägendes Merkmal ist die \textit{lose Kopplung} zwischen Frontend und Backend-Diensten, da die Kommunikation ausschließlich über klar definierte APIs erfolgt. Auf diese Weise lassen sich einzelne Systemkomponenten unabhängig voneinander weiterentwickeln oder austauschen, ohne dass sich Änderungen kaskadierend auf andere Teile des Systems auswirken \cite{newman2021}. Eng damit verbunden ist die \textit{Zustandslosigkeit} der Backend-Dienste: Da der Server keinen clientbezogenen Zustand zwischen einzelnen Anfragen speichert, sondern Session-Informationen im Client verwaltet und Authentifizierungstoken bei jeder Anfrage erneut mitgesendet werden, lassen sich die Dienste ohne aufwendige Replika-Synchronisation horizontal skalieren. Dieses Vorgehen gilt als Grundprinzip moderner, hochverfügbarer Webarchitekturen. Ergänzt werden diese Eigenschaften durch einen \textit{ereignisgesteuerten} Verarbeitungsansatz, bei dem Änderungen in der Datenbank automatisch Cloud Functions auslösen, die serverseitige Logik ausführen. Dieses reaktive Modell ohne aktives Polling ist charakteristisch für serverlose Architekturen und ermöglicht eine ressourcenschonende, bedarfsgesteuerte Ausführung von Backend-Logik \cite{shafiei2022}.
+Die gewählte Architektur zeichnet sich durch drei wesentliche Eigenschaften aus, die zusammen die fachlichen und nicht-funktionalen Anforderungen des Webshops adressieren. Ein erstes prägendes Merkmal ist die \textit{lose Kopplung} zwischen Frontend und Backend-Diensten, da die Kommunikation ausschließlich über klar definierte APIs erfolgt. Auf diese Weise lassen sich einzelne Systemkomponenten unabhängig voneinander weiterentwickeln oder austauschen, ohne dass sich Änderungen kaskadierend auf andere Teile des Systems auswirken \cite{newman2021}. Eng damit verbunden ist die \textit{Zustandslosigkeit} der Backend-Dienste: Da der Server keinen clientbezogenen Zustand zwischen einzelnen Anfragen speichert, sondern Session-Informationen im Client verwaltet und Authentifizierungstoken bei jeder Anfrage erneut mitgesendet werden, lassen sich die Dienste ohne aufwendige Replika-Synchronisation horizontal skalieren. Dieses Vorgehen gilt als Grundprinzip moderner, hochverfügbarer Webarchitekturen. Ergänzt werden diese Eigenschaften durch einen \textit{ereignisgesteuerten} Verarbeitungsansatz, bei dem zwei Klassen von Auslösern serverseitige Cloud Functions aktivieren: Firestore-Dokument-Trigger starten die Benachrichtigungs-Funktion automatisch bei jeder Bestellstatusänderung, während ein Cloud Scheduler die wöchentliche Newsletter-Funktion zeitgesteuert anstößt. Dieses reaktive Modell ohne aktives Polling ist charakteristisch für serverlose Architekturen und ermöglicht eine ressourcenschonende, bedarfsgesteuerte Ausführung von Backend-Logik \cite{shafiei2022}.
 
 \subsection{Datenbankstruktur}
 \label{subsec:datenbankstruktur}
@@ -277,42 +254,7 @@ Cloud Firestore ist eine dokumentenorientierte NoSQL-Datenbank, die Daten in Dok
 
 \begin{figure}[H]
 \centering
-\begin{tikzpicture}[
-    collection/.style={rectangle, draw, fill=blue!10, minimum width=2.5cm, minimum height=0.8cm},
-    field/.style={rectangle, draw, fill=gray!10, minimum width=2.5cm, minimum height=0.5cm, font=\small},
-    arrow/.style={->, >=stealth}
-]
-    % Users Collection
-    \node[collection] (users) at (0,0) {users};
-    \node[field, below=0.1cm of users] (u1) {email};
-    \node[field, below=0.1cm of u1] (u2) {displayName};
-    \node[field, below=0.1cm of u2] (u3) {role};
-    \node[field, below=0.1cm of u3] (u4) {address};
-    
-    % Products Collection
-    \node[collection] (products) at (4,0) {products};
-    \node[field, below=0.1cm of products] (p1) {name};
-    \node[field, below=0.1cm of p1] (p2) {price};
-    \node[field, below=0.1cm of p2] (p3) {categoryId};
-    \node[field, below=0.1cm of p3] (p4) {stock};
-    
-    % Orders Collection
-    \node[collection] (orders) at (8,0) {orders};
-    \node[field, below=0.1cm of orders] (o1) {userId};
-    \node[field, below=0.1cm of o1] (o2) {items[]};
-    \node[field, below=0.1cm of o2] (o3) {total};
-    \node[field, below=0.1cm of o3] (o4) {status};
-    
-    % Categories Collection
-    \node[collection] (categories) at (4,-4) {categories};
-    \node[field, below=0.1cm of categories] (c1) {name};
-    \node[field, below=0.1cm of c1] (c2) {description};
-    
-    % Relationships
-    \draw[arrow, dashed] (p3.south) -- (categories.north);
-    \draw[arrow, dashed] (o1.west) -- +(-1,0) |- (users.east);
-    
-\end{tikzpicture}
+\includegraphics[width=0.6\textwidth]{resources/images/Data.png}
 \caption{Vereinfachtes Datenbankschema}
 \label{fig:datenbankschema}
 \end{figure}
@@ -322,7 +264,7 @@ Cloud Firestore ist eine dokumentenorientierte NoSQL-Datenbank, die Daten in Dok
 
 Das Frontend ist nach dem Komponentenprinzip von Vue.js strukturiert. Die komponentenbasierte Architektur hat sich als dominantes Paradigma in der modernen Frontend-Entwicklung etabliert, da sie Wiederverwendbarkeit, Testbarkeit und eine klare Trennung von Verantwortlichkeiten fördert \cite{kothapalli2021}. Die Komponenten der Anwendung sind hierarchisch organisiert und nach ihrer fachlichen Funktion in vier Ebenen gruppiert. Die oberste Ebene bilden die \textit{Views}, also jene Seitenkomponenten, die über den Router direkt angesteuert werden und den Hauptseiten der Anwendung wie Startseite, Produktübersicht oder Checkout entsprechen. Unterhalb der Views kommen \textit{Layout-Komponenten} zum Einsatz, die strukturelle Elemente wie Header, Footer und Navigation kapseln und seitenübergreifend wiederverwendet werden. Die fachliche Logik wird in \textit{Feature-Komponenten} gebündelt, etwa in der Produktkarte, im Warenkorb-Dialog oder in der Bestellübersicht. Generische UI-Bausteine wie Buttons, Eingabefelder oder Benachrichtigungen werden hingegen als \textit{Utility-Komponenten} bereitgestellt und stellen damit die Konsistenz des Erscheinungsbilds über die gesamte Anwendung hinweg sicher.
 
-Die Kommunikation zwischen den Komponenten folgt den von Vue.js etablierten Mustern und kombiniert drei Mechanismen: Props übergeben Daten gerichtet von Eltern- an Kind-Komponenten, Events ermöglichen die umgekehrte Kommunikation von Kind- zu Eltern-Komponenten, und für komponentenübergreifenden Zustand wie den Warenkorb oder die Wunschliste kommt der zentrale Pinia-Store zum Einsatz. Diese klare Trennung zwischen lokalem Komponentenzustand und globalem Anwendungszustand verhindert eine unkontrollierte Verflechtung der Komponenten und erleichtert sowohl das Testen einzelner Bausteine als auch das spätere Refactoring.
+Die Kommunikation zwischen den Komponenten folgt den von Vue.js etablierten Mustern und kombiniert drei Mechanismen: Props übergeben Daten gerichtet von Eltern- an Kind-Komponenten, Events ermöglichen die umgekehrte Kommunikation von Kind- zu Eltern-Komponenten, und für komponentenübergreifenden Zustand wie den Warenkorb oder die Wunschliste kommen schlanke, reaktive Stores auf Basis von Vue\,3\,\texttt{ref()} zum Einsatz. Da der Anwendungszustand auf zwei Datenquellen (Firestore für angemeldete Nutzer, Cookies für Gäste) aufbaut und direkt mit den Firebase-Servicefunktionen synchronisiert wird, genügt dieses leichtgewichtige Modell ohne einen externen State-Management-Ansatz. Diese klare Trennung zwischen lokalem Komponentenzustand und globalem Anwendungszustand verhindert eine unkontrollierte Verflechtung der Komponenten und erleichtert sowohl das Testen einzelner Bausteine als auch das spätere Refactoring.
 
 \subsection{Sicherheitskonzept}
 \label{subsec:sicherheitskonzept}
