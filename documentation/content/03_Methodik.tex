@@ -38,178 +38,26 @@ Die Anforderungsanalyse ist eine zentrale Disziplin des Software Engineerings un
 \subsection{Funktionale Anforderungen}
 \label{subsec:funktionale-anforderungen}
 
-Die funktionalen Anforderungen wurden auf Basis einer Analyse typischer E-Commerce-Systeme sowie der in der Disposition definierten Projektziele erhoben \cite{heinemann2024, garcialopez2020}. Zur strukturierten Priorisierung wurde das MoSCoW-Verfahren eingesetzt, das sich in der Praxis als bewährtes Werkzeug zur transparenten Klassifikation von Anforderungen etabliert hat \cite{kravchenko2022}. Dabei sind \textit{Muss}-Anforderungen für die Grundfunktionalität zwingend erforderlich, \textit{Soll}-Anforderungen bedeutsam aber nicht zwingend, und \textit{Kann}-Anforderungen wünschenswert, ohne das Projektziel zu gefährden.
+Die funktionalen Anforderungen wurden auf Basis typischer E-Commerce-Systeme und der Projektziele erhoben \cite{heinemann2024, garcialopez2020}:
 
-\subsubsection{Benutzerverwaltung}
-
-Die Benutzerverwaltung umfasst alle Funktionen zur Registrierung, Anmeldung und Kontoverwaltung. Da der Webshop personalisierte Features wie gespeicherte Adressen und eine Bestellhistorie anbietet, ist eine zuverlässige Identitätsverwaltung eine zentrale Voraussetzung für den Betrieb. Die Passwort-Zurücksetzen-Funktion (FA-03) sowie die DSGVO-konforme Kontolöschung (FA-06) wurden ebenfalls aufgenommen, da sie für einen produktionsreifen Shop erwartet werden.
-
-\begin{table}[H]
-\centering
-\begin{tabularx}{\textwidth}{|c|X|c|}
-\hline
-\textbf{ID} & \textbf{Anforderung} & \textbf{Priorität} \\
-\hline
-FA-01 & Benutzer können sich mit E-Mail und Passwort registrieren & Muss \\
-\hline
-FA-02 & Benutzer können sich anmelden und abmelden & Muss \\
-\hline
-FA-03 & Benutzer können ihr Passwort zurücksetzen & Muss \\
-\hline
-FA-04 & Benutzer können ihre Profildaten einsehen und bearbeiten & Muss \\
-\hline
-FA-05 & Benutzer können ihre Bestellhistorie einsehen & Muss \\
-\hline
-FA-06 & Benutzer können ihr Konto löschen & Soll \\
-\hline
-\end{tabularx}
-\caption{Funktionale Anforderungen: Benutzerverwaltung}
-\label{tab:fa-benutzer}
-\end{table}
-
-\subsubsection{Produktkatalog}
-
-Der Produktkatalog bildet den inhaltlichen Kern des Webshops. Die Anforderungen adressieren sowohl die Darstellung einzelner Produkte als auch die Navigation und Suche, da diese Funktionen direkt die Nutzerführung zum Kauf beeinflussen \cite{heinemann2024}. Die Wunschliste (FA-16) wurde bewusst als optionale \textit{Kann}-Anforderung eingestuft, da sie keinen direkten Einfluss auf den Kaufprozess hat.
-
-\begin{table}[H]
-\centering
-\begin{tabularx}{\textwidth}{|c|X|c|}
-\hline
-\textbf{ID} & \textbf{Anforderung} & \textbf{Priorität} \\
-\hline
-FA-10 & Produkte werden mit Bild, Titel, Beschreibung und Preis angezeigt & Muss \\
-\hline
-FA-11 & Produkte sind in Kategorien organisiert & Muss \\
-\hline
-FA-12 & Benutzer können Produkte nach Kategorien filtern & Muss \\
-\hline
-FA-13 & Benutzer können Produkte über eine Suchfunktion finden & Muss \\
-\hline
-FA-14 & Die Verfügbarkeit von Produkten wird angezeigt & Muss \\
-\hline
-FA-15 & Benutzer können Produktdetails auf einer separaten Seite ansehen & Soll \\
-\hline
-FA-16 & Benutzer können Produkte auf eine Wunschliste setzen & Kann \\
-\hline
-\end{tabularx}
-\caption{Funktionale Anforderungen: Produktkatalog}
-\label{tab:fa-produkte}
-\end{table}
-
-\subsubsection{Warenkorb und Bestellung}
-
-Warenkorb und Bestellprozess sind die transaktionskritischen Komponenten des Webshops und decken den vollständigen Kauffluss von der Produktauswahl bis zur Bestellbestätigung ab. Empirische Studien zeigen, dass ein reibungsloser Checkout-Prozess maßgeblich die Abbruchrate beeinflusst \cite{butnampetch2020}. Die browserübergreifende Persistenz des Warenkorbs (FA-27) verbessert die Nutzererfahrung bei wiederkehrenden Besuchern und wurde daher als \textit{Soll}-Anforderung aufgenommen.
-
-\begin{table}[H]
-\centering
-\begin{tabularx}{\textwidth}{|c|X|c|}
-\hline
-\textbf{ID} & \textbf{Anforderung} & \textbf{Priorität} \\
-\hline
-FA-20 & Benutzer können Produkte zum Warenkorb hinzufügen & Muss \\
-\hline
-FA-21 & Benutzer können die Menge im Warenkorb ändern & Muss \\
-\hline
-FA-22 & Benutzer können Produkte aus dem Warenkorb entfernen & Muss \\
-\hline
-FA-23 & Der Warenkorb zeigt Zwischensumme und Gesamtpreis & Muss \\
-\hline
-FA-24 & Angemeldete Benutzer können den Checkout-Prozess starten & Muss \\
-\hline
-FA-25 & Im Checkout werden Lieferadresse und Zahlungsart erfasst & Muss \\
-\hline
-FA-26 & Nach Bestellabschluss erhält der Benutzer eine Bestätigung & Muss \\
-\hline
-FA-27 & Der Warenkorb bleibt auch nach Schließen des Browsers erhalten & Soll \\
-\hline
-\end{tabularx}
-\caption{Funktionale Anforderungen: Warenkorb und Bestellung}
-\label{tab:fa-warenkorb}
-\end{table}
-
-\subsubsection{Angebotssystem}
-
-Das Angebotssystem ermöglicht zeitlich begrenzte Rabattaktionen und ist ein typisches Werkzeug moderner E-Commerce-Plattformen zur Kundenbindung \cite{heinemann2024}. Da die Funktion inhaltlich auf einem funktionierenden Produktkatalog und Warenkorb aufbaut, wurden alle zugehörigen Anforderungen als \textit{Soll} priorisiert, denn sie erweitern den Shop sinnvoll, sind aber nicht für den Grundbetrieb notwendig.
-
-\begin{table}[H]
-\centering
-\begin{tabularx}{\textwidth}{|c|X|c|}
-\hline
-\textbf{ID} & \textbf{Anforderung} & \textbf{Priorität} \\
-\hline
-FA-30 & Administratoren können zeitlich begrenzte Angebote erstellen & Soll \\
-\hline
-FA-31 & Angebote können prozentuale oder absolute Rabatte definieren & Soll \\
-\hline
-FA-32 & Aktive Angebote werden auf der Startseite hervorgehoben & Soll \\
-\hline
-FA-33 & Rabatte werden automatisch im Warenkorb angewendet & Soll \\
-\hline
-\end{tabularx}
-\caption{Funktionale Anforderungen: Angebotssystem}
-\label{tab:fa-angebote}
-\end{table}
-
-\subsubsection{Administration}
-
-Der Administrationsbereich stellt die Verwaltungsoberfläche für den Shopbetreiber bereit. Produktpflege, Kategorieverwaltung und Bestellstatus-Management (FA-41 bis FA-44) sind als \textit{Muss}-Anforderungen definiert, da ohne sie kein laufender Betrieb des Shops möglich wäre. Der Zugang zum Administrationsbereich ist auf Benutzer mit Admin-Rolle beschränkt (FA-40), was direkte Auswirkungen auf das Sicherheits- und Berechtigungskonzept hat.
-
-\begin{table}[H]
-\centering
-\begin{tabularx}{\textwidth}{|c|X|c|}
-\hline
-\textbf{ID} & \textbf{Anforderung} & \textbf{Priorität} \\
-\hline
-FA-40 & Der Administrationsbereich ist durch Authentifizierung geschützt & Muss \\
-\hline
-FA-41 & Administratoren können Produkte erstellen, bearbeiten und löschen & Muss \\
-\hline
-FA-42 & Administratoren können Kategorien verwalten & Muss \\
-\hline
-FA-43 & Administratoren können Bestellungen einsehen und deren Status ändern & Muss \\
-\hline
-FA-44 & Administratoren können Lagerbestände aktualisieren & Muss \\
-\hline
-FA-45 & Administratoren können Benutzerkonten einsehen und löschen & Soll \\
-\hline
-FA-46 & Administratoren können Angebote erstellen und verwalten & Soll \\
-\hline
-\end{tabularx}
-\caption{Funktionale Anforderungen: Administration}
-\label{tab:fa-admin}
-\end{table}
+\begin{itemize}
+  \item \textbf{Benutzerverwaltung}: Registrierung, Anmeldung, Passwort-Reset, Profilpflege, Bestellhistorie und Kontolöschung.
+  \item \textbf{Produktkatalog}: Produktdarstellung mit Bild und Preis, Kategorisierung, Filter- und Suchfunktion sowie eine Detailseite.
+  \item \textbf{Warenkorb und Checkout}: Befüllen, Mengenänderung und Persistenz des Warenkorbs; Checkout mit Adresserfassung und Bestellbestätigung.
+  \item \textbf{Angebotssystem}: Zeitlich begrenzte Rabatte (prozentual oder absolut), auf der Startseite hervorgehoben und automatisch im Warenkorb angewendet.
+  \item \textbf{Administration}: Rollengeschützter Bereich zur Verwaltung von Produkten, Kategorien, Bestellungen, Lagerbeständen, Nutzern und Angeboten.
+\end{itemize}
 
 \subsection{Nicht-funktionale Anforderungen}
 \label{subsec:nichtfunktionale-anforderungen}
 
-Nicht-funktionale Anforderungen definieren die Qualitätsmerkmale des Systems und legen fest, unter welchen Bedingungen und mit welcher Güte die funktionalen Anforderungen erfüllt werden müssen \cite{garcialopez2020}. Sie umfassen Aspekte wie Performance, Sicherheit, Kompatibilität und Wartbarkeit und beeinflussen maßgeblich Architekturentscheidungen und Technologieauswahl. Besonders die Ladezeit-Anforderung (NFA-01) und die Responsive-Design-Anforderung (NFA-03) haben direkten Einfluss auf die Nutzerzufriedenheit und Conversion-Rate im E-Commerce \cite{peterson2018}.
+Neben der Funktionalität wurden Qualitätsmerkmale in drei Bereichen definiert \cite{garcialopez2020}:
 
-\begin{table}[H]
-\centering
-\begin{tabularx}{\textwidth}{|c|X|c|}
-\hline
-\textbf{ID} & \textbf{Anforderung} & \textbf{Kategorie} \\
-\hline
-NFA-01 & Die Anwendung lädt initial innerhalb von 3 Sekunden & Performance \\
-\hline
-NFA-02 & Die Anwendung funktioniert auf aktuellen Versionen von Chrome, Firefox, Safari und Edge & Kompatibilität \\
-\hline
-NFA-03 & Die Anwendung ist auf Bildschirmen von 320px bis 2560px Breite nutzbar & Responsivität \\
-\hline
-NFA-04 & Alle Datenübertragungen erfolgen verschlüsselt (HTTPS) & Sicherheit \\
-\hline
-NFA-05 & Passwörter werden gemäß aktueller Standards gehasht gespeichert & Sicherheit \\
-\hline
-NFA-06 & Die Anwendung entspricht den Anforderungen der DSGVO & Compliance \\
-\hline
-NFA-07 & Der Code folgt einheitlichen Formatierungs- und Namenskonventionen & Wartbarkeit \\
-\hline
-NFA-08 & Die Anwendung ist ohne JavaScript-Kenntnisse bedienbar & Benutzerfreundlichkeit \\
-\hline
-\end{tabularx}
-\caption{Nicht-funktionale Anforderungen}
-\label{tab:nfa}
-\end{table}
+\begin{itemize}
+  \item \textbf{Performance und Kompatibilität}: Ladezeit unter 3\,Sekunden, Unterstützung gängiger Browser sowie responsive Darstellung von 320 bis 2560\,px Breite.
+  \item \textbf{Sicherheit und Compliance}: HTTPS-Verschlüsselung, sicheres Passwort-Hashing und DSGVO-Konformität.
+  \item \textbf{Wartbarkeit}: Einheitliche Codekonventionen und intuitive Bedienbarkeit ohne technische Vorkenntnisse.
+\end{itemize}
 
 \subsection{Abgrenzung}
 \label{subsec:abgrenzung}
