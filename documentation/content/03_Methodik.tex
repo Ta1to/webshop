@@ -117,40 +117,19 @@ Die Kommunikation zwischen den Komponenten folgt den von Vue.js etablierten Must
 \subsection{Sicherheitskonzept}
 \label{subsec:sicherheitskonzept}
 
-Die Sicherheit der Anwendung basiert auf einem mehrschichtigen Sicherheitskonzept (\textit{Defense in Depth}), das Schutzmaßnahmen auf verschiedenen Ebenen des Systems kombiniert \cite{stytz2004}. Dieses Prinzip stellt sicher, dass das Kompromittieren einer einzelnen Schutzmaßnahme nicht zur vollständigen Kompromittierung des Systems führt, und entspricht den Empfehlungen der OWASP für moderne Webanwendungen \cite{fredj2020}.
+Die Sicherheit der Anwendung basiert auf einem mehrschichtigen Ansatz (\textit{Defense in Depth}) \cite{stytz2004}. Die \textit{Authentifizierung} erfolgt über Firebase Authentication mittels JWT-Tokens. Auf der Autorisierungsebene regeln Firestore Security Rules serverseitig, welche Benutzer auf welche Daten zugreifen dürfen \cite{firestore2025}. Ergänzend erfolgt die gesamte Kommunikation über HTTPS und Firebase verschlüsselt alle gespeicherten Daten automatisch. Benutzereingaben werden zusätzlich clientseitig sowie durch die Security Rules im Backend validiert \cite{fredj2020}.
 
-Den Einstiegspunkt bildet die \textit{Authentifizierung} über Firebase Authentication, die die Benutzeridentität verwaltet und OAuth~2.0-kompatible Authentifizierungsabläufe implementiert. Bei erfolgreicher Anmeldung erhält der Client ein JSON Web Token (JWT), also ein kryptographisch signiertes, selbst-beschreibendes Token mit begrenzter Gültigkeitsdauer, das bei allen Backend-Anfragen im Authorization-Header mitgesendet wird \cite{bucko2023}. Auf der nachgelagerten Ebene der \textit{Autorisierung} definieren Firestore Security Rules deklarativ, welche authentifizierten Benutzer auf welche Daten zugreifen und welche Operationen sie ausführen dürfen. Diese serverseitige Durchsetzung ist entscheidend, da clientseitige Berechtigungsprüfungen prinzipiell umgangen werden können \cite{firestore2025}: Benutzer können beispielsweise ausschließlich ihre eigenen Bestellungen lesen, während Administratoren systemweit Zugriff auf alle Collections haben.
-
-Ergänzt werden diese identitätsbezogenen Maßnahmen durch eine durchgängige \textit{Datenverschlüsselung}. Sämtliche Kommunikation zwischen Client und Firebase erfolgt über HTTPS mit TLS-Verschlüsselung, und Firebase verschlüsselt darüber hinaus alle gespeicherten Daten automatisch, sodass die Anforderung NFA-04 ohne zusätzlichen Implementierungsaufwand erfüllt wird. Die letzte Schutzschicht bildet schließlich die \textit{Input-Validierung}: Benutzereingaben werden sowohl im Frontend als unmittelbare Rückmeldung an den Nutzer als auch durch Firestore Security Rules im Backend geprüft, um Injection-Angriffe und fehlerhafte Datenzustände zuverlässig zu verhindern \cite{fredj2020}.
-
-Ein Beispiel für Firestore Security Rules:
-
-\begin{lstlisting}[language={}, caption={Firestore Security Rules (vereinfachter Auszug, vollständige Implementierung siehe Kapitel~6)}]
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    // Benutzer koennen nur eigene Daten lesen/schreiben
-    match /users/{userId} {
-      allow read, write: if request.auth != null 
-                         && request.auth.uid == userId;
-    }
-    
-    // Produkte sind oeffentlich lesbar
-    match /products/{productId} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
-    
-    // Hilfsfunktion zur Admin-Pruefung
-    function isAdmin() {
-      return request.auth != null 
-             && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
-    }
-  }
+\begin{lstlisting}[language={}, caption={Firestore Security Rules (Auszug)}]
+match /users/{userId} {
+  allow read, write: if request.auth.uid == userId;
+}
+match /products/{productId} {
+  allow read: if true;
+  allow write: if isAdmin();
 }
 \end{lstlisting}
 
 \subsection{Deployment-Konzept}
 \label{subsec:deployment-konzept}
 
-Das Deployment der Anwendung erfolgt über Firebase Hosting und ist in eine automatisierte CI/CD-Pipeline (Continuous Integration~/ Continuous Deployment) eingebettet. Automatisierte Deployment-Pipelines reduzieren manuelle Fehlerquellen und stellen sicher, dass ausschließlich getesteter und verifizierter Code in die Produktionsumgebung gelangt \cite{chacon2014}. Der Ablauf folgt dabei vier aufeinanderfolgenden Schritten: Im \textit{Build}-Schritt kompiliert Vite den Vue.js-Quellcode zu optimierten statischen Dateien, anschließend prüfen im \textit{Test}-Schritt automatisierte Unit- und End-to-End-Tests die Funktionalität der Anwendung. Erst nach erfolgreichem Testlauf werden die Build-Artefakte im \textit{Deploy}-Schritt zu Firebase Hosting hochgeladen, bevor Firebase im abschließenden \textit{Aktivierungsschritt} die neue Version freischaltet und den Traffic automatisch auf das aktuelle Release umleitet. Ergänzend stellt Firebase Hosting Funktionen wie automatisch verwaltete SSL-Zertifikate, ein globales Content Delivery Network sowie atomare Deployments mit jederzeitiger Rollback-Möglichkeit bereit, sodass auch im Fehlerfall ein schneller Rückfall auf eine zuvor stabile Version möglich ist.
+Das Deployment der Anwendung erfolgt über Firebase Hosting und ist in eine automatisierte CI/CD-Pipeline eingebettet. Die technische Umsetzung dieses Konzepts -- einschließlich des GitHub-Actions-Workflows, der sequenziellen Build-, Test- und Deploy-Stufen sowie der Rollback-Möglichkeit über atomare Deployments -- wird in Kapitel~\ref{ch:deployment} ausführlich beschrieben.

@@ -2,7 +2,7 @@
 \chapter{Testing und Qualitätssicherung}
 \label{ch:testing}
 
-Qualitätssicherung ist kein nachgelagerter Schritt, sondern ein integraler Bestandteil des Entwicklungsprozesses. Dieses Kapitel beschreibt die Teststrategie des Projekts, die eingesetzten Werkzeuge sowie die Ergebnisse der automatisierten Tests, der manuellen Verifikation, der Performance-Analyse und der Sicherheitsüberprüfung.
+Qualitätssicherung ist kein nachgelagerter Schritt, sondern ein integraler Bestandteil des Entwicklungsprozesses. Dieses Kapitel beschreibt die Teststrategie des Projekts, die eingesetzten Werkzeuge sowie die Ergebnisse der automatisierten Tests, der manuellen Verifikation und der Sicherheitsüberprüfung.
 
 \section{Testkonzept und Teststrategie}
 \label{sec:testkonzept}
@@ -45,7 +45,28 @@ Die automatisierten Tests stützen sich auf zwei Frameworks. \textbf{Vitest} ist
 \section{Unit-Tests}
 \label{sec:unit-tests}
 
-Die Unit-Test-Suite umfasst über 200 Testfälle, die in vier Dateien in einem dedizierten Testverzeichnis organisiert sind und drei Schichten der Anwendung abdecken. Das Testprinzip folgt dabei der Idee der maximalen Isolation: Jede Einheit wird ausschließlich mit ihren eigenen Eingaben und Ausgaben geprüft; externe Abhängigkeiten werden vollständig durch Mocks ersetzt \cite{osherove2024}.
+Die Unit-Test-Suite umfasst 181~Testfälle in sieben Testdateien, die die Service-, Store- und Utility-Schicht der Anwendung abdecken. Tabelle~\ref{tab:unit-tests} listet alle Dateien mit der jeweiligen Testanzahl auf. Das Testprinzip folgt dabei der Idee der maximalen Isolation: Jede Einheit wird ausschließlich mit ihren eigenen Eingaben und Ausgaben geprüft; externe Abhängigkeiten werden vollständig durch Mocks ersetzt \cite{osherove2024}.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{llr}
+\toprule
+\textbf{Testdatei} & \textbf{Getestete Schicht} & \textbf{Testfälle} \\
+\midrule
+\texttt{utils.test.js}                       & Hilfsfunktionen             & 26 \\
+\texttt{services/firebase/auth.test.js}      & Authentifizierungs-Service  & 26 \\
+\texttt{services/firebase/db.test.js}        & Datenbankservice            & 29 \\
+\texttt{services/firebase/storage.test.js}   & Storage-Service             & 19 \\
+\texttt{services/utils/errorHandler.test.js} & Fehlerbehandlung            & 20 \\
+\texttt{services/utils/cookies/}             & Cookie-Verwaltung           & 44 \\
+\texttt{services/business/search.test.js}    & Suchservice                 & 17 \\
+\midrule
+\textbf{Gesamt}                              &                             & \textbf{181} \\
+\bottomrule
+\end{tabular}
+\caption{Übersicht der Unit-Test-Suite}
+\label{tab:unit-tests}
+\end{table}
 
 \paragraph{Hilfsfunktionen.} Die Testdatei für Hilfsfunktionen prüft alle acht reinen Funktionen der Utility-Schicht vollständig ohne Mocking, da diese ausschließlich auf Eingabeparametern operieren. Getestet werden unter anderem Preisformatierung mit Tausendertrennzeichen, Erkennung gültiger und ungültiger E-Mail-Adressen, korrekte Rabattberechnung inklusive Grenzfällen sowie die Ableitung von Lagerstatustext und CSS-Klasse aus numerischen Bestandswerten. Jede Funktion erhält Testfälle für Normalwerte, Grenzwerte (z.\,B. Preis\,=\,0) und Fehlereingaben.
 
@@ -56,7 +77,7 @@ Die Unit-Test-Suite umfasst über 200 Testfälle, die in vier Dateien in einem d
 \section{Integrationstests}
 \label{sec:integration-tests}
 
-Während Unit-Tests einzelne Funktionen vollständig isoliert prüfen, verifizieren Integrationstests das Zusammenspiel mehrerer Schichten. Im Projekt betrifft das vor allem die Interaktion zwischen Pinia-Stores und der darunter liegenden Serviceschicht: Der Firebase-SDK wird durch Vitest-Mocks ersetzt, die Servicefunktionen selbst laufen jedoch vollständig durch -- anders als in den Unit-Tests, wo auch die Serviceschicht gemockt wird.
+Während Unit-Tests einzelne Funktionen vollständig isoliert prüfen, verifizieren 33~Integrationstests in zwei Testdateien das Zusammenspiel mehrerer Schichten. Im Projekt betrifft das vor allem die Interaktion zwischen Pinia-Stores und der darunter liegenden Serviceschicht: Der Firebase-SDK wird durch Vitest-Mocks ersetzt, die Servicefunktionen selbst laufen jedoch vollständig durch -- anders als in den Unit-Tests, wo auch die Serviceschicht gemockt wird.
 
 Die Integrationstests des Cart-Stores prüfen, ob nach einem Serviceaufruf nicht nur der Rückgabewert korrekt ist, sondern auch alle abhängigen reaktiven Referenzen konsistent aktualisiert werden: Ändert sich der Warenkorb, müssen Artikel-Anzahl und Artikelliste gleichermaßen den neuen Zustand widerspiegeln -- eine Eigenschaft, die eine isolierte Unit auf Serviceebene nicht sicherstellen kann. Gleiches gilt für den Wunschlisten-Store.
 
@@ -65,7 +86,29 @@ Für das Such- und Filtersystem stellen die Integrationstests sicher, dass Kateg
 \section{End-to-End-Tests}
 \label{sec:e2e-tests}
 
-Die E2E-Tests operieren auf der vollständig gerenderten Anwendung im Browser und prüfen Nutzungsflüsse so, wie ein realer Nutzer sie erlebt -- von der Seitennavigation über Formulareingaben bis hin zu asynchronen Firestore-Operationen \cite{mwaura2021, palli2024}. Die acht Spec-Dateien unter \texttt{tests/e2e/} decken die gesamte Breite der Anwendungsfunktionalität ab: Authentifizierung, Warenkorb, Checkout, Navigation, Angebote, Produktbrowsing, Suche und Wunschliste.
+Die E2E-Tests operieren auf der vollständig gerenderten Anwendung im Browser und prüfen Nutzungsflüsse so, wie ein realer Nutzer sie erlebt -- von der Seitennavigation über Formulareingaben bis hin zu asynchronen Firestore-Operationen \cite{mwaura2021, palli2024}. Tabelle~\ref{tab:e2e-tests} zeigt die acht Spec-Dateien unter \texttt{tests/e2e/} mit der jeweiligen Testanzahl.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{llr}
+\toprule
+\textbf{Spec-Datei} & \textbf{Abgedeckte Funktionalität} & \textbf{Testfälle} \\
+\midrule
+\texttt{auth.cy.js}       & Authentifizierung  &  7 \\
+\texttt{cart.cy.js}       & Warenkorb          &  8 \\
+\texttt{checkout.cy.js}   & Checkout           &  6 \\
+\texttt{navigation.cy.js} & Navigation         & 12 \\
+\texttt{offers.cy.js}     & Angebotssystem     &  7 \\
+\texttt{products.cy.js}   & Produktkatalog     & 11 \\
+\texttt{search.cy.js}     & Suche              &  8 \\
+\texttt{wishlist.cy.js}   & Wunschliste        &  7 \\
+\midrule
+\textbf{Gesamt}           &                    & \textbf{66} \\
+\bottomrule
+\end{tabular}
+\caption{Übersicht der End-to-End-Test-Suite}
+\label{tab:e2e-tests}
+\end{table}
 
 Wiederkehrende Operationen wie das Einloggen, das Leeren des Warenkorbs oder das Akzeptieren des Cookie-Banners sind als wiederverwendbare Testbefehle in einer zentralen Supportdatei gekapselt. Dieses Muster reduziert Codeduplizierung und erleichtert die Anpassung bei Änderungen der UI \cite{cypress2025, vieira2025}. Jede Spec-Datei stellt vor jedem Testfall einen definierten Ausgangszustand her und prüft neben dem Erfolgsfall (Happy Path) systematisch auch Fehlerpfade: So muss der Checkout-Button bei leerem Warenkorb unsichtbar bleiben, der Aufruf einer geschützten Route ohne aktive Sitzung auf \texttt{/login} umleiten und eine ungültige Produkt-URL die 404-Seite anzeigen. Der Checkout-Flow selbst wird mehrstufig verifiziert -- von der Produktdetailseite über den Warenkorb bis zum Bestellformular mit Adress- und Zahlungsfeldern. Für mobile Ansichten wird zusätzlich eine iPhone-Viewport-Einstellung aktiviert, um sicherzustellen, dass kritische UI-Elemente auch auf kleinen Bildschirmen korrekt dargestellt werden.
 
@@ -75,13 +118,6 @@ Wiederkehrende Operationen wie das Einloggen, das Leeren des Warenkorbs oder das
 Nicht alle Qualitätsaspekte lassen sich vollständig automatisieren. Ergänzend zu den automatisierten Suiten wurden daher manuelle Funktionstests durchgeführt, die insbesondere den Google-OAuth-Fluss, das Admin-Dashboard, die Cookie-Einstellungen sowie die visuelle Konsistenz der Benutzeroberfläche abdecken. Diese Tests erfolgten iterativ während der Implementierungsphase und wurden bei UI-Änderungen wiederholt.
 
 Cross-Browser-Inkompatibilitäten entstehen durch unterschiedliche Rendering-Engines und können -- trotz standardkonformem Code -- zu abweichenden Layouts oder Funktionsstörungen führen \cite{watanabe2023}. Alle wesentlichen Benutzerflüsse wurden daher manuell in Google Chrome (Blink-Engine), Mozilla Firefox (Gecko) und Safari (WebKit) verifiziert. Herstellerspezifische CSS-Präfixe ergänzt der Vite-interne PostCSS-Prozessor automatisch, sodass manuelle Vendor-Prefix-Pflege entfällt. Das Mobile-First-Layout mit definierten Breakpoints bei 768\,px (Tablet) und 1024\,px (Desktop) zeigte in allen getesteten Browsern und Gerätegrößen ein konsistentes Erscheinungsbild.
-
-\section{Performance-Analyse}
-\label{sec:performance}
-
-Die Performance-Analyse wurde mit Google Lighthouse auf dem produktiven Firebase-Hosting-Endpunkt nach einem vollständigen Produktionsbuild durchgeführt. Lighthouse bewertet Webseiten anhand der \textit{Core Web Vitals} -- Largest Contentful Paint (LCP, Zielwert $\leq\,2{,}5$\,s), Interaction to Next Paint (INP, $\leq\,200$\,ms) und Cumulative Layout Shift (CLS, $\leq\,0{,}1$) -- sowie weiterer Metriken wie Time to First Byte und Total Blocking Time \cite{jainweb2023, dobbala2022}.
-
-Die Startseite erzielte einen Performance-Score von 91, die Produktdetailseite von 88; beide Seiten erreichten 100 Punkte in der Kategorie Best Practices. Die hohen Werte sind auf ein Zusammenspiel mehrerer Optimierungsmaßnahmen zurückzuführen: Vites Tree-Shaking und automatisches Code-Splitting reduzieren die initiale Bundle-Größe erheblich, indem unused Code zur Build-Zeit entfernt und seitenspezifische Chunks erst bei Bedarf geladen werden. Die CDN-basierte Auslieferung über Firebase Hosting mit HTTP/2-Multiplexing und Gzip-Kompression minimiert die Übertragungslatenz. Produktbilder werden mit dem nativen Lazy-Loading-Attribut des Browsers nachgeladen, sodass beim initialen Seitenaufruf nur die sichtbaren Bilder transferiert werden. Der minimal niedrigere Performance-Score der Produktdetailseite ist systembedingt auf den synchronen Firestore-Datenabruf zurückzuführen: Der primäre Seiteninhalt kann erst nach der Datenbankabfrage gerendert werden, was den LCP-Wert geringfügig erhöht.
 
 \section{Sicherheitsüberprüfung}
 \label{sec:sicherheit-test}
