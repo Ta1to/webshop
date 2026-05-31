@@ -165,31 +165,13 @@ guestCart.forEach(item => {
 })
 \end{lstlisting}
 
-Der Checkout-Prozess ist als mehrstufiger geführter Ablauf (Adresseingabe, Bestellübersicht, Bestätigung) realisiert. Eine strukturierte, schrittweise Checkout-Führung reduziert nachweislich kognitive Last und Kaufabbrüche, da Nutzer zu jedem Zeitpunkt den eigenen Fortschritt im Prozess einordnen können \cite{butnampetch2020}. Bei Abschluss wird ein persistentes Bestelldokument angelegt; den resultierenden Status-Lifecycle zeigt Abbildung~\ref{fig:order-lifecycle}.
+Der Checkout-Prozess ist als mehrstufiger geführter Ablauf (Adresseingabe, Bestellübersicht, Bestätigung) realisiert, wie Abbildung~\ref{fig:bestellungsflow} zeigt. Eine strukturierte, schrittweise Checkout-Führung reduziert nachweislich kognitive Last und Kaufabbrüche, da Nutzer zu jedem Zeitpunkt den eigenen Fortschritt im Prozess einordnen können \cite{butnampetch2020}. Bei Abschluss wird ein persistentes Bestelldokument angelegt.
 
 \begin{figure}[H]
 \centering
-\begin{tikzpicture}[
-    st/.style={rectangle, draw, rounded corners=3pt, fill=blue!10, minimum width=2.3cm, minimum height=0.9cm, align=center, font=\small},
-    arrow/.style={->, >=stealth, thick}
-]
-    \node[circle, fill=black, minimum size=5pt, inner sep=0pt] (start) at (-2.2,0) {};
-    \node[st]                (p)  at (0,   0) {pending};
-    \node[st]                (pr) at (3.2, 0) {processing};
-    \node[st]                (sh) at (6.4, 0) {shipped};
-    \node[st, fill=green!20] (d)  at (9.6, 0) {delivered};
-
-    \draw[arrow] (start) -- (p)  node[above, font=\footnotesize, midway] {Checkout};
-    \draw[arrow] (p)  -- (pr) node[above, font=\footnotesize, midway] {Admin};
-    \draw[arrow] (pr) -- (sh) node[above, font=\footnotesize, midway] {Admin};
-    \draw[arrow] (sh) -- (d)  node[above, font=\footnotesize, midway] {Admin};
-
-    \node[font=\footnotesize, text=gray!70] at (1.6,  -0.65) {$\rightarrow$ E-Mail};
-    \node[font=\footnotesize, text=gray!70] at (4.8,  -0.65) {$\rightarrow$ E-Mail};
-    \node[font=\footnotesize, text=gray!70] at (8.0,  -0.65) {$\rightarrow$ E-Mail};
-\end{tikzpicture}
-\caption{Status-Lifecycle einer Bestellung mit automatischer Kundenbenachrichtigung}
-\label{fig:order-lifecycle}
+\includegraphics[width=\textwidth]{resources/images/BestellungFlow.png}
+\caption{Ablauf des Bestellprozesses}
+\label{fig:bestellungsflow}
 \end{figure}
 
 \section{Angebots- und Rabattsystem}
