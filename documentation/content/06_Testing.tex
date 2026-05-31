@@ -7,38 +7,7 @@ Qualitätssicherung ist kein nachgelagerter Schritt, sondern ein integraler Best
 \section{Testkonzept und Teststrategie}
 \label{sec:testkonzept}
 
-Als konzeptioneller Rahmen dient die \textit{Testpyramide} nach Cohn \cite{contan2018}: Sie empfiehlt, den größten Anteil der Tests auf der schnellen, isolierten Unit-Ebene anzusiedeln, darüber eine mittlere Schicht aus Integrationstests zu etablieren und den Anteil aufwendiger End-to-End-Tests auf das notwendige Minimum zu beschränken. Eine invertierte Pyramide -- also eine Übergewichtung von E2E-Tests -- erzeugt lange Feedback-Zyklen, hohe Wartungskosten und fragile Testsuiten \cite{kralik2025, palli2024}. Abbildung~\ref{fig:testpyramide} zeigt die resultierende Drei-Ebenen-Struktur des Projekts.
-
-\begin{figure}[H]
-\centering
-\begin{tikzpicture}[font=\small]
-  % Unit Tests (bottom trapezoid) -- green
-  \fill[green!30] (-5,0) -- (5,0) -- (3.33,2) -- (-3.33,2) -- cycle;
-  % Integration Tests (middle trapezoid) -- yellow
-  \fill[yellow!45] (-3.33,2) -- (3.33,2) -- (1.67,4) -- (-1.67,4) -- cycle;
-  % E2E Tests (top triangle) -- orange
-  \fill[orange!45] (-1.67,4) -- (1.67,4) -- (0,6) -- cycle;
-  % Outlines
-  \draw[thick] (-5,0) -- (0,6) -- (5,0) -- cycle;
-  \draw[thick] (-3.33,2) -- (3.33,2);
-  \draw[thick] (-1.67,4) -- (1.67,4);
-  % Labels Unit Tests
-  \node[align=center] at (0,1.1) {\textbf{Unit-Tests}};
-  \node[align=center, font=\scriptsize] at (0,0.5) {Vitest -- Hilfsfunktionen, Stores, Services};
-  % Labels Integration Tests
-  \node[align=center] at (0,3.1) {\textbf{Integrationstests}};
-  \node[align=center, font=\scriptsize] at (0,2.5) {Vitest mit gemockten Services};
-  % Labels E2E
-  \node[align=center] at (0,5.2) {\textbf{E2E}};
-  \node[align=center, font=\scriptsize] at (0,4.65) {Cypress};
-  % Right-side annotations
-  \node[right] at (5.1,0.75) {viele, schnell};
-  \node[right] at (3.45,2.75) {moderat};
-  \node[right] at (1.8,4.75) {wenige, langsam};
-\end{tikzpicture}
-\caption{Testpyramide des Projekts nach \cite{contan2018}}
-\label{fig:testpyramide}
-\end{figure}
+Als konzeptioneller Rahmen dient die \textit{Testpyramide} nach Cohn \cite{contan2018}: Sie empfiehlt, den größten Anteil der Tests auf der schnellen, isolierten Unit-Ebene anzusiedeln, darüber eine mittlere Schicht aus Integrationstests zu etablieren und den Anteil aufwendiger End-to-End-Tests auf das notwendige Minimum zu beschränken. Eine invertierte Pyramide -- also eine Übergewichtung von E2E-Tests -- erzeugt lange Feedback-Zyklen, hohe Wartungskosten und fragile Testsuiten \cite{kralik2025, palli2024}.
 
 Die automatisierten Tests stützen sich auf zwei Frameworks. \textbf{Vitest} ist ein Vite-natives Test-Framework, das ECMAScript-Module nativ unterstützt und -- in Verbindung mit einer leichtgewichtigen DOM-Emulationsbibliothek Vue-Komponenten und Store-Funktionen ohne Browser-Prozess rendern und ausführen kann \cite{vitest2025}. Alle Testfälle folgen konsequent dem \textit{Arrange-Act-Assert}-Muster (AAA), das jeden Test in die drei Phasen Vorbereitung, Ausführung und Überprüfung gliedert und so die Lesbarkeit und Wartbarkeit der Suite verbessert \cite{osherove2024}. \textbf{Cypress} führt Browserinteraktionen direkt im selben JavaScript-Laufzeitkontext wie die Applikation aus, wodurch auf instabile aktive Wartepausen verzichtet werden kann: Stattdessen wartet Cypress implizit auf DOM-Elemente, Netzwerkantworten und Zustandsänderungen \cite{mwaura2021, cypress2025}. Die CI-Pipeline führt beide Test-Suiten sequenziell aus -- zunächst die Vitest-Suite für schnelles Feedback, anschließend Cypress im Headless-Modus -- und bricht bei einem Fehlschlag sofort ab \cite{vieira2025}.
 
