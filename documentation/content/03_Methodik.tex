@@ -107,19 +107,12 @@ Cloud Firestore ist eine dokumentenorientierte NoSQL-Datenbank, die Daten in Dok
 \label{fig:datenbankschema}
 \end{figure}
 
-\subsection{Frontend-Komponentenarchitektur}
-\label{subsec:komponentenarchitektur}
-
-Das Frontend ist nach dem Komponentenprinzip von Vue.js strukturiert. Die komponentenbasierte Architektur hat sich als dominantes Paradigma in der modernen Frontend-Entwicklung etabliert, da sie Wiederverwendbarkeit, Testbarkeit und eine klare Trennung von Verantwortlichkeiten fördert \cite{kothapalli2021}. Die Komponenten der Anwendung sind hierarchisch organisiert und nach ihrer fachlichen Funktion in vier Ebenen gruppiert. Die oberste Ebene bilden die \textit{Views}, also jene Seitenkomponenten, die über den Router direkt angesteuert werden und den Hauptseiten der Anwendung wie Startseite, Produktübersicht oder Checkout entsprechen. Unterhalb der Views kommen \textit{Layout-Komponenten} zum Einsatz, die strukturelle Elemente wie Header, Footer und Navigation kapseln und seitenübergreifend wiederverwendet werden. Die fachliche Logik wird in \textit{Feature-Komponenten} gebündelt, etwa in der Produktkarte, im Warenkorb-Dialog oder in der Bestellübersicht. Generische UI-Bausteine wie Buttons, Eingabefelder oder Benachrichtigungen werden hingegen als \textit{Utility-Komponenten} bereitgestellt und stellen damit die Konsistenz des Erscheinungsbilds über die gesamte Anwendung hinweg sicher.
-
-Die Kommunikation zwischen den Komponenten folgt den von Vue.js etablierten Mustern und kombiniert drei Mechanismen: Props übergeben Daten gerichtet von Eltern- an Kind-Komponenten, Events ermöglichen die umgekehrte Kommunikation von Kind- zu Eltern-Komponenten, und für komponentenübergreifenden Zustand wie den Warenkorb oder die Wunschliste kommen schlanke, reaktive Stores auf Basis von Vue\,3\,\texttt{ref()} zum Einsatz. Da der Anwendungszustand auf zwei Datenquellen (Firestore für angemeldete Nutzer, Cookies für Gäste) aufbaut und direkt mit den Firebase-Servicefunktionen synchronisiert wird, genügt dieses leichtgewichtige Modell ohne einen externen State-Management-Ansatz. Diese klare Trennung zwischen lokalem Komponentenzustand und globalem Anwendungszustand verhindert eine unkontrollierte Verflechtung der Komponenten und erleichtert sowohl das Testen einzelner Bausteine als auch das spätere Refactoring.
-
 \subsection{Sicherheitskonzept}
 \label{subsec:sicherheitskonzept}
 
-Die Sicherheit der Anwendung basiert auf einem mehrschichtigen Ansatz (\textit{Defense in Depth}) \cite{stytz2004}. Die \textit{Authentifizierung} erfolgt über Firebase Authentication mittels JWT-Tokens. Auf der Autorisierungsebene regeln Firestore Security Rules serverseitig, welche Benutzer auf welche Daten zugreifen dürfen \cite{firestore2025}. Ergänzend erfolgt die gesamte Kommunikation über HTTPS und Firebase verschlüsselt alle gespeicherten Daten automatisch. Benutzereingaben werden zusätzlich clientseitig sowie durch die Security Rules im Backend validiert \cite{fredj2020}.
+Die Sicherheit der Anwendung basiert auf einem mehrschichtigen Ansatz (\textit{Defense in Depth}) \cite{stytz2004}. Die \textit{Authentifizierung} erfolgt über Firebase Authentication mittels JWT-Tokens. Auf der Autorisierungsebene regeln Firestore Security Rules serverseitig, welche Benutzer auf welche Daten zugreifen dürfen \cite{firestore2025}. Da Firebase-Projekte ohne eigene Applikationsschicht direkt aus dem Browser auf Firestore zugreifen, bilden diese Rules die einzige Zugriffskontrollschranke zwischen Client und Datenbank. Ergänzend erfolgt die gesamte Kommunikation über HTTPS, und Firebase verschlüsselt alle gespeicherten Daten automatisch. Benutzereingaben werden zusätzlich clientseitig sowie durch die Security Rules im Backend validiert \cite{fredj2020}. Listing~\ref{lst:security-rules-konzept} zeigt exemplarisch, wie das Prinzip der minimalen Rechtevergabe auf Collection-Ebene umgesetzt ist:
 
-\begin{lstlisting}[language={}, caption={Firestore Security Rules (Auszug)}]
+\begin{lstlisting}[language={}, morekeywords={match,allow,read,write,if,true,return,function}, caption={Firestore Security Rules -- Auszug aus firestore.rules}, label=lst:security-rules-konzept]
 match /users/{userId} {
   allow read, write: if request.auth.uid == userId;
 }
@@ -129,7 +122,4 @@ match /products/{productId} {
 }
 \end{lstlisting}
 
-\subsection{Deployment-Konzept}
-\label{subsec:deployment-konzept}
-
-Das Deployment der Anwendung erfolgt über Firebase Hosting und ist in eine automatisierte CI/CD-Pipeline eingebettet. Die technische Umsetzung dieses Konzepts -- einschließlich des GitHub-Actions-Workflows, der sequenziellen Build-, Test- und Deploy-Stufen sowie der Rollback-Möglichkeit über atomare Deployments -- wird in Kapitel~\ref{ch:deployment} ausführlich beschrieben.
+Nutzerdokumente sind damit strikt auf den jeweiligen Kontoinhaber beschränkt, während Produktdaten zwar öffentlich lesbar, Schreiboperationen jedoch ausschließlich Administratoren vorbehalten sind. Die vollständige Regelstruktur einschließlich der zugehörigen Hilfsfunktionen wird in Kapitel~\ref{ch:testing} im Rahmen der Sicherheitsverifikation detailliert behandelt.
