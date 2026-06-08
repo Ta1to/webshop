@@ -139,33 +139,53 @@
 
 %% Quelltext
 \usepackage{listings}
+\usepackage{upquote}                        % Gerade Anführungszeichen in Listings
 
-\definecolor{comment}{HTML}{0A943F}
-\definecolor{keyword}{HTML}{184FDB}
-\definecolor{background}{HTML}{F2F2F2}
-\definecolor{string}{HTML}{DB9418}
+% Syntax-Farben
+\definecolor{comment}{HTML}{3D7A3D}         % Kommentare – gedämpftes Grün
+\definecolor{keyword}{HTML}{1A4CB5}         % Schlüsselwörter – kräftiges Blau
+\definecolor{background}{HTML}{F5F5F5}      % Hintergrund – sehr helles Grau
+\definecolor{string}{HTML}{B85C00}          % Zeichenketten – warmes Orange
+\definecolor{lst@frame}{HTML}{CECECE}       % Rahmenfarbe
+\definecolor{lst@lineno}{HTML}{ABABAB}      % Zeilennummernfarbe
+
 \lstset{%
-    backgroundcolor=\color{background},
-    basicstyle=\ttfamily\footnotesize,
-    breakatwhitespace=false,
-    breakautoindent=true,
-    breaklines=true,
-    captionpos=b,
-    commentstyle=\color{comment},
-    keepspaces=true,
-    keywordstyle=\color{keyword},
-    morekeywords={var},
-    columns=fullflexible,
-    numbers=left,
-    numbersep=1em,
-    numberstyle=\tiny,
-    postbreak=\mbox{\textcolor{gray}{$\hookrightarrow$}\space},
-    showspaces=false,
-    showstringspaces=false,
-    showtabs=false,
-    stepnumber=1,
-    stringstyle=\color{string},
-    tabsize=2,
+    % Schrift & Darstellung
+    backgroundcolor   = \color{background},
+    basicstyle        = \ttfamily\small,
+    % Zeilenumbruch
+    breakatwhitespace = false,
+    breakautoindent   = true,
+    breaklines        = true,
+    postbreak         = \mbox{\textcolor{lst@lineno}{$\hookrightarrow$}\space},
+    % Beschriftung
+    captionpos        = t,
+    % Syntaxhervorhebung
+    commentstyle      = \color{comment}\itshape,
+    keywordstyle      = \color{keyword}\bfseries,
+    stringstyle       = \color{string},
+    morekeywords      = {var},
+    % Formatierung
+    keepspaces        = true,
+    columns           = fullflexible,
+    showspaces        = false,
+    showstringspaces  = false,
+    showtabs          = false,
+    tabsize           = 2,
+    % Zeilennummern
+    numbers           = left,
+    numbersep         = 1.2em,
+    numberstyle       = \scriptsize\color{lst@lineno}\ttfamily,
+    stepnumber        = 1,
+    % Rahmen
+    frame             = single,
+    rulecolor         = \color{lst@frame},
+    framesep          = 6pt,
+    framexleftmargin  = 1.7em,
+    % Abstände zum Fließtext
+    xleftmargin       = 2em,
+    aboveskip         = 1.2em,
+    belowskip         = 0.8em,
 }
 \lstdefinelanguage{JavaScript}{%
   keywords={break, case, catch, class, const, continue, debugger, default,

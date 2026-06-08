@@ -118,32 +118,6 @@ export default defineConfig({
 
 Durch die explizite Trennung der Firebase-SDK-Module und der Vue-Kernbibliotheken in eigenständige Chunks können Browser und CDN-Knoten diese Dateien langfristig im Cache halten: Da sich Vendor-Bibliotheken zwischen Deployments kaum ändern, laden Nutzer bei einer Anwendungsaktualisierung lediglich die veränderten Applikations-Chunks neu, nicht jedoch die stabilen Vendor-Bundles \cite{nguyen2024vite}. Tree-Shaking eliminiert zusätzlich nicht referenzierten Code und reduziert die initiale Bundle-Größe weiter \cite{vite2025}.
 
-\section{Firebase Hosting Konfiguration}
-\label{sec:firebase-hosting}
-
-Firebase Hosting ist ein global verteilter statischer Hosting-Dienst von Google, der Assets über ein Content Delivery Network (CDN) mit automatischer SSL/TLS-Verschlüsselung ausliefert \cite{ayezabu2022, nguyen_ecom2022}. Die Hosting-Konfigurationsdatei steuert alle relevanten Aspekte des Hosting-Verhaltens:
-
-\begin{lstlisting}[language={}, caption=Firebase Hosting Konfiguration (firebase.json), label=lst:firebase-json]
-{
-  "hosting": {
-    "public": "dist",
-    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
-    "rewrites": [
-      { "source": "**", "destination": "/index.html" }
-    ]
-  }
-}
-\end{lstlisting}
-
-\paragraph{Dist-Verzeichnis.}
-Ein Konfigurationsattribut referenziert den von Vite erzeugten Output-Ordner. Firebase Hosting stellt ausschließlich diesen Inhalt bereit; Quellcode, Abhängigkeiten und Konfigurationsdateien verbleiben auf dem CI-Runner und werden niemals publiziert.
-
-\paragraph{SPA-Rewrite-Regel.}
-Der Webshop ist als Single-Page Application realisiert und implementiert clientseitiges Routing über den HTML5-Verlaufsmodus. Da der Webserver keine physischen Dateien für URL-Pfade wie Produktdetailseiten kennt, würde ein direkter Aufruf einer Unterseite ohne Rewrite-Konfiguration mit einem Fehler scheitern. Eine Catch-All-Regel leitet sämtliche Anfragen, die keiner statischen Datei entsprechen, an die Einstiegsseite weiter; Vue Router übernimmt anschließend die clientseitige Routenauflösung \cite{kowalczyk2024}.
-
-\paragraph{CDN und Performance.}
-Firebase Hosting verteilt die statischen Assets automatisch auf CDN-Knoten im Google-Netzwerk. Anfragen werden vom geographisch nächstgelegenen Knoten beantwortet, was Netzwerklatenz minimiert und die wahrgenommene Ladegeschwindigkeit verbessert \cite{ayezabu2022}. Für E-Commerce-Anwendungen ist die Ladezeit ein wirtschaftlich relevanter Faktor: Bereits eine Sekunde zusätzliche Ladezeit kann die Konversionsrate messbar senken \cite{peterson2018}.
-
 \section{Zusammenfassung des Deployment-Prozesses}
 \label{sec:deployment-zusammenfassung}
 

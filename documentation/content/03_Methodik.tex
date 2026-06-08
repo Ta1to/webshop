@@ -7,14 +7,9 @@ Dieses Kapitel beschreibt das methodische Vorgehen bei der Entwicklung des Websh
 \section{Vorgehensmodell}
 \label{sec:vorgehensmodell}
 
-\subsection{Auswahl des Vorgehensmodells}
-\label{subsec:vorgehensmodell-auswahl}
+Für die Entwicklung des Webshops wurde ein iterativ-inkrementelles Vorgehensmodell gewählt, das Elemente agiler Methoden mit einer strukturierten Projektplanung verbindet. Die iterativ-inkrementelle Entwicklung (IID) beschreibt Ansätze, bei denen das System schrittweise durch aufeinanderfolgende Iterationen wächst und jede Iteration ein lauffähiges Inkrement liefert \cite{larman2003}. Im Unterschied zu rein plan-getriebenen Modellen wie dem Wasserfallmodell ermöglichen iterative Ansätze frühzeitige Feedbackschleifen und eine kontinuierliche Qualitätssicherung \cite{yadav2015}.
 
-Für die Entwicklung des Webshops wurde ein iterativ-inkrementelles Vorgehensmodell gewählt, das Elemente aus agilen Methoden mit einer strukturierten Projektplanung verbindet. Die iterativ-inkrementelle Entwicklung (IID) beschreibt Ansätze, bei denen das System schrittweise durch aufeinanderfolgende Iterationen wächst und jede Iteration ein lauffähiges Inkrement liefert \cite{larman2003}. Im Unterschied zu rein plan-getriebenen Modellen wie dem Wasserfallmodell ermöglichen iterative Ansätze frühzeitige Feedbackschleifen und eine kontinuierliche Qualitätssicherung \cite{yadav2015}.
-
-Die Wahl dieses Modells ergab sich aus den konkreten Rahmenbedingungen der Studienarbeit: Das Projekt wurde von zwei Studenten über einen Zeitraum von 36 Wochen neben dem Studium durchgeführt. Ein vollständig agiles Vorgehen wie Scrum war daher nicht sinnvoll, da es einen dedizierten Product Owner und regelmäßige Sprint-Reviews mit externen Stakeholdern voraussetzt \cite{yadav2015}. Stattdessen wurde ein schlanker, meilensteinbasierter Ansatz gewählt, der klare Zwischenziele definiert und gleichzeitig Spielraum für iterative Anpassungen lässt.
-
-Weitere Entscheidungsfaktoren waren die technologische Unsicherheit beim Einstieg in Firebase als Backend-as-a-Service-Plattform \cite{uunonen2023} sowie die weitgehend stabilen Anforderungen an einen B2C-Webshop, die eine vorausschauende Planung ermöglichten \cite{heinemann2024}.
+Die Wahl dieses Modells ergab sich aus den Rahmenbedingungen der Studienarbeit: Das Projekt wurde von zwei Studenten über einen Zeitraum von 36 Wochen neben dem Studium durchgeführt. Ein vollständig agiles Vorgehen wie Scrum war daher nicht sinnvoll, da es einen dedizierten Product Owner und regelmäßige Sprint-Reviews mit externen Stakeholdern voraussetzt \cite{yadav2015}. Stattdessen wurde ein schlanker, meilensteinbasierter Ansatz gewählt, der klare Zwischenziele definiert und zugleich Spielraum für iterative Anpassungen lässt. Weitere Entscheidungsfaktoren waren die technologische Unsicherheit beim Einstieg in Firebase als Backend-as-a-Service-Plattform \cite{uunonen2023} sowie die weitgehend stabilen Anforderungen an einen B2C-Webshop, die eine vorausschauende Planung ermöglichten \cite{heinemann2024}.
 
 \subsection{Projektphasen}
 \label{subsec:projektphasen}
@@ -106,20 +101,3 @@ Cloud Firestore ist eine dokumentenorientierte NoSQL-Datenbank, die Daten in Dok
 \caption{Vereinfachtes Datenbankschema}
 \label{fig:datenbankschema}
 \end{figure}
-
-\subsection{Sicherheitskonzept}
-\label{subsec:sicherheitskonzept}
-
-Die Sicherheit der Anwendung basiert auf einem mehrschichtigen Ansatz (\textit{Defense in Depth}) \cite{stytz2004}. Die \textit{Authentifizierung} erfolgt über Firebase Authentication mittels JWT-Tokens. Auf der Autorisierungsebene regeln Firestore Security Rules serverseitig, welche Benutzer auf welche Daten zugreifen dürfen \cite{firestore2025}. Da Firebase-Projekte ohne eigene Applikationsschicht direkt aus dem Browser auf Firestore zugreifen, bilden diese Rules die einzige Zugriffskontrollschranke zwischen Client und Datenbank. Ergänzend erfolgt die gesamte Kommunikation über HTTPS, und Firebase verschlüsselt alle gespeicherten Daten automatisch. Benutzereingaben werden zusätzlich clientseitig sowie durch die Security Rules im Backend validiert \cite{fredj2020}. Listing~\ref{lst:security-rules-konzept} zeigt exemplarisch, wie das Prinzip der minimalen Rechtevergabe auf Collection-Ebene umgesetzt ist:
-
-\begin{lstlisting}[language={}, morekeywords={match,allow,read,write,if,true,return,function}, caption={Firestore Security Rules -- Auszug aus firestore.rules}, label=lst:security-rules-konzept]
-match /users/{userId} {
-  allow read, write: if request.auth.uid == userId;
-}
-match /products/{productId} {
-  allow read: if true;
-  allow write: if isAdmin();
-}
-\end{lstlisting}
-
-Nutzerdokumente sind damit strikt auf den jeweiligen Kontoinhaber beschränkt, während Produktdaten zwar öffentlich lesbar, Schreiboperationen jedoch ausschließlich Administratoren vorbehalten sind. Die vollständige Regelstruktur einschließlich der zugehörigen Hilfsfunktionen wird in Kapitel~\ref{ch:testing} im Rahmen der Sicherheitsverifikation detailliert behandelt.
