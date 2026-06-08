@@ -2,16 +2,18 @@
 \chapter{Testing und Qualitätssicherung}
 \label{ch:testing}
 
-Qualitätssicherung ist kein nachgelagerter Schritt, sondern ein integraler Bestandteil des Entwicklungsprozesses. Dieses Kapitel beschreibt die Teststrategie des Projekts, die eingesetzten Werkzeuge sowie die Ergebnisse der automatisierten Tests, der manuellen Verifikation und der Sicherheitsüberprüfung.
+Qualitätssicherung ist kein nachgelagerter Schritt, sondern ein integraler Bestandteil des Entwicklungsprozesses. Dieses Kapitel beschreibt die Teststrategie des Projekts, die automatisierten und manuellen Prüfungen sowie die Sicherheitsüberprüfung.
 
 \section{Testkonzept und Teststrategie}
 \label{sec:testkonzept}
 
 Als konzeptioneller Rahmen dient die \textit{Testpyramide} nach Cohn \cite{contan2018}: Sie empfiehlt, den größten Anteil der Tests auf der schnellen, isolierten Unit-Ebene anzusiedeln, darüber eine mittlere Schicht aus Integrationstests zu etablieren und den Anteil aufwendiger End-to-End-Tests auf das notwendige Minimum zu beschränken. Eine invertierte Pyramide -- also eine Übergewichtung von E2E-Tests -- erzeugt lange Feedback-Zyklen, hohe Wartungskosten und fragile Testsuiten \cite{kralik2025, palli2024}.
 
-Die automatisierten Tests stützen sich auf zwei Frameworks. \textbf{Vitest} ist ein Vite-natives Test-Framework, das ECMAScript-Module nativ unterstützt und -- in Verbindung mit einer leichtgewichtigen DOM-Emulationsbibliothek Vue-Komponenten und Store-Funktionen ohne Browser-Prozess rendern und ausführen kann \cite{vitest2025}. Alle Testfälle folgen konsequent dem \textit{Arrange-Act-Assert}-Muster (AAA), das jeden Test in die drei Phasen Vorbereitung, Ausführung und Überprüfung gliedert und so die Lesbarkeit und Wartbarkeit der Suite verbessert \cite{osherove2024}. \textbf{Cypress} führt Browserinteraktionen direkt im selben JavaScript-Laufzeitkontext wie die Applikation aus, wodurch auf instabile aktive Wartepausen verzichtet werden kann: Stattdessen wartet Cypress implizit auf DOM-Elemente, Netzwerkantworten und Zustandsänderungen \cite{mwaura2021, cypress2025}. Die CI-Pipeline führt beide Test-Suiten sequenziell aus -- zunächst die Vitest-Suite für schnelles Feedback, anschließend Cypress im Headless-Modus -- und bricht bei einem Fehlschlag sofort ab \cite{vieira2025}.
+Die automatisierten Tests stützen sich auf zwei Frameworks. \textbf{Vitest} deckt die schnellen, isolierten Prüfungen auf Unit- und Integrationsniveau ab; alle Testfälle folgen dabei dem \textit{Arrange-Act-Assert}-Muster (AAA) \cite{vitest2025, osherove2024}. \textbf{Cypress} validiert die zentralen Nutzerflüsse im Browser und wartet implizit auf DOM-Elemente, Netzwerkantworten und Zustandsänderungen, wodurch instabile aktive Wartezeiten vermieden werden \cite{mwaura2021, cypress2025}. In der CI-Pipeline werden beide Suiten sequenziell ausgeführt -- zuerst Vitest für schnelles Feedback, danach Cypress im Headless-Modus; bei einem Fehlschlag wird der Lauf unmittelbar beendet \cite{vieira2025}.
 
-\section{Unit-Tests}
+\section{Automatisierte Tests}
+
+\subsection{Unit-Tests}
 \label{sec:unit-tests}
 
 Die Unit-Test-Suite umfasst 181~Testfälle in sieben Testdateien, die die Service-, Store- und Utility-Schicht der Anwendung abdecken. Tabelle~\ref{tab:unit-tests} listet alle Dateien mit der jeweiligen Testanzahl auf. Das Testprinzip folgt dabei der Idee der maximalen Isolation: Jede Einheit wird ausschließlich mit ihren eigenen Eingaben und Ausgaben geprüft; externe Abhängigkeiten werden vollständig durch Mocks ersetzt \cite{osherove2024}.
@@ -39,20 +41,20 @@ Die Unit-Test-Suite umfasst 181~Testfälle in sieben Testdateien, die die Servic
 
 \paragraph{Hilfsfunktionen.} Die Testdatei für Hilfsfunktionen prüft alle acht reinen Funktionen der Utility-Schicht vollständig ohne Mocking, da diese ausschließlich auf Eingabeparametern operieren. Getestet werden unter anderem Preisformatierung mit Tausendertrennzeichen, Erkennung gültiger und ungültiger E-Mail-Adressen, korrekte Rabattberechnung inklusive Grenzfällen sowie die Ableitung von Lagerstatustext und CSS-Klasse aus numerischen Bestandswerten. Jede Funktion erhält Testfälle für Normalwerte, Grenzwerte (z.\,B. Preis\,=\,0) und Fehlereingaben.
 
-\paragraph{Store-Logik.} Die Testdateien für Warenkorb- und Wunschlisten-Store testen die reaktiven Zustandsfunktionen für Warenkorb-Zähler und Artikelliste sowie ihre Äquivalente im Wunschlisten-Store. Da die Store-Funktionen intern auf die Serviceschicht zugreifen, wird diese durch kontrollierbare Stubs ersetzt. Die Tests verifizieren, dass nach einem Serviceaufruf die reaktiven Zustandsreferenzen den korrekten Wert liefern -- unabhängig davon, ob Firebase erreichbar ist.
+\paragraph{Store-Logik.} Die Testdateien für Warenkorb- und Wunschlisten-Store prüfen die reaktiven Zustandsfunktionen für Zähler und Artikellisten. Da die Stores intern auf die Serviceschicht zugreifen, wird diese durch kontrollierbare Stubs ersetzt. Verifiziert wird, dass nach einem Serviceaufruf alle reaktiven Referenzen konsistent aktualisiert werden -- unabhängig davon, ob Firebase erreichbar ist.
 
 \paragraph{Suchdienste.} Die Service-Tests isolieren die Such- und Vorschlagsfunktionen mit einem kontrollierten Mock-Produktportfolio, das verschiedene Kategorien, Lagerzustände und Preisbereiche abbildet. So wird sichergestellt, dass Filterlogik, Scoring und Trefferrangfolge korrekt implementiert sind.
 
-\section{Integrationstests}
+\subsection{Integrationstests}
 \label{sec:integration-tests}
 
-Während Unit-Tests einzelne Funktionen vollständig isoliert prüfen, verifizieren 33~Integrationstests in zwei Testdateien das Zusammenspiel mehrerer Schichten. Im Projekt betrifft das vor allem die Interaktion zwischen Pinia-Stores und der darunter liegenden Serviceschicht: Der Firebase-SDK wird durch Vitest-Mocks ersetzt, die Servicefunktionen selbst laufen jedoch vollständig durch -- anders als in den Unit-Tests, wo auch die Serviceschicht gemockt wird.
+Während Unit-Tests einzelne Funktionen vollständig isoliert prüfen, verifizieren 33~Integrationstests in zwei Testdateien das Zusammenspiel mehrerer Schichten. Im Projekt betrifft das vor allem die Interaktion zwischen Pinia-Stores und Serviceschicht: Der Firebase-SDK wird durch Vitest-Mocks ersetzt, die Servicefunktionen selbst laufen jedoch vollständig durch.
 
-Die Integrationstests des Cart-Stores prüfen, ob nach einem Serviceaufruf nicht nur der Rückgabewert korrekt ist, sondern auch alle abhängigen reaktiven Referenzen konsistent aktualisiert werden: Ändert sich der Warenkorb, müssen Artikel-Anzahl und Artikelliste gleichermaßen den neuen Zustand widerspiegeln -- eine Eigenschaft, die eine isolierte Unit auf Serviceebene nicht sicherstellen kann. Gleiches gilt für den Wunschlisten-Store.
+Die Integrationstests des Cart-Stores prüfen, ob nach einem Serviceaufruf nicht nur der Rückgabewert korrekt ist, sondern auch alle abhängigen reaktiven Referenzen konsistent aktualisiert werden. Gleiches gilt für den Wunschlisten-Store.
 
 Für das Such- und Filtersystem stellen die Integrationstests sicher, dass Kategorie- und Textfilter in Kombination konsistente Ergebnismengen liefern. Dabei wird ein vollständiges Mock-Produktportfolio mit verschiedenen Kategorien, Lagerzuständen und Preisbereichen eingesetzt, das Grenzfälle wie einen leeren Suchbegriff oder eine Kategorie ohne Treffer explizit abdeckt.
 
-\section{End-to-End-Tests}
+\subsection{End-to-End-Tests}
 \label{sec:e2e-tests}
 
 Die E2E-Tests operieren auf der vollständig gerenderten Anwendung im Browser und prüfen Nutzungsflüsse so, wie ein realer Nutzer sie erlebt -- von der Seitennavigation über Formulareingaben bis hin zu asynchronen Firestore-Operationen \cite{mwaura2021, palli2024}. Tabelle~\ref{tab:e2e-tests} zeigt die acht Spec-Dateien unter \texttt{tests/e2e/} mit der jeweiligen Testanzahl.
@@ -79,16 +81,16 @@ Die E2E-Tests operieren auf der vollständig gerenderten Anwendung im Browser un
 \label{tab:e2e-tests}
 \end{table}
 
-Wiederkehrende Operationen wie das Einloggen, das Leeren des Warenkorbs oder das Akzeptieren des Cookie-Banners sind als wiederverwendbare Testbefehle in einer zentralen Supportdatei gekapselt. Dieses Muster reduziert Codeduplizierung und erleichtert die Anpassung bei Änderungen der UI \cite{cypress2025, vieira2025}. Jede Spec-Datei stellt vor jedem Testfall einen definierten Ausgangszustand her und prüft neben dem Erfolgsfall (Happy Path) systematisch auch Fehlerpfade: So muss der Checkout-Button bei leerem Warenkorb unsichtbar bleiben, der Aufruf einer geschützten Route ohne aktive Sitzung auf \texttt{/login} umleiten und eine ungültige Produkt-URL die 404-Seite anzeigen. Der Checkout-Flow selbst wird mehrstufig verifiziert -- von der Produktdetailseite über den Warenkorb bis zum Bestellformular mit Adress- und Zahlungsfeldern. Für mobile Ansichten wird zusätzlich eine iPhone-Viewport-Einstellung aktiviert, um sicherzustellen, dass kritische UI-Elemente auch auf kleinen Bildschirmen korrekt dargestellt werden.
+Wiederkehrende Operationen wie das Einloggen, das Leeren des Warenkorbs oder das Akzeptieren des Cookie-Banners sind als wiederverwendbare Testbefehle in einer zentralen Supportdatei gekapselt. Dieses Muster reduziert Codeduplizierung und erleichtert Anpassungen bei UI-Änderungen \cite{cypress2025, vieira2025}. Jede Spec-Datei stellt vor jedem Testfall einen definierten Ausgangszustand her und prüft neben dem Erfolgsfall systematisch auch Fehlerpfade: Der Checkout-Button muss bei leerem Warenkorb unsichtbar bleiben, geschützte Routen ohne aktive Sitzung auf \texttt{/login} umleiten und ungültige Produkt-URLs die 404-Seite anzeigen. Der Checkout-Flow wird mehrstufig verifiziert -- von der Produktdetailseite über den Warenkorb bis zum Bestellformular. Für mobile Ansichten wird zusätzlich eine iPhone-Viewport-Einstellung aktiviert, um die korrekte Darstellung kritischer UI-Elemente auf kleinen Bildschirmen sicherzustellen.
 
-\section{Manuelle Tests, Cross-Browser und Responsive Design}
+\section{Manuelle Verifikation und Kompatibilität}
 \label{sec:manuelle-tests}
 
-Nicht alle Qualitätsaspekte lassen sich vollständig automatisieren. Ergänzend zu den automatisierten Suiten wurden daher manuelle Funktionstests durchgeführt, die insbesondere den Google-OAuth-Fluss, das Admin-Dashboard, die Cookie-Einstellungen sowie die visuelle Konsistenz der Benutzeroberfläche abdecken. Diese Tests erfolgten iterativ während der Implementierungsphase und wurden bei UI-Änderungen wiederholt.
+Nicht alle Qualitätsaspekte lassen sich vollständig automatisieren. Ergänzend zu den automatisierten Suiten wurden daher manuelle Funktionstests durchgeführt, die insbesondere den Google-OAuth-Fluss, das Admin-Dashboard, die Cookie-Einstellungen sowie die visuelle Konsistenz der Benutzeroberfläche abdecken. Die Verifikation erfolgte iterativ während der Implementierungsphase und wurde nach relevanten UI-Änderungen wiederholt.
 
 Cross-Browser-Inkompatibilitäten entstehen durch unterschiedliche Rendering-Engines und können -- trotz standardkonformem Code -- zu abweichenden Layouts oder Funktionsstörungen führen \cite{watanabe2023}. Alle wesentlichen Benutzerflüsse wurden daher manuell in Google Chrome (Blink-Engine), Mozilla Firefox (Gecko) und Safari (WebKit) verifiziert. Herstellerspezifische CSS-Präfixe ergänzt der Vite-interne PostCSS-Prozessor automatisch, sodass manuelle Vendor-Prefix-Pflege entfällt. Das Mobile-First-Layout mit definierten Breakpoints bei 768\,px (Tablet) und 1024\,px (Desktop) zeigte in allen getesteten Browsern und Gerätegrößen ein konsistentes Erscheinungsbild.
 
-\section{Sicherheitsüberprüfung}
+\section{Sicherheitsprüfung}
 \label{sec:sicherheit-test}
 
 Unzureichende Authentifizierung und fehlerhafte Zugriffskontrolle gehören laut OWASP Top 10 zu den kritischsten Sicherheitsrisiken für Webanwendungen \cite{wen2023, fredj2020}. Die Sicherheitsarchitektur des Webshops begegnet diesen Risiken auf zwei Ebenen: dem clientseitigen Routing-Schutz und den serverseitigen Firestore Security Rules.
