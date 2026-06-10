@@ -11,7 +11,7 @@ Für den Webshop kommt ein vollständig automatisierter Pipeline-Ansatz zum Eins
 
 CI/CD ist ein zentrales Element moderner DevOps-Kultur. \textit{Continuous Integration} (CI) bezeichnet die Praxis, Codeänderungen mehrerer Entwickler regelmäßig in einen gemeinsamen Hauptzweig zu integrieren und dabei automatisch einen Build- und Testlauf auszulösen, um Integrationsprobleme frühzeitig aufzudecken \cite{makani2022}. \textit{Continuous Deployment} (CD) erweitert diesen Gedanken: Jeder Commit, der alle automatisierten Qualitätsschranken passiert, wird ohne manuelle Freigabe direkt in die Produktionsumgebung überführt \cite{ugwueze2024}.
 
-Studien belegen, dass Teams mit etablierten CI/CD-Pipelines signifikant kürzere Fehlerkorrekturzyklen aufweisen und die Deploymentfrequenz gegenüber rein manuellen Prozessen deutlich erhöhen können \cite{james2025, patel2025}. Für einen E-Commerce-Webshop ist diese unmittelbare Rückkopplung besonders wertvoll, da sowohl die Verfügbarkeit des Dienstes als auch die Korrektheit aller Bestell- und Zahlungsfunktionen jederzeit sichergestellt sein müssen.
+Studien belegen, dass Teams mit etablierten CI/CD-Pipelines signifikant kürzere Fehlerkorrekturzyklen aufweisen und die Deploymentfrequenz gegenüber rein manuellen Prozessen deutlich erhöhen können \cite{ugwueze2024, patel2025}. Für einen E-Commerce-Webshop ist diese unmittelbare Rückkopplung besonders wertvoll, da sowohl die Verfügbarkeit des Dienstes als auch die Korrektheit aller Bestell- und Zahlungsfunktionen jederzeit sichergestellt sein müssen.
 
 \section{GitHub Actions Workflow}
 \label{sec:github-actions}
@@ -48,14 +48,12 @@ Die Installation erfolgt über einen deterministischen \textit{Clean Install}, d
 Die Vitest-Unit-Tests werden im einmaligen Durchlauf ausgeführt. Schlägt auch nur ein einzelner Test fehl, bricht die Pipeline unmittelbar ab; kein Build und kein Deployment folgt.
 
 \paragraph{End-to-End-Tests.}
-Im nächsten Schritt wird der Entwicklungsserver im Hintergrundprozess gestartet. Ein Warteskript blockiert den weiteren Ablauf, bis der Server vollständig erreichbar ist. Erst danach startet Cypress im Headless-Modus und führt alle E2E-Testsuiten aus. Dieses Muster stellt sicher, dass die Anwendung in einer laufenden Umgebung vollständig validiert wird, bevor der Produktions-Build beginnt \cite{esther2024}.
+Im nächsten Schritt wird der Entwicklungsserver im Hintergrundprozess gestartet. Ein Warteskript blockiert den weiteren Ablauf, bis der Server vollständig erreichbar ist. Erst danach startet Cypress im Headless-Modus und führt alle E2E-Testsuiten aus. Dieses Muster stellt sicher, dass die Anwendung in einer laufenden Umgebung vollständig validiert wird, bevor der Produktions-Build beginnt \cite{vieira2025}.
 
 \begin{lstlisting}[language={}, caption=E2E-Test-Schritt im GitHub Actions Workflow, label=lst:workflow-e2e]
 - name: Run e2e tests
   working-directory: ./code
-  env:
-    VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
-    # ... weitere Secrets
+
   run: |
     npm run dev &
     npx wait-on http://localhost:5173
@@ -81,15 +79,15 @@ GitHub bietet mit \textit{Repository Secrets} eine integrierte Lösung: Secrets 
 
 \begin{lstlisting}[language={}, basicstyle=\ttfamily\scriptsize, caption=Secrets-Injektion als Umgebungsvariablen im Workflow, label=lst:secrets]
 env:
-  VITE_FIREBASE_API_KEY:            ${{ secrets.VITE_FIREBASE_API_KEY }}
-  VITE_FIREBASE_AUTH_DOMAIN:        ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
-  VITE_FIREBASE_PROJECT_ID:         ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
-  VITE_FIREBASE_STORAGE_BUCKET:     ${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
+  VITE_FIREBASE_API_KEY:             ${{ secrets.VITE_FIREBASE_API_KEY }}
+  VITE_FIREBASE_AUTH_DOMAIN:         ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
+  VITE_FIREBASE_PROJECT_ID:          ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
+  VITE_FIREBASE_STORAGE_BUCKET:      ${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
   VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
-  VITE_FIREBASE_APP_ID:             ${{ secrets.VITE_FIREBASE_APP_ID }}
+  VITE_FIREBASE_APP_ID:              ${{ secrets.VITE_FIREBASE_APP_ID }}
 \end{lstlisting}
 
-Vite liest zur Build-Zeit ausschließlich Variablen mit einem definierten Namenspäfix aus der Prozessumgebung und bündelt sie in den statischen Bundle-Output \cite{vite2025}. Serverseitige Credentials, die nicht im Browser-Bundle erscheinen dürfen -- insbesondere der Firebase Service-Account-Schlüssel für das Deployment -- werden ausschließlich als GitHub Secret übergeben und sind im fertigen Artefakt nicht enthalten. Diese strikte Trennung zwischen clientseitigen Konfigurationsparametern und serverseitigen Privilegien entspricht dem Prinzip der minimalen Rechtevergabe (Principle of Least Privilege) \cite{fredj2020}.
+Vite liest zur Build-Zeit ausschließlich Variablen mit einem definierten Namenspräfix aus der Prozessumgebung und bündelt sie in den statischen Bundle-Output \cite{vite2025}. Serverseitige Credentials, die nicht im Browser-Bundle erscheinen dürfen -- insbesondere der Firebase Service-Account-Schlüssel für das Deployment -- werden ausschließlich als GitHub Secret übergeben und sind im fertigen Artefakt nicht enthalten. Diese strikte Trennung zwischen clientseitigen Konfigurationsparametern und serverseitigen Privilegien entspricht dem Prinzip der minimalen Rechtevergabe (Principle of Least Privilege) \cite{fredj2020}.
 
 \section{Build-Prozess mit Vite}
 \label{sec:vite-build}
@@ -123,4 +121,4 @@ Durch die explizite Trennung der Firebase-SDK-Module und der Vue-Kernbibliotheke
 
 Der vollständige Deployment-Prozess des Webshops folgt einem \enquote{Push-to-Deploy}-Paradigma, bei dem ein einziger Push auf den Hauptzweig die gesamte Pipeline auslöst. Die in Abbildung~\ref{fig:cicd-pipeline} dargestellte Sequenz durchläuft sechs Stufen, wobei ein Fehler in jeder Teststufe den Prozess sofort abbricht -- kein fehlerhafter Code erreicht das Produktionssystem. Nur vollständig validierter, auf dem CI-Runner reproduzierbar gebauter Code wird über Firebase Hosting global ausgeliefert.
 
-Dieser Ansatz reduziert manuelle Eingriffe auf ein Minimum und erhöht gleichzeitig die Zuverlässigkeit jeder Softwareauslieferung. Nach \citeauthor{james2025} (\citeyear{james2025}) ist die Automatisierung des Build-, Test- und Deployment-Zyklus ein zentraler Hebel zur Steigerung der Softwarezuverlässigkeit, da sie menschliche Fehlerquellen systematisch ausschließt und konsistente, nachvollziehbare Auslieferungsprozesse garantiert \cite{james2025}.
+Dieser Ansatz reduziert manuelle Eingriffe auf ein Minimum und erhöht gleichzeitig die Zuverlässigkeit jeder Softwareauslieferung. Die Automatisierung des Build-, Test- und Deployment-Zyklus ist ein zentraler Hebel zur Steigerung der Softwarezuverlässigkeit, da sie menschliche Fehlerquellen systematisch ausschließt und konsistente, nachvollziehbare Auslieferungsprozesse garantiert \cite{ugwueze2024, patel2025}.

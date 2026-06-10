@@ -70,7 +70,7 @@ router.beforeEach(async (to, _, next) => {
 })
 \end{lstlisting}
 
-Die rollenbasierte Zugriffskontrolle (RBAC) wird zweistufig durchgesetzt: Der clientseitige Navigations-Guard verhindert das Rendern geschützter Ansichten, während serverseitige Security Rules denselben Zugriffsschutz auf Datenbankebene erzwingen. Diese Redundanz realisiert das \textit{Defense-in-Depth}-Prinzip \cite{fredj2020} und eliminiert den Single Point of Failure, der bei rein clientseitiger Prüfung entstünde.
+Die rollenbasierte Zugriffskontrolle (RBAC) wird zweistufig durchgesetzt: Der clientseitige Navigations-Guard verhindert das Rendern geschützter Ansichten, während serverseitige Security Rules denselben Zugriffsschutz auf Datenbankebene erzwingen. Diese Redundanz realisiert das \textit{Defense-in-Depth}-Prinzip \cite{fredj2020, stytz2004} und eliminiert den Single Point of Failure, der bei rein clientseitiger Prüfung entstünde.
 
 \section{Produktkatalog und Such-/Filterfunktion}
 \label{sec:produktkatalog}

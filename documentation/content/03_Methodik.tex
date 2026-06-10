@@ -23,17 +23,17 @@ Das Projekt wurde in acht Meilensteine gegliedert, die über einen Zeitraum von 
     \label{fig:meilensteine}
 \end{figure}
 
-Die Meilensteine orientieren sich am Prinzip der inkrementellen Systemerweiterung, bei der jede Phase auf den Ergebnissen der vorherigen aufbaut und ein funktional erweitertes Inkrement liefert \cite{larman2003}. Die ersten Phasen umfassten die Anforderungsanalyse sowie die Einrichtung der Entwicklungsumgebung einschließlich Firebase-Projektkonfiguration und Versionsverwaltung mit Git. In den mittleren Meilensteinen wurden die Kernkomponenten des Webshops realisiert, beginnend mit Produktverwaltung und Benutzerauthentifizierung, da diese die funktionalen Voraussetzungen aller nachfolgenden Komponenten darstellen. Beispielsweise setzt der Warenkorb eine funktionierende Produktansicht voraus, und der Checkout-Prozess erfordert ein implementiertes Authentifizierungssystem. Die abschließenden Phasen widmeten sich dem Angebotssystem, der Administrationsoberfläche sowie dem systematischen Testing und der Deployment-Vorbereitung.
+Die Meilensteine orientieren sich am Prinzip der inkrementellen Systemerweiterung, bei der jede Phase auf den Ergebnissen der vorherigen aufbaut und ein funktional erweitertes Inkrement liefert \cite{larman2003}. Die ersten Phasen umfassten die Anforderungsanalyse sowie die Einrichtung der Entwicklungsumgebung einschließlich Firebase-Projektkonfiguration und Versionsverwaltung mit Git \cite{chacon2014}. In den mittleren Meilensteinen wurden die Kernkomponenten des Webshops realisiert, beginnend mit Produktverwaltung und Benutzerauthentifizierung, da diese die funktionalen Voraussetzungen aller nachfolgenden Komponenten darstellen. Beispielsweise setzt der Warenkorb eine funktionierende Produktansicht voraus, und der Checkout-Prozess erfordert ein implementiertes Authentifizierungssystem. Die abschließenden Phasen widmeten sich dem Angebotssystem, der Administrationsoberfläche sowie dem systematischen Testing und der Deployment-Vorbereitung.
 
 \section{Anforderungsanalyse}
 \label{sec:anforderungsanalyse}
 
-Die Anforderungsanalyse ist eine zentrale Disziplin des Software Engineerings und bildet die Grundlage für die gesamte Systementwicklung. Sie zielt auf eine vollständige, konsistente und verifizierbare Beschreibung aller Systemeigenschaften aus Nutzersicht ab und schafft damit die Basis für Entwurf, Implementierung und Qualitätssicherung. Grundlegend wird zwischen \textit{funktionalen Anforderungen}, die beschreiben \textit{was} das System leisten soll, und \textit{nicht-funktionalen Anforderungen}, die beschreiben \textit{wie} das System seine Aufgaben erfüllen soll, unterschieden. Für E-Commerce-Systeme ist diese Unterscheidung von besonderer Relevanz, da neben der Funktionalität insbesondere Qualitätsmerkmale wie Performance, Sicherheit und Benutzerfreundlichkeit maßgeblich über Nutzerakzeptanz und wirtschaftlichen Erfolg der Anwendung entscheiden \cite{garcialopez2020}.
+Die Anforderungsanalyse ist eine zentrale Disziplin des Software Engineerings und bildet die Grundlage für die gesamte Systementwicklung. Sie zielt auf eine vollständige, konsistente und verifizierbare Beschreibung aller Systemeigenschaften aus Nutzersicht ab und schafft damit die Basis für Entwurf, Implementierung und Qualitätssicherung. Grundlegend wird zwischen \textit{funktionalen Anforderungen}, die beschreiben \textit{was} das System leisten soll, und \textit{nicht-funktionalen Anforderungen}, die beschreiben \textit{wie} das System seine Aufgaben erfüllen soll, unterschieden. Für E-Commerce-Systeme ist diese Unterscheidung von besonderer Relevanz, da neben der Funktionalität insbesondere Qualitätsmerkmale wie Performance, Sicherheit und Benutzerfreundlichkeit maßgeblich über Nutzerakzeptanz und wirtschaftlichen Erfolg der Anwendung entscheiden \cite{garcialopez2020}. Zur Priorisierung der erhobenen Anforderungen wurde die \textit{MoSCoW}-Methode eingesetzt, die zwischen \textit{Must have} (zwingend erforderlich), \textit{Should have} (wichtig, aber nicht kritisch), \textit{Could have} (wünschenswert) und \textit{Won't have} (bewusst ausgeschlossen) unterscheidet \cite{kravchenko2022}.
 
 \subsection{Funktionale Anforderungen}
 \label{subsec:funktionale-anforderungen}
 
-Die funktionalen Anforderungen wurden auf Basis typischer E-Commerce-Systeme und der Projektziele erhoben \cite{heinemann2024, garcialopez2020}:
+Alle nachfolgenden funktionalen Anforderungen wurden als \textit{Must have} priorisiert, da sie die Kernfunktionalität eines B2C-Webshops konstituieren \cite{heinemann2024, garcialopez2020}:
 
 \begin{itemize}
   \item \textbf{Benutzerverwaltung}: Registrierung, Anmeldung, Passwort-Reset, Profilpflege, Bestellhistorie und Kontolöschung.
@@ -57,7 +57,7 @@ Neben der Funktionalität wurden Qualitätsmerkmale in drei Bereichen definiert 
 \subsection{Abgrenzung}
 \label{subsec:abgrenzung}
 
-Zur Eingrenzung des Projektumfangs auf die Kernfunktionalitäten eines E-Commerce-Systems wurden bewusst bestimmte Funktionalitäten ausgeschlossen. Diese Priorisierung folgt dem Prinzip der inkrementellen Systementwicklung, bei der zunächst ein stabiler funktionaler Kern realisiert wird, bevor optionale Erweiterungen in Betracht gezogen werden \cite{larman2003}:
+Zur Eingrenzung des Projektumfangs wurden die nachfolgenden Funktionalitäten als \textit{Won't have} klassifiziert und damit bewusst aus dem Projektumfang ausgeschlossen. Diese Priorisierung folgt dem Prinzip der inkrementellen Systementwicklung, bei der zunächst ein stabiler funktionaler Kern realisiert wird, bevor optionale Erweiterungen in Betracht gezogen werden \cite{larman2003, kravchenko2022}:
 
 \begin{itemize}
     \item \textbf{Echte Zahlungsabwicklung:} Die Integration eines Zahlungsdienstleisters wie PayPal oder Stripe ist nicht Teil des Prototyps. Der Checkout-Prozess simuliert die Zahlungserfassung.
