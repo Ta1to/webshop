@@ -93,6 +93,7 @@ Vite liest zur Build-Zeit ausschließlich Variablen mit einem definierten Namens
 \label{sec:vite-build}
 
 Der Produktions-Build des Webshops basiert auf Vite, das intern Rollup als Bundler einsetzt \cite{vite2025}. Im Vergleich zu klassischen Webpack-basierten Toolchains zeichnet sich Vite durch deutlich kürzere Build-Zeiten aus -- Nguyen (2024) belegt in einer empirischen Vergleichsstudie messbare Vorteile bei Kaltstart-Build-Zeiten zugunsten von Vite \cite{nguyen2024vite}. Für CI/CD-Pipelines ist dies relevant, da jede Sekunde Laufzeitreduktion die Feedback-Latenz für Entwickler verringert und die Gesamtdurchlaufzeit der Pipeline senkt.
+
 Für die Auslieferung ist vor allem das manuelle Chunk-Splitting relevant:
 
 \begin{lstlisting}[language=JavaScript, caption=Ausschnitt aus der Vite-Konfiguration (manualChunks), label=lst:vite-config]

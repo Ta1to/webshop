@@ -82,9 +82,9 @@ Die Such- und Filterarchitektur kombiniert zwei komplementäre Ansätze: Kategor
 \section{Wunschliste}
 \label{sec:wunschliste}
 
-Die Wunschliste ermöglicht angemeldeten Nutzern, Produkte für einen späteren Kauf vorzumerken, ohne sie sofort in den Warenkorb zu legen. Sie folgt demselben State-Management-Muster wie der Warenkorb: Ein dedizierter Pinia-Store verwaltet den Zustand reaktiv und synchronisiert ihn mit dem Nutzerdokument in Firestore, sodass die Vormerkliste geräte- und sitzungsübergreifend erhalten bleibt.
+Die Wunschliste ermöglicht Nutzern, Produkte für einen späteren Kauf vorzumerken, ohne sie sofort in den Warenkorb zu legen. Sie folgt demselben State-Management-Muster wie der Warenkorb: Ein dedizierter Pinia-Store verwaltet den Zustand reaktiv und synchronisiert ihn für angemeldete Nutzer mit dem Nutzerdokument in Firestore, sodass die Vormerkliste geräte- und sitzungsübergreifend erhalten bleibt.
 
-Im Unterschied zum Warenkorb unterstützt die Wunschliste bewusst keinen Gast-Zustand. Da das Vormerken kein unmittelbares Kaufhindernis darstellt, wurde auf die Komplexität eines cookie-basierten Fallbacks verzichtet -- ein Kompromiss, der die Implementierung schlank hält, ohne den eigentlichen Kaufprozess zu beeinträchtigen. Nicht-angemeldete Nutzer werden stattdessen zur Anmeldung aufgefordert.
+Analog zum Warenkorb steht die Wunschliste auch nicht-angemeldeten Nutzern zur Verfügung: Vorgemerkte Produkte werden cookie-basiert im Browser gespeichert und beim Login automatisch in das Nutzerdokument übernommen.
 
 \section{Warenkorb und Bestellprozess}
 \label{sec:warenkorb}
