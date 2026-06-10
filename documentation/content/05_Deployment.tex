@@ -93,28 +93,23 @@ Vite liest zur Build-Zeit ausschließlich Variablen mit einem definierten Namens
 \label{sec:vite-build}
 
 Der Produktions-Build des Webshops basiert auf Vite, das intern Rollup als Bundler einsetzt \cite{vite2025}. Im Vergleich zu klassischen Webpack-basierten Toolchains zeichnet sich Vite durch deutlich kürzere Build-Zeiten aus -- Nguyen (2024) belegt in einer empirischen Vergleichsstudie messbare Vorteile bei Kaltstart-Build-Zeiten zugunsten von Vite \cite{nguyen2024vite}. Für CI/CD-Pipelines ist dies relevant, da jede Sekunde Laufzeitreduktion die Feedback-Latenz für Entwickler verringert und die Gesamtdurchlaufzeit der Pipeline senkt.
+Für die Auslieferung ist vor allem das manuelle Chunk-Splitting relevant:
 
-In der Vite-Konfigurationsdatei sind explizite Code-Splitting-Regeln für Vendor-Bundles definiert:
-
-\begin{lstlisting}[language=JavaScript, caption=Vite-Konfiguration mit manuellem Chunk-Splitting (vite.config.js), label=lst:vite-config]
-export default defineConfig({
-  plugins: [vue()],
-  resolve: { alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) } },
-  build: {
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          'firebase':   ['firebase/app', 'firebase/auth',
-                         'firebase/firestore', 'firebase/storage'],
-          'vue-vendor': ['vue', 'vue-router']
-        }
+\begin{lstlisting}[language=JavaScript, caption=Ausschnitt aus der Vite-Konfiguration (manualChunks), label=lst:vite-config]
+build: {
+  rollupOptions: {
+    output: {
+      manualChunks: {
+        'firebase': ['firebase/app', 'firebase/auth',
+                     'firebase/firestore', 'firebase/storage'],
+        'vue-vendor': ['vue', 'vue-router']
       }
     }
   }
-})
+}
 \end{lstlisting}
 
-Durch die explizite Trennung der Firebase-SDK-Module und der Vue-Kernbibliotheken in eigenständige Chunks können Browser und CDN-Knoten diese Dateien langfristig im Cache halten: Da sich Vendor-Bibliotheken zwischen Deployments kaum ändern, laden Nutzer bei einer Anwendungsaktualisierung lediglich die veränderten Applikations-Chunks neu, nicht jedoch die stabilen Vendor-Bundles \cite{nguyen2024vite}. Tree-Shaking eliminiert zusätzlich nicht referenzierten Code und reduziert die initiale Bundle-Größe weiter \cite{vite2025}.
+Die Trennung von Firebase- und Vue-Abhängigkeiten in eigene Vendor-Chunks verbessert die Cache-Effizienz: Bei Updates müssen primär veränderte Applikations-Chunks neu geladen werden \cite{nguyen2024vite}. Zusätzlich reduziert Tree-Shaking ungenutzten Code im Bundle \cite{vite2025}.
 
 \section{Zusammenfassung des Deployment-Prozesses}
 \label{sec:deployment-zusammenfassung}
