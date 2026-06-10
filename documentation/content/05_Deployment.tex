@@ -16,7 +16,7 @@ Studien belegen, dass Teams mit etablierten CI/CD-Pipelines signifikant kürzere
 \section{GitHub Actions Workflow}
 \label{sec:github-actions}
 
-GitHub Actions ist eine direkt in die GitHub-Plattform integrierte CI/CD-Automatisierungslösung, die Workflows als YAML-Dateien in einem versionierten Konfigurationsverzeichnis definiert \cite{makani2022}. Gegenüber klassischen CI-Servern wie Jenkins entfällt die eigenständige Serverinfrastruktur vollständig; stattdessen stellt GitHub kostenlose \textit{Hosted Runner} bereit, auf denen Workflow-Jobs in isolierten Ubuntu-Containern ausgeführt werden.
+GitHub Actions ist eine direkt in die GitHub-Plattform integrierte CI/CD-Automatisierungslösung, die Workflows als YAML-Dateien in einem versionierten Konfigurationsverzeichnis definiert \cite{makani2022}. Gegenüber klassischen CI-Servern wie Jenkins entfällt die eigenständige Serverinfrastruktur vollständig. Stattdessen stellt GitHub kostenlose \textit{Hosted Runner} bereit, auf denen Workflow-Jobs in isolierten Ubuntu-Containern ausgeführt werden.
 
 Der für den Webshop definierte Workflow wird bei jedem Push auf den Hauptzweig ausgelöst und durchläuft sechs sequenzielle Schritte:
 
@@ -45,7 +45,7 @@ Im ersten Schritt wird der Repository-Inhalt ausgecheckt. Anschließend wird Nod
 Die Installation erfolgt über einen deterministischen \textit{Clean Install}, der den lokalen Abhängigkeitsordner zunächst vollständig löscht und dann exakt die in der Sperrdatei fixierten Versionen installiert, ohne implizite Aktualisierungen zuzulassen \cite{jani2023}. Dies garantiert eine byte-genaue Reproduzierbarkeit zwischen der Entwicklungsumgebung und dem CI-Runner.
 
 \paragraph{Unit-Tests.}
-Die Vitest-Unit-Tests werden im einmaligen Durchlauf ausgeführt. Schlägt auch nur ein einzelner Test fehl, bricht die Pipeline unmittelbar ab; kein Build und kein Deployment folgt.
+Die Vitest-Unit-Tests werden im einmaligen Durchlauf ausgeführt. Schlägt auch nur ein einzelner Test fehl, bricht die Pipeline unmittelbar ab. Kein Build und kein Deployment folgt.
 
 \paragraph{End-to-End-Tests.}
 Im nächsten Schritt wird der Entwicklungsserver im Hintergrundprozess gestartet. Ein Warteskript blockiert den weiteren Ablauf, bis der Server vollständig erreichbar ist. Erst danach startet Cypress im Headless-Modus und führt alle E2E-Testsuiten aus. Dieses Muster stellt sicher, dass die Anwendung in einer laufenden Umgebung vollständig validiert wird, bevor der Produktions-Build beginnt \cite{vieira2025}.
