@@ -403,14 +403,14 @@
                         <Eye :size="16" />
                       </button>
                       <button 
-                        @click="openEditProductModal(product)" 
+                        @click="openEditOfferModal(offer)" 
                         class="btn-action btn-edit"
                         title="Bearbeiten"
                       >
                         <Edit2 :size="16" />
                       </button>
                       <button 
-                        @click="confirmDeleteCategory(category)" 
+                        @click="confirmDeleteOffer(offer)" 
                         class="btn-action btn-delete"
                         title="Löschen"
                       >
@@ -877,6 +877,14 @@ const openCreateOfferModal = () => {
   offerModal.value = { isOpen: true, mode: 'create', offer: null }
 }
 
+const openEditOfferModal = (offer) => {
+  offerModal.value = { isOpen: true, mode: 'edit', offer: { ...offer } }
+}
+
+const viewOfferDetails = (offer) => {
+  openEditOfferModal(offer)
+}
+
 const closeOfferModal = () => {
   offerModal.value = { isOpen: false, mode: 'create', offer: null }
 }
@@ -887,14 +895,17 @@ const openProductModalFromOffer = () => {
 
 const handleOfferSubmit = async (offerData) => {
   try {
-    const result = await createDocument('offers', offerData)
+    const isEditMode = offerModal.value.mode === 'edit' && offerModal.value.offer?.id
+    const result = isEditMode
+      ? await updateDocument('offers', offerModal.value.offer.id, offerData)
+      : await createDocument('offers', offerData)
     
     if (result.success) {
       await loadDashboardData()
       closeOfferModal()
       successConfig.value = {
         title: 'Erfolg',
-        message: 'Angebot erfolgreich erstellt!'
+        message: isEditMode ? 'Angebot erfolgreich aktualisiert!' : 'Angebot erfolgreich erstellt!'
       }
       successDialog.value.open()
     } else {
@@ -908,6 +919,39 @@ const handleOfferSubmit = async (offerData) => {
     }
     errorDialog.value.open()
   }
+}
+
+const confirmDeleteOffer = (offer) => {
+  dialogConfig.value = {
+    title: 'Angebot löschen',
+    message: 'Möchten Sie dieses Angebot wirklich löschen?\n\nDiese Aktion kann nicht rückgängig gemacht werden!',
+    confirmText: 'Löschen',
+    onConfirm: async () => {
+      try {
+        const result = await deleteDocument('offers', offer.id)
+
+        if (result.success) {
+          await loadDashboardData()
+          successConfig.value = {
+            title: 'Erfolg',
+            message: 'Angebot erfolgreich gelöscht!'
+          }
+          successDialog.value.open()
+        } else {
+          throw new Error(result.error)
+        }
+      } catch (err) {
+        console.error('Error deleting offer:', err)
+        errorConfig.value = {
+          title: 'Fehler',
+          message: `Fehler beim Löschen des Angebots:\n${err.message}`
+        }
+        errorDialog.value.open()
+      }
+    }
+  }
+
+  confirmDialog.value.open()
 }
 
 // Get product by ID
